@@ -1,5 +1,9 @@
 -- [[ NURSULTAN CLIENT UI LIBRARY — MASTER CORE ENGINE ]] --
 -- Sharp Square Rectilinear Aesthetics (0 CornerRadius), Harmonized Spring Tweens,
+-- 10 Ready-To-Use Skybox Presets + Custom Texture Inputs,
+-- Advanced Visuals Manager: Blur Size Slider, Particle Count/Speed/Size Sliders, Custom Particle Image/Texture ID,
+-- Roblox UIScale Integration for Perfect Radio HUD Scaling (Zero Clipping / Zero Overflow),
+-- Full Mode Name Display in Keybind Badges (e.g., "F [TOGGLE]", "R [HOLD]", "ALWAYS"),
 -- Clean Keybind Mode Popup (Header-less 3 buttons), Fixed Radio HUD Transparency Sync across all sub-elements,
 -- Radio HUD Scale Reduction (50% - 100%), Unclipped Dropdowns & Popups, Tab Navigation Settings Modal.
 
@@ -83,7 +87,10 @@ local Library = {
     BlurEnabled = true,
     BlurSize = 18,
     SnowEnabled = true,
-    SnowCount = 50,
+    ParticleCount = 50,
+    ParticleSpeed = 1.0,
+    ParticleSize = 4,
+    ParticleTexture = "",
     RadioHUDVisible = true,
     RadioHUDTransparency = 0,
     RadioHUDScale = 100,
@@ -181,7 +188,7 @@ RadioSound.Parent = SoundService
 
 local MenuBlur = Instance.new("BlurEffect")
 MenuBlur.Name = "NursultanMenuBlur"
-MenuBlur.Size = 0
+MenuBlur.Size = Library.BlurSize
 MenuBlur.Enabled = false
 MenuBlur.Parent = Lighting
 
@@ -203,25 +210,46 @@ SnowFolder.Name = "SnowParticles"
 SnowFolder.Parent = Container
 
 local Flakes = {}
-for i = 1, 50 do
-    local Flake = Instance.new("Frame")
-    Flake.Name = "Flake_" .. i
-    local flakeSize = math.random(2, 5)
-    Flake.Size = UDim2.new(0, flakeSize, 0, flakeSize)
-    Flake.Position = UDim2.new(math.random(), 0, math.random(), 0)
-    Flake.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-    Flake.BackgroundTransparency = math.random(3, 7) / 10
-    Flake.BorderSizePixel = 0
-    Flake.Parent = SnowFolder
 
-    table.insert(Flakes, {
-        Frame = Flake,
-        Speed = math.random(6, 20) / 1000,
-        Drift = (math.random() - 0.5) * 0.002,
-        X = math.random(),
-        Y = math.random()
-    })
+local function rebuildParticles()
+    for _, f in ipairs(Flakes) do
+        if f.Instance then f.Instance:Destroy() end
+    end
+    Flakes = {}
+
+    local count = Library.ParticleCount or 50
+    local pSize = Library.ParticleSize or 4
+    local textureId = formatAssetId(Library.ParticleTexture or "")
+
+    for i = 1, count do
+        local pInst
+        if textureId ~= "" then
+            pInst = Instance.new("ImageLabel")
+            pInst.Image = textureId
+            pInst.BackgroundTransparency = 1
+        else
+            pInst = Instance.new("Frame")
+            pInst.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+            pInst.BackgroundTransparency = math.random(3, 7) / 10
+        end
+
+        pInst.Name = "Flake_" .. i
+        pInst.Size = UDim2.new(0, pSize, 0, pSize)
+        pInst.Position = UDim2.new(math.random(), 0, math.random(), 0)
+        pInst.BorderSizePixel = 0
+        pInst.Parent = SnowFolder
+
+        table.insert(Flakes, {
+            Instance = pInst,
+            BaseSpeed = math.random(6, 20) / 1000,
+            Drift = (math.random() - 0.5) * 0.002,
+            X = math.random(),
+            Y = math.random()
+        })
+    end
 end
+
+rebuildParticles()
 
 local function trackConnection(conn)
     table.insert(Library.Connections, conn)
@@ -230,14 +258,15 @@ end
 
 trackConnection(RunService.RenderStepped:Connect(function(dt)
     if Library.Enabled and ScreenGui.Enabled and Library.SnowEnabled then
+        local spdMult = Library.ParticleSpeed or 1.0
         for _, f in ipairs(Flakes) do
-            f.Y = f.Y + (f.Speed * dt * 60)
+            f.Y = f.Y + (f.BaseSpeed * dt * 60 * spdMult)
             f.X = f.X + (f.Drift * dt * 60)
             if f.Y > 1.05 then
                 f.Y = -0.05
                 f.X = math.random()
             end
-            f.Frame.Position = UDim2.new(f.X, 0, f.Y, 0)
+            f.Instance.Position = UDim2.new(f.X, 0, f.Y, 0)
         end
     end
 end))
@@ -353,8 +382,8 @@ end
 
 local KeybindHUDFrame = Instance.new("Frame")
 KeybindHUDFrame.Name = "KeybindHUDOverlay"
-KeybindHUDFrame.Size = UDim2.new(0, 190, 0, 32)
-KeybindHUDFrame.Position = UDim2.new(1, -205, 0.3, 0)
+KeybindHUDFrame.Size = UDim2.new(0, 220, 0, 32)
+KeybindHUDFrame.Position = UDim2.new(1, -235, 0.3, 0)
 KeybindHUDFrame.BackgroundColor3 = Library.Theme.Block
 KeybindHUDFrame.BorderSizePixel = 0
 KeybindHUDFrame.Parent = Container
@@ -423,7 +452,7 @@ function Library:RefreshKeybindHUD()
         Row.Parent = HUDListHolder
 
         local NameLbl = Instance.new("TextLabel")
-        NameLbl.Size = UDim2.new(1, -65, 1, 0)
+        NameLbl.Size = UDim2.new(1, -85, 1, 0)
         NameLbl.Position = UDim2.new(0, 6, 0, 0)
         NameLbl.BackgroundTransparency = 1
         NameLbl.Font = Library.Fonts.Label
@@ -434,24 +463,24 @@ function Library:RefreshKeybindHUD()
         NameLbl.Parent = Row
 
         local Badge = Instance.new("TextLabel")
-        Badge.Size = UDim2.new(0, 58, 0, 16)
-        Badge.Position = UDim2.new(1, -60, 0.5, -8)
+        Badge.Size = UDim2.new(0, 80, 0, 16)
+        Badge.Position = UDim2.new(1, -82, 0.5, -8)
         Badge.BackgroundColor3 = Library.Theme.Header
         Badge.Font = Library.Fonts.Badge
         if modeStr == "Always" then
             Badge.Text = "ALWAYS"
         else
-            Badge.Text = keyStr .. " [" .. modeStr:sub(1,1) .. "]"
+            Badge.Text = keyStr .. " [" .. string.upper(modeStr) .. "]"
         end
         Badge.TextColor3 = Library.Theme.Accent
-        Badge.TextSize = 9
+        Badge.TextSize = 8.5
         Badge.BorderSizePixel = 0
         Badge.Parent = Row
     end
 
     local listHeight = HUDListLayout.AbsoluteContentSize.Y
     HUDListHolder.Size = UDim2.new(1, -12, 0, listHeight)
-    smoothTween(KeybindHUDFrame, DUR_NORMAL, { Size = UDim2.new(0, 190, 0, 34 + listHeight) })
+    smoothTween(KeybindHUDFrame, DUR_NORMAL, { Size = UDim2.new(0, 220, 0, 34 + listHeight) })
 end
 
 local RadioHUDFrame = Instance.new("Frame")
@@ -461,6 +490,11 @@ RadioHUDFrame.Position = UDim2.new(1, -275, 1, -180)
 RadioHUDFrame.BackgroundColor3 = Library.Theme.Block
 RadioHUDFrame.BorderSizePixel = 0
 RadioHUDFrame.Parent = Container
+
+local RadioHUDUIScale = Instance.new("UIScale")
+RadioHUDUIScale.Name = "RadioHUDUIScale"
+RadioHUDUIScale.Scale = 1
+RadioHUDUIScale.Parent = RadioHUDFrame
 
 local RadioHUDStroke = Instance.new("UIStroke")
 RadioHUDStroke.Color = Library.Theme.Stroke
@@ -711,7 +745,7 @@ HUDPlayBtn.MouseButton1Click:Connect(function()
     end
 end)
 
--- FULL TRANSPARENCY & SCALE SYNC FOR RADIO HUD & SUB-ELEMENTS
+-- FULL TRANSPARENCY & PERFECT PROPORTIONAL SCALING (ROBLOX UISCALE)
 local function updateRadioHUDProperties()
     RadioHUDFrame.Visible = Library.RadioHUDVisible and Library.Enabled
     local transparencyVal = (Library.RadioHUDTransparency or 0) / 100
@@ -729,8 +763,9 @@ local function updateRadioHUDProperties()
         end
     end
 
+    RadioHUDFrame.Size = UDim2.new(0, 260, 0, 165)
     local scaleVal = (Library.RadioHUDScale or 100) / 100
-    RadioHUDFrame.Size = UDim2.new(0, math.floor(260 * scaleVal), 0, math.floor(165 * scaleVal))
+    RadioHUDUIScale.Scale = scaleVal
 end
 
 -- ==============================================================
@@ -1164,7 +1199,12 @@ SaveCreateBtn.MouseButton1Click:Connect(function()
     local data = {
         Theme = Library.CurrentThemeName,
         BlurEnabled = Library.BlurEnabled,
+        BlurSize = Library.BlurSize,
         SnowEnabled = Library.SnowEnabled,
+        ParticleCount = Library.ParticleCount,
+        ParticleSpeed = Library.ParticleSpeed,
+        ParticleSize = Library.ParticleSize,
+        ParticleTexture = Library.ParticleTexture,
         RadioHUDVisible = Library.RadioHUDVisible,
         RadioHUDTransparency = Library.RadioHUDTransparency,
         RadioHUDScale = Library.RadioHUDScale,
@@ -1203,6 +1243,12 @@ LoadConfigBtn.MouseButton1Click:Connect(function()
                 if decoded.RadioHUDVisible ~= nil then Library.RadioHUDVisible = decoded.RadioHUDVisible end
                 if decoded.RadioHUDTransparency ~= nil then Library.RadioHUDTransparency = decoded.RadioHUDTransparency end
                 if decoded.RadioHUDScale ~= nil then Library.RadioHUDScale = decoded.RadioHUDScale end
+                if decoded.BlurSize ~= nil then Library.BlurSize = decoded.BlurSize MenuBlur.Size = Library.BlurSize end
+                if decoded.ParticleCount ~= nil then Library.ParticleCount = decoded.ParticleCount end
+                if decoded.ParticleSpeed ~= nil then Library.ParticleSpeed = decoded.ParticleSpeed end
+                if decoded.ParticleSize ~= nil then Library.ParticleSize = decoded.ParticleSize end
+                if decoded.ParticleTexture ~= nil then Library.ParticleTexture = decoded.ParticleTexture end
+                rebuildParticles()
                 updateRadioHUDProperties()
                 ConfigStatusLabel.Text = "Loaded: " .. name .. ".json"
                 ConfigDropdownBtn.Text = name .. ".json v"
@@ -1268,7 +1314,89 @@ for idx, thName in ipairs(themeNames) do
     end)
 end
 
--- 3. SKYBOX TAB PAGE
+-- 3. SKYBOX TAB PAGE (10 PRESET SKYBOXES + CUSTOM MANUAL INPUTS)
+local SkyPresetCard = Instance.new("Frame")
+SkyPresetCard.Size = UDim2.new(1, 0, 0, 195)
+SkyPresetCard.BackgroundColor3 = Library.Theme.Card
+SkyPresetCard.BorderSizePixel = 0
+SkyPresetCard.ZIndex = 22
+SkyPresetCard.Parent = SkyboxPage
+
+local PresetTitle = Instance.new("TextLabel")
+PresetTitle.Size = UDim2.new(1, -20, 0, 20)
+PresetTitle.Position = UDim2.new(0, 10, 0, 8)
+PresetTitle.BackgroundTransparency = 1
+PresetTitle.Font = Library.Fonts.Header
+PresetTitle.Text = "READY-TO-USE PRESET SKYBOXES (10 PRESETS)"
+PresetTitle.TextColor3 = Library.Theme.Accent
+PresetTitle.TextSize = 11
+PresetTitle.TextXAlignment = Enum.TextXAlignment.Left
+PresetTitle.ZIndex = 23
+PresetTitle.Parent = SkyPresetCard
+
+local SkyboxPresets = {
+    { Name = "Purple Nebula", Tex = "rbxassetid://159454299" },
+    { Name = "Cyberpunk Dusk", Tex = "rbxassetid://6053897711" },
+    { Name = "Deep Space Galaxy", Tex = "rbxassetid://263300898" },
+    { Name = "Red Blood Moon", Tex = "rbxassetid://368388290" },
+    { Name = "Sunset Horizon", Tex = "rbxassetid://60083163" },
+    { Name = "Night Sky Stars", Tex = "rbxassetid://12064107" },
+    { Name = "Pastel Pink Sunset", Tex = "rbxassetid://490317379" },
+    { Name = "Anime Blue Clouds", Tex = "rbxassetid://8281241" },
+    { Name = "Dark Eclipse", Tex = "rbxassetid://159197607" },
+    { Name = "Vaporwave Dream", Tex = "rbxassetid://141749449" }
+}
+
+local SkyInputs = {}
+
+local function applySkyboxTextures(ft, bk, lf, rt, up, dn)
+    local skyObj = Lighting:FindFirstChildOfClass("Sky")
+    if not skyObj then
+        skyObj = Instance.new("Sky")
+        skyObj.Name = "NursultanCustomSky"
+        skyObj.Parent = Lighting
+    end
+    skyObj.SkyboxFt = ft
+    skyObj.SkyboxBk = bk or ft
+    skyObj.SkyboxLf = lf or ft
+    skyObj.SkyboxRt = rt or ft
+    skyObj.SkyboxUp = up or ft
+    skyObj.SkyboxDn = dn or ft
+
+    if SkyInputs[1] and SkyInputs[1].Input then SkyInputs[1].Input.Text = ft end
+    if SkyInputs[2] and SkyInputs[2].Input then SkyInputs[2].Input.Text = lf or ft end
+    if SkyInputs[3] and SkyInputs[3].Input then SkyInputs[3].Input.Text = up or ft end
+    if SkyInputs[4] and SkyInputs[4].Input then SkyInputs[4].Input.Text = dn or ft end
+end
+
+for idx, pData in ipairs(SkyboxPresets) do
+    local row = math.floor((idx - 1) / 2)
+    local col = (idx - 1) % 2
+
+    local PBtn = Instance.new("TextButton")
+    PBtn.Size = UDim2.new(0.48, -4, 0, 26)
+    PBtn.Position = UDim2.new(col * 0.5, (col == 0 and 10 or 2), 0, 34 + (row * 30))
+    PBtn.BackgroundColor3 = Library.Theme.Header
+    PBtn.BorderSizePixel = 0
+    PBtn.Font = Library.Fonts.Badge
+    PBtn.Text = pData.Name
+    PBtn.TextColor3 = Library.Theme.Text
+    PBtn.TextSize = 9.5
+    PBtn.ZIndex = 23
+    PBtn.Parent = SkyPresetCard
+
+    PBtn.MouseButton1Click:Connect(function()
+        local formatted = formatAssetId(pData.Tex)
+        applySkyboxTextures(formatted, formatted, formatted, formatted, formatted, formatted)
+        for _, child in ipairs(SkyPresetCard:GetChildren()) do
+            if child:IsA("TextButton") then
+                child.TextColor3 = (child == PBtn) and Library.Theme.Accent or Library.Theme.Text
+            end
+        end
+    end)
+end
+
+-- Manual Texture ID Override Card
 local SkyboxCard = Instance.new("Frame")
 SkyboxCard.Size = UDim2.new(1, 0, 0, 195)
 SkyboxCard.BackgroundColor3 = Library.Theme.Card
@@ -1276,7 +1404,6 @@ SkyboxCard.BorderSizePixel = 0
 SkyboxCard.ZIndex = 22
 SkyboxCard.Parent = SkyboxPage
 
-local SkyInputs = {}
 local faces = {
     { Name = "Front / Back (Line 1)", Key1 = "SkyboxFt", Key2 = "SkyboxBk" },
     { Name = "Left / Right (Line 2)", Key1 = "SkyboxLf", Key2 = "SkyboxRt" },
@@ -1709,99 +1836,558 @@ PlaySoundBtn.MouseButton1Click:Connect(function()
     end
 end)
 
--- 5. VISUALS TAB PAGE
+-- 5. VISUALS TAB PAGE (ADVANCED BLUR & CUSTOM PARTICLES CONTROL)
+local BlurCard = Instance.new("Frame")
+BlurCard.Size = UDim2.new(1, 0, 0, 85)
+BlurCard.BackgroundColor3 = Library.Theme.Card
+BlurCard.BorderSizePixel = 0
+BlurCard.ZIndex = 22
+BlurCard.Parent = VisualsPage
+
+local BlurCardTitle = Instance.new("TextLabel")
+BlurCardTitle.Size = UDim2.new(1, -20, 0, 18)
+BlurCardTitle.Position = UDim2.new(0, 10, 0, 6)
+BlurCardTitle.BackgroundTransparency = 1
+BlurCardTitle.Font = Library.Fonts.Header
+BlurCardTitle.Text = "BACKGROUND BLUR EFFECT"
+BlurCardTitle.TextColor3 = Library.Theme.Accent
+BlurCardTitle.TextSize = 10.5
+BlurCardTitle.TextXAlignment = Enum.TextXAlignment.Left
+BlurCardTitle.ZIndex = 23
+BlurCardTitle.Parent = BlurCard
+
 local BlurToggleBlock = Instance.new("TextButton")
-BlurToggleBlock.Size = UDim2.new(1, 0, 0, 40)
-BlurToggleBlock.BackgroundColor3 = Library.Theme.Card
+BlurToggleBlock.Size = UDim2.new(1, -20, 0, 26)
+BlurToggleBlock.Position = UDim2.new(0, 10, 0, 26)
+BlurToggleBlock.BackgroundColor3 = Library.Theme.Block
 BlurToggleBlock.BorderSizePixel = 0
 BlurToggleBlock.AutoButtonColor = false
 BlurToggleBlock.Text = ""
-BlurToggleBlock.ZIndex = 22
-BlurToggleBlock.Parent = VisualsPage
+BlurToggleBlock.ZIndex = 23
+BlurToggleBlock.Parent = BlurCard
 
 local BTLabel = Instance.new("TextLabel")
 BTLabel.Size = UDim2.new(1, -60, 1, 0)
-BTLabel.Position = UDim2.new(0, 12, 0, 0)
+BTLabel.Position = UDim2.new(0, 8, 0, 0)
 BTLabel.BackgroundTransparency = 1
 BTLabel.Font = Library.Fonts.Label
-BTLabel.Text = "Background Blur Effect"
+BTLabel.Text = "Enable Blur Effect"
 BTLabel.TextColor3 = Library.Theme.Text
-BTLabel.TextSize = 11
+BTLabel.TextSize = 10.5
 BTLabel.TextXAlignment = Enum.TextXAlignment.Left
-BTLabel.ZIndex = 23
+BTLabel.ZIndex = 24
 BTLabel.Parent = BlurToggleBlock
 
 local BTSwitchBg = Instance.new("Frame")
-BTSwitchBg.Size = UDim2.new(0, 36, 0, 20)
-BTSwitchBg.Position = UDim2.new(1, -48, 0.5, -10)
+BTSwitchBg.Size = UDim2.new(0, 32, 0, 16)
+BTSwitchBg.Position = UDim2.new(1, -40, 0.5, -8)
 BTSwitchBg.BackgroundColor3 = Library.BlurEnabled and Library.Theme.Accent or Library.Theme.Header
 BTSwitchBg.BorderSizePixel = 0
-BTSwitchBg.ZIndex = 23
+BTSwitchBg.ZIndex = 24
 BTSwitchBg.Parent = BlurToggleBlock
 
 local BTKnob = Instance.new("Frame")
-BTKnob.Size = UDim2.new(0, 16, 0, 16)
-BTKnob.Position = Library.BlurEnabled and UDim2.new(1, -18, 0.5, -8) or UDim2.new(0, 2, 0.5, -8)
+BTKnob.Size = UDim2.new(0, 12, 0, 12)
+BTKnob.Position = Library.BlurEnabled and UDim2.new(1, -14, 0.5, -6) or UDim2.new(0, 2, 0.5, -6)
 BTKnob.BackgroundColor3 = Library.BlurEnabled and Library.Theme.Background or Library.Theme.TextDim
 BTKnob.BorderSizePixel = 0
-BTKnob.ZIndex = 24
+BTKnob.ZIndex = 25
 BTKnob.Parent = BTSwitchBg
 
 BlurToggleBlock.MouseButton1Click:Connect(function()
     Library.BlurEnabled = not Library.BlurEnabled
     smoothTween(BTSwitchBg, DUR_NORMAL, { BackgroundColor3 = Library.BlurEnabled and Library.Theme.Accent or Library.Theme.Header })
     smoothTween(BTKnob, DUR_NORMAL, {
-        Position = Library.BlurEnabled and UDim2.new(1, -18, 0.5, -8) or UDim2.new(0, 2, 0.5, -8),
+        Position = Library.BlurEnabled and UDim2.new(1, -14, 0.5, -6) or UDim2.new(0, 2, 0.5, -6),
         BackgroundColor3 = Library.BlurEnabled and Library.Theme.Background or Library.Theme.TextDim
     })
     MenuBlur.Enabled = Library.BlurEnabled and Library.Enabled
 end)
 
+-- Blur Size Slider (0 - 50)
+local BlurSizeRow = Instance.new("Frame")
+BlurSizeRow.Size = UDim2.new(1, -20, 0, 26)
+BlurSizeRow.Position = UDim2.new(0, 10, 0, 54)
+BlurSizeRow.BackgroundTransparency = 1
+BlurSizeRow.ZIndex = 23
+BlurSizeRow.Parent = BlurCard
+
+local BlurSizeLbl = Instance.new("TextLabel")
+BlurSizeLbl.Size = UDim2.new(0, 70, 1, 0)
+BlurSizeLbl.BackgroundTransparency = 1
+BlurSizeLbl.Font = Library.Fonts.Label
+BlurSizeLbl.Text = "Blur Size:"
+BlurSizeLbl.TextColor3 = Library.Theme.TextDim
+BlurSizeLbl.TextSize = 10
+BlurSizeLbl.TextXAlignment = Enum.TextXAlignment.Left
+BlurSizeLbl.ZIndex = 24
+BlurSizeLbl.Parent = BlurSizeRow
+
+local BlurValInput = Instance.new("TextBox")
+BlurValInput.Size = UDim2.new(0, 36, 0, 18)
+BlurValInput.Position = UDim2.new(1, -38, 0.5, -9)
+BlurValInput.BackgroundColor3 = Library.Theme.Header
+BlurValInput.BorderSizePixel = 0
+BlurValInput.Font = Library.Fonts.Badge
+BlurValInput.Text = tostring(Library.BlurSize)
+BlurValInput.TextColor3 = Library.Theme.Accent
+BlurValInput.TextSize = 9.5
+BlurValInput.ZIndex = 24
+BlurValInput.Parent = BlurSizeRow
+
+local BlurTrackBg = Instance.new("TextButton")
+BlurTrackBg.Size = UDim2.new(1, -125, 0, 6)
+BlurTrackBg.Position = UDim2.new(0, 72, 0.5, -3)
+BlurTrackBg.BackgroundColor3 = Library.Theme.Header
+BlurTrackBg.BorderSizePixel = 0
+BlurTrackBg.AutoButtonColor = false
+BlurTrackBg.Text = ""
+BlurTrackBg.ZIndex = 24
+BlurTrackBg.Parent = BlurSizeRow
+
+local BlurFill = Instance.new("Frame")
+local blurRelX = math.clamp(Library.BlurSize / 50, 0, 1)
+BlurFill.Size = UDim2.new(blurRelX, 0, 1, 0)
+BlurFill.BackgroundColor3 = Library.Theme.Accent
+BlurFill.BorderSizePixel = 0
+BlurFill.ZIndex = 25
+BlurFill.Parent = BlurTrackBg
+
+local isDraggingBlur = false
+local function updateBlurPosition(inputX)
+    local width = BlurTrackBg.AbsoluteSize.X
+    if width <= 0 then return end
+    local relX = math.clamp((inputX - BlurTrackBg.AbsolutePosition.X) / width, 0, 1)
+    local val = math.floor(relX * 50 + 0.5)
+    Library.BlurSize = val
+    BlurValInput.Text = tostring(val)
+    BlurFill.Size = UDim2.new(relX, 0, 1, 0)
+    MenuBlur.Size = val
+end
+
+trackConnection(BlurTrackBg.InputBegan:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+        isDraggingBlur = true
+        updateBlurPosition(input.Position.X)
+    end
+end))
+
+trackConnection(UserInputService.InputEnded:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+        isDraggingBlur = false
+    end
+end))
+
+trackConnection(UserInputService.InputChanged:Connect(function(input)
+    if isDraggingBlur and (input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch) then
+        updateBlurPosition(input.Position.X)
+    end
+end))
+
+BlurValInput.FocusLost:Connect(function()
+    local parsed = tonumber(BlurValInput.Text)
+    if parsed then
+        parsed = math.clamp(math.floor(parsed + 0.5), 0, 50)
+        Library.BlurSize = parsed
+        BlurValInput.Text = tostring(parsed)
+        BlurFill.Size = UDim2.new(parsed / 50, 0, 1, 0)
+        MenuBlur.Size = parsed
+    else
+        BlurValInput.Text = tostring(Library.BlurSize)
+    end
+end)
+
+-- Card 2: Falling Particles & Custom Texture Manager
+local ParticleCard = Instance.new("Frame")
+ParticleCard.Size = UDim2.new(1, 0, 0, 245)
+ParticleCard.BackgroundColor3 = Library.Theme.Card
+ParticleCard.BorderSizePixel = 0
+ParticleCard.ZIndex = 22
+ParticleCard.Parent = VisualsPage
+
+local ParticleCardTitle = Instance.new("TextLabel")
+ParticleCardTitle.Size = UDim2.new(1, -20, 0, 18)
+ParticleCardTitle.Position = UDim2.new(0, 10, 0, 6)
+ParticleCardTitle.BackgroundTransparency = 1
+ParticleCardTitle.Font = Library.Fonts.Header
+ParticleCardTitle.Text = "FALLING PARTICLES & CUSTOM TEXTURE"
+ParticleCardTitle.TextColor3 = Library.Theme.Accent
+ParticleCardTitle.TextSize = 10.5
+ParticleCardTitle.TextXAlignment = Enum.TextXAlignment.Left
+ParticleCardTitle.ZIndex = 23
+ParticleCardTitle.Parent = ParticleCard
+
+-- Particle Enable Toggle
 local SnowToggleBlock = Instance.new("TextButton")
-SnowToggleBlock.Size = UDim2.new(1, 0, 0, 40)
-SnowToggleBlock.BackgroundColor3 = Library.Theme.Card
+SnowToggleBlock.Size = UDim2.new(1, -20, 0, 26)
+SnowToggleBlock.Position = UDim2.new(0, 10, 0, 26)
+SnowToggleBlock.BackgroundColor3 = Library.Theme.Block
 SnowToggleBlock.BorderSizePixel = 0
 SnowToggleBlock.AutoButtonColor = false
 SnowToggleBlock.Text = ""
-SnowToggleBlock.ZIndex = 22
-SnowToggleBlock.Parent = VisualsPage
+SnowToggleBlock.ZIndex = 23
+SnowToggleBlock.Parent = ParticleCard
 
 local STLabel = Instance.new("TextLabel")
 STLabel.Size = UDim2.new(1, -60, 1, 0)
-STLabel.Position = UDim2.new(0, 12, 0, 0)
+STLabel.Position = UDim2.new(0, 8, 0, 0)
 STLabel.BackgroundTransparency = 1
 STLabel.Font = Library.Fonts.Label
-STLabel.Text = "Screen Snow Falling Particles"
+STLabel.Text = "Enable Falling Particles"
 STLabel.TextColor3 = Library.Theme.Text
-STLabel.TextSize = 11
+STLabel.TextSize = 10.5
 STLabel.TextXAlignment = Enum.TextXAlignment.Left
-STLabel.ZIndex = 23
+STLabel.ZIndex = 24
 STLabel.Parent = SnowToggleBlock
 
 local STSwitchBg = Instance.new("Frame")
-STSwitchBg.Size = UDim2.new(0, 36, 0, 20)
-STSwitchBg.Position = UDim2.new(1, -48, 0.5, -10)
+STSwitchBg.Size = UDim2.new(0, 32, 0, 16)
+STSwitchBg.Position = UDim2.new(1, -40, 0.5, -8)
 STSwitchBg.BackgroundColor3 = Library.SnowEnabled and Library.Theme.Accent or Library.Theme.Header
 STSwitchBg.BorderSizePixel = 0
-STSwitchBg.ZIndex = 23
+STSwitchBg.ZIndex = 24
 STSwitchBg.Parent = SnowToggleBlock
 
 local STKnob = Instance.new("Frame")
-STKnob.Size = UDim2.new(0, 16, 0, 16)
-STKnob.Position = Library.SnowEnabled and UDim2.new(1, -18, 0.5, -8) or UDim2.new(0, 2, 0.5, -8)
+STKnob.Size = UDim2.new(0, 12, 0, 12)
+STKnob.Position = Library.SnowEnabled and UDim2.new(1, -14, 0.5, -6) or UDim2.new(0, 2, 0.5, -6)
 STKnob.BackgroundColor3 = Library.SnowEnabled and Library.Theme.Background or Library.Theme.TextDim
 STKnob.BorderSizePixel = 0
-STKnob.ZIndex = 24
+STKnob.ZIndex = 25
 STKnob.Parent = STSwitchBg
 
 SnowToggleBlock.MouseButton1Click:Connect(function()
     Library.SnowEnabled = not Library.SnowEnabled
     smoothTween(STSwitchBg, DUR_NORMAL, { BackgroundColor3 = Library.SnowEnabled and Library.Theme.Accent or Library.Theme.Header })
     smoothTween(STKnob, DUR_NORMAL, {
-        Position = Library.SnowEnabled and UDim2.new(1, -18, 0.5, -8) or UDim2.new(0, 2, 0.5, -8),
+        Position = Library.SnowEnabled and UDim2.new(1, -14, 0.5, -6) or UDim2.new(0, 2, 0.5, -6),
         BackgroundColor3 = Library.SnowEnabled and Library.Theme.Background or Library.Theme.TextDim
     })
     SnowFolder.Visible = Library.SnowEnabled and Library.Enabled
+end)
+
+-- Particle Count Slider (10 - 150)
+local CountRow = Instance.new("Frame")
+CountRow.Size = UDim2.new(1, -20, 0, 26)
+CountRow.Position = UDim2.new(0, 10, 0, 56)
+CountRow.BackgroundTransparency = 1
+CountRow.ZIndex = 23
+CountRow.Parent = ParticleCard
+
+local CountLbl = Instance.new("TextLabel")
+CountLbl.Size = UDim2.new(0, 70, 1, 0)
+CountLbl.BackgroundTransparency = 1
+CountLbl.Font = Library.Fonts.Label
+CountLbl.Text = "Amount:"
+CountLbl.TextColor3 = Library.Theme.TextDim
+CountLbl.TextSize = 10
+CountLbl.TextXAlignment = Enum.TextXAlignment.Left
+CountLbl.ZIndex = 24
+CountLbl.Parent = CountRow
+
+local CountInput = Instance.new("TextBox")
+CountInput.Size = UDim2.new(0, 36, 0, 18)
+CountInput.Position = UDim2.new(1, -38, 0.5, -9)
+CountInput.BackgroundColor3 = Library.Theme.Header
+CountInput.BorderSizePixel = 0
+CountInput.Font = Library.Fonts.Badge
+CountInput.Text = tostring(Library.ParticleCount)
+CountInput.TextColor3 = Library.Theme.Accent
+CountInput.TextSize = 9.5
+CountInput.ZIndex = 24
+CountInput.Parent = CountRow
+
+local CountTrackBg = Instance.new("TextButton")
+CountTrackBg.Size = UDim2.new(1, -125, 0, 6)
+CountTrackBg.Position = UDim2.new(0, 72, 0.5, -3)
+CountTrackBg.BackgroundColor3 = Library.Theme.Header
+CountTrackBg.BorderSizePixel = 0
+CountTrackBg.AutoButtonColor = false
+CountTrackBg.Text = ""
+CountTrackBg.ZIndex = 24
+CountTrackBg.Parent = CountRow
+
+local CountFill = Instance.new("Frame")
+local countRelX = math.clamp((Library.ParticleCount - 10) / (150 - 10), 0, 1)
+CountFill.Size = UDim2.new(countRelX, 0, 1, 0)
+CountFill.BackgroundColor3 = Library.Theme.Accent
+CountFill.BorderSizePixel = 0
+CountFill.ZIndex = 25
+CountFill.Parent = CountTrackBg
+
+local isDraggingCount = false
+local function updateCountPosition(inputX)
+    local width = CountTrackBg.AbsoluteSize.X
+    if width <= 0 then return end
+    local relX = math.clamp((inputX - CountTrackBg.AbsolutePosition.X) / width, 0, 1)
+    local val = math.floor(10 + (150 - 10) * relX + 0.5)
+    Library.ParticleCount = val
+    CountInput.Text = tostring(val)
+    CountFill.Size = UDim2.new(relX, 0, 1, 0)
+    rebuildParticles()
+end
+
+trackConnection(CountTrackBg.InputBegan:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+        isDraggingCount = true
+        updateCountPosition(input.Position.X)
+    end
+end))
+
+trackConnection(UserInputService.InputEnded:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+        isDraggingCount = false
+    end
+end))
+
+trackConnection(UserInputService.InputChanged:Connect(function(input)
+    if isDraggingCount and (input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch) then
+        updateCountPosition(input.Position.X)
+    end
+end))
+
+CountInput.FocusLost:Connect(function()
+    local parsed = tonumber(CountInput.Text)
+    if parsed then
+        parsed = math.clamp(math.floor(parsed + 0.5), 10, 150)
+        Library.ParticleCount = parsed
+        CountInput.Text = tostring(parsed)
+        CountFill.Size = UDim2.new((parsed - 10) / (150 - 10), 0, 1, 0)
+        rebuildParticles()
+    else
+        CountInput.Text = tostring(Library.ParticleCount)
+    end
+end)
+
+-- Fall Speed Slider (0.2x - 3.0x)
+local SpeedPartRow = Instance.new("Frame")
+SpeedPartRow.Size = UDim2.new(1, -20, 0, 26)
+SpeedPartRow.Position = UDim2.new(0, 10, 0, 86)
+SpeedPartRow.BackgroundTransparency = 1
+SpeedPartRow.ZIndex = 23
+SpeedPartRow.Parent = ParticleCard
+
+local SpdPartLbl = Instance.new("TextLabel")
+SpdPartLbl.Size = UDim2.new(0, 70, 1, 0)
+SpdPartLbl.BackgroundTransparency = 1
+SpdPartLbl.Font = Library.Fonts.Label
+SpdPartLbl.Text = "Speed:"
+SpdPartLbl.TextColor3 = Library.Theme.TextDim
+SpdPartLbl.TextSize = 10
+SpdPartLbl.TextXAlignment = Enum.TextXAlignment.Left
+SpdPartLbl.ZIndex = 24
+SpdPartLbl.Parent = SpeedPartRow
+
+local SpdPartInput = Instance.new("TextBox")
+SpdPartInput.Size = UDim2.new(0, 36, 0, 18)
+SpdPartInput.Position = UDim2.new(1, -38, 0.5, -9)
+SpdPartInput.BackgroundColor3 = Library.Theme.Header
+SpdPartInput.BorderSizePixel = 0
+SpdPartInput.Font = Library.Fonts.Badge
+SpdPartInput.Text = string.format("%.1fx", Library.ParticleSpeed)
+SpdPartInput.TextColor3 = Library.Theme.Accent
+SpdPartInput.TextSize = 9.5
+SpdPartInput.ZIndex = 24
+SpdPartInput.Parent = SpeedPartRow
+
+local SpdPartTrackBg = Instance.new("TextButton")
+SpdPartTrackBg.Size = UDim2.new(1, -125, 0, 6)
+SpdPartTrackBg.Position = UDim2.new(0, 72, 0.5, -3)
+SpdPartTrackBg.BackgroundColor3 = Library.Theme.Header
+SpdPartTrackBg.BorderSizePixel = 0
+SpdPartTrackBg.AutoButtonColor = false
+SpdPartTrackBg.Text = ""
+SpdPartTrackBg.ZIndex = 24
+SpdPartTrackBg.Parent = SpeedPartRow
+
+local SpdPartFill = Instance.new("Frame")
+local spdRelX = math.clamp((Library.ParticleSpeed - 0.2) / (3.0 - 0.2), 0, 1)
+SpdPartFill.Size = UDim2.new(spdRelX, 0, 1, 0)
+SpdPartFill.BackgroundColor3 = Library.Theme.Accent
+SpdPartFill.BorderSizePixel = 0
+SpdPartFill.ZIndex = 25
+SpdPartFill.Parent = SpdPartTrackBg
+
+local isDraggingSpdPart = false
+local function updateSpdPartPosition(inputX)
+    local width = SpdPartTrackBg.AbsoluteSize.X
+    if width <= 0 then return end
+    local relX = math.clamp((inputX - SpdPartTrackBg.AbsolutePosition.X) / width, 0, 1)
+    local val = math.floor((0.2 + (3.0 - 0.2) * relX) * 10 + 0.5) / 10
+    Library.ParticleSpeed = val
+    SpdPartInput.Text = string.format("%.1fx", val)
+    SpdPartFill.Size = UDim2.new(relX, 0, 1, 0)
+end
+
+trackConnection(SpdPartTrackBg.InputBegan:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+        isDraggingSpdPart = true
+        updateSpdPartPosition(input.Position.X)
+    end
+end))
+
+trackConnection(UserInputService.InputEnded:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+        isDraggingSpdPart = false
+    end
+end))
+
+trackConnection(UserInputService.InputChanged:Connect(function(input)
+    if isDraggingSpdPart and (input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch) then
+        updateSpdPartPosition(input.Position.X)
+    end
+end))
+
+SpdPartInput.FocusLost:Connect(function()
+    local parsed = tonumber(SpdPartInput.Text:gsub("[^%d%.]", ""))
+    if parsed then
+        parsed = math.clamp(math.floor(parsed * 10 + 0.5) / 10, 0.2, 3.0)
+        Library.ParticleSpeed = parsed
+        SpdPartInput.Text = string.format("%.1fx", parsed)
+        SpdPartFill.Size = UDim2.new((parsed - 0.2) / (3.0 - 0.2), 0, 1, 0)
+    else
+        SpdPartInput.Text = string.format("%.1fx", Library.ParticleSpeed)
+    end
+end)
+
+-- Particle Size Slider (2 - 16 px)
+local PSizeRow = Instance.new("Frame")
+PSizeRow.Size = UDim2.new(1, -20, 0, 26)
+PSizeRow.Position = UDim2.new(0, 10, 0, 116)
+PSizeRow.BackgroundTransparency = 1
+PSizeRow.ZIndex = 23
+PSizeRow.Parent = ParticleCard
+
+local PSizeLbl = Instance.new("TextLabel")
+PSizeLbl.Size = UDim2.new(0, 70, 1, 0)
+PSizeLbl.BackgroundTransparency = 1
+PSizeLbl.Font = Library.Fonts.Label
+PSizeLbl.Text = "Size (px):"
+PSizeLbl.TextColor3 = Library.Theme.TextDim
+PSizeLbl.TextSize = 10
+PSizeLbl.TextXAlignment = Enum.TextXAlignment.Left
+PSizeLbl.ZIndex = 24
+PSizeLbl.Parent = PSizeRow
+
+local PSizeInput = Instance.new("TextBox")
+PSizeInput.Size = UDim2.new(0, 36, 0, 18)
+PSizeInput.Position = UDim2.new(1, -38, 0.5, -9)
+PSizeInput.BackgroundColor3 = Library.Theme.Header
+PSizeInput.BorderSizePixel = 0
+PSizeInput.Font = Library.Fonts.Badge
+PSizeInput.Text = tostring(Library.ParticleSize)
+PSizeInput.TextColor3 = Library.Theme.Accent
+PSizeInput.TextSize = 9.5
+PSizeInput.ZIndex = 24
+PSizeInput.Parent = PSizeRow
+
+local PSizeTrackBg = Instance.new("TextButton")
+PSizeTrackBg.Size = UDim2.new(1, -125, 0, 6)
+PSizeTrackBg.Position = UDim2.new(0, 72, 0.5, -3)
+PSizeTrackBg.BackgroundColor3 = Library.Theme.Header
+PSizeTrackBg.BorderSizePixel = 0
+PSizeTrackBg.AutoButtonColor = false
+PSizeTrackBg.Text = ""
+PSizeTrackBg.ZIndex = 24
+PSizeTrackBg.Parent = PSizeRow
+
+local PSizeFill = Instance.new("Frame")
+local pSizeRelX = math.clamp((Library.ParticleSize - 2) / (16 - 2), 0, 1)
+PSizeFill.Size = UDim2.new(pSizeRelX, 0, 1, 0)
+PSizeFill.BackgroundColor3 = Library.Theme.Accent
+PSizeFill.BorderSizePixel = 0
+PSizeFill.ZIndex = 25
+PSizeFill.Parent = PSizeTrackBg
+
+local isDraggingPSize = false
+local function updatePSizePosition(inputX)
+    local width = PSizeTrackBg.AbsoluteSize.X
+    if width <= 0 then return end
+    local relX = math.clamp((inputX - PSizeTrackBg.AbsolutePosition.X) / width, 0, 1)
+    local val = math.floor(2 + (16 - 2) * relX + 0.5)
+    Library.ParticleSize = val
+    PSizeInput.Text = tostring(val)
+    PSizeFill.Size = UDim2.new(relX, 0, 1, 0)
+    for _, f in ipairs(Flakes) do
+        if f.Instance then f.Instance.Size = UDim2.new(0, val, 0, val) end
+    end
+end
+
+trackConnection(PSizeTrackBg.InputBegan:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+        isDraggingPSize = true
+        updatePSizePosition(input.Position.X)
+    end
+end))
+
+trackConnection(UserInputService.InputEnded:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+        isDraggingPSize = false
+    end
+end))
+
+trackConnection(UserInputService.InputChanged:Connect(function(input)
+    if isDraggingPSize and (input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch) then
+        updatePSizePosition(input.Position.X)
+    end
+end))
+
+PSizeInput.FocusLost:Connect(function()
+    local parsed = tonumber(PSizeInput.Text)
+    if parsed then
+        parsed = math.clamp(math.floor(parsed + 0.5), 2, 16)
+        Library.ParticleSize = parsed
+        PSizeInput.Text = tostring(parsed)
+        PSizeFill.Size = UDim2.new((parsed - 2) / (16 - 2), 0, 1, 0)
+        for _, f in ipairs(Flakes) do
+            if f.Instance then f.Instance.Size = UDim2.new(0, parsed, 0, parsed) end
+        end
+    else
+        PSizeInput.Text = tostring(Library.ParticleSize)
+    end
+end)
+
+-- Custom Particle Texture ID Input + Apply Button
+local PartTexBg = Instance.new("Frame")
+PartTexBg.Size = UDim2.new(1, -20, 0, 26)
+PartTexBg.Position = UDim2.new(0, 10, 0, 146)
+PartTexBg.BackgroundColor3 = Library.Theme.Header
+PartTexBg.BorderSizePixel = 0
+PartTexBg.ZIndex = 23
+PartTexBg.Parent = ParticleCard
+
+local PartTexInput = Instance.new("TextBox")
+PartTexInput.Size = UDim2.new(1, -10, 1, 0)
+PartTexInput.Position = UDim2.new(0, 5, 0, 0)
+PartTexInput.BackgroundTransparency = 1
+PartTexInput.Font = Library.Fonts.Badge
+PartTexInput.PlaceholderText = "Paste Particle Texture ID (e.g. Snowflake/Heart)..."
+PartTexInput.PlaceholderColor3 = Library.Theme.TextDim
+PartTexInput.Text = Library.ParticleTexture
+PartTexInput.TextColor3 = Library.Theme.Accent
+PartTexInput.TextSize = 9.5
+PartTexInput.TextXAlignment = Enum.TextXAlignment.Left
+PartTexInput.Active = true
+PartTexInput.Selectable = true
+PartTexInput.ClearTextOnFocus = false
+PartTexInput.ZIndex = 24
+PartTexInput.Parent = PartTexBg
+
+local ApplyPartTexBtn = Instance.new("TextButton")
+ApplyPartTexBtn.Size = UDim2.new(1, -20, 0, 26)
+ApplyPartTexBtn.Position = UDim2.new(0, 10, 0, 178)
+ApplyPartTexBtn.BackgroundColor3 = Library.Theme.Header
+ApplyPartTexBtn.BorderSizePixel = 0
+ApplyPartTexBtn.Font = Library.Fonts.Header
+ApplyPartTexBtn.Text = "APPLY CUSTOM PARTICLE TEXTURE"
+ApplyPartTexBtn.TextColor3 = Library.Theme.Accent
+ApplyPartTexBtn.TextSize = 9.5
+ApplyPartTexBtn.ZIndex = 23
+ApplyPartTexBtn.Parent = ParticleCard
+
+ApplyPartTexBtn.MouseButton1Click:Connect(function()
+    Library.ParticleTexture = PartTexInput.Text
+    rebuildParticles()
 end)
 
 local function toggleSettingsModal(visible)
@@ -1905,6 +2491,8 @@ function Library:SetTheme(themeName)
         end
     end
 
+    smoothTween(SkyPresetCard, DUR_NORMAL, { BackgroundColor3 = t.Card })
+    smoothTween(PresetTitle, DUR_NORMAL, { TextColor3 = t.Accent })
     smoothTween(SkyboxCard, DUR_NORMAL, { BackgroundColor3 = t.Card })
     smoothTween(ApplySkyboxBtn, DUR_NORMAL, { BackgroundColor3 = t.Header, TextColor3 = t.Accent })
     for _, item in ipairs(SkyInputs) do
@@ -1936,15 +2524,38 @@ function Library:SetTheme(themeName)
     smoothTween(TabSoundInput, DUR_NORMAL, { TextColor3 = t.Accent })
     smoothTween(PlaySoundBtn, DUR_NORMAL, { BackgroundColor3 = t.Header, TextColor3 = t.Accent })
 
-    smoothTween(BlurToggleBlock, DUR_NORMAL, { BackgroundColor3 = t.Card })
+    smoothTween(BlurCard, DUR_NORMAL, { BackgroundColor3 = t.Card })
+    smoothTween(BlurCardTitle, DUR_NORMAL, { TextColor3 = t.Accent })
+    smoothTween(BlurToggleBlock, DUR_NORMAL, { BackgroundColor3 = t.Block })
     smoothTween(BTLabel, DUR_NORMAL, { TextColor3 = t.Text })
     smoothTween(BTSwitchBg, DUR_NORMAL, { BackgroundColor3 = Library.BlurEnabled and t.Accent or t.Header })
     smoothTween(BTKnob, DUR_NORMAL, { BackgroundColor3 = Library.BlurEnabled and t.Background or t.TextDim })
+    smoothTween(BlurSizeLbl, DUR_NORMAL, { TextColor3 = t.TextDim })
+    smoothTween(BlurValInput, DUR_NORMAL, { BackgroundColor3 = t.Header, TextColor3 = t.Accent })
+    smoothTween(BlurTrackBg, DUR_NORMAL, { BackgroundColor3 = t.Header })
+    smoothTween(BlurFill, DUR_NORMAL, { BackgroundColor3 = t.Accent })
 
-    smoothTween(SnowToggleBlock, DUR_NORMAL, { BackgroundColor3 = t.Card })
+    smoothTween(ParticleCard, DUR_NORMAL, { BackgroundColor3 = t.Card })
+    smoothTween(ParticleCardTitle, DUR_NORMAL, { TextColor3 = t.Accent })
+    smoothTween(SnowToggleBlock, DUR_NORMAL, { BackgroundColor3 = t.Block })
     smoothTween(STLabel, DUR_NORMAL, { TextColor3 = t.Text })
     smoothTween(STSwitchBg, DUR_NORMAL, { BackgroundColor3 = Library.SnowEnabled and t.Accent or t.Header })
     smoothTween(STKnob, DUR_NORMAL, { BackgroundColor3 = Library.SnowEnabled and t.Background or t.TextDim })
+    smoothTween(CountLbl, DUR_NORMAL, { TextColor3 = t.TextDim })
+    smoothTween(CountInput, DUR_NORMAL, { BackgroundColor3 = t.Header, TextColor3 = t.Accent })
+    smoothTween(CountTrackBg, DUR_NORMAL, { BackgroundColor3 = t.Header })
+    smoothTween(CountFill, DUR_NORMAL, { BackgroundColor3 = t.Accent })
+    smoothTween(SpdPartLbl, DUR_NORMAL, { TextColor3 = t.TextDim })
+    smoothTween(SpdPartInput, DUR_NORMAL, { BackgroundColor3 = t.Header, TextColor3 = t.Accent })
+    smoothTween(SpdPartTrackBg, DUR_NORMAL, { BackgroundColor3 = t.Header })
+    smoothTween(SpdPartFill, DUR_NORMAL, { BackgroundColor3 = t.Accent })
+    smoothTween(PSizeLbl, DUR_NORMAL, { TextColor3 = t.TextDim })
+    smoothTween(PSizeInput, DUR_NORMAL, { BackgroundColor3 = t.Header, TextColor3 = t.Accent })
+    smoothTween(PSizeTrackBg, DUR_NORMAL, { BackgroundColor3 = t.Header })
+    smoothTween(PSizeFill, DUR_NORMAL, { BackgroundColor3 = t.Accent })
+    smoothTween(PartTexBg, DUR_NORMAL, { BackgroundColor3 = t.Header })
+    smoothTween(PartTexInput, DUR_NORMAL, { TextColor3 = t.Accent })
+    smoothTween(ApplyPartTexBtn, DUR_NORMAL, { BackgroundColor3 = t.Header, TextColor3 = t.Accent })
 
     for _, block in ipairs(Library.Blocks) do
         if block.Frame then smoothTween(block.Frame, DUR_NORMAL, { BackgroundColor3 = t.Block }) end
@@ -2038,7 +2649,7 @@ trackConnection(UserInputService.InputBegan:Connect(function(input, gameProcesse
     local focused = UserInputService:GetFocusedTextBox()
     if focused then return end
 
-    if input.UserInputType == Enum.UserInputType.Keyboard then
+    if input.UserInputType == Enum.KeyCode.Keyboard then
         if input.KeyCode == Enum.KeyCode.RightShift or input.KeyCode == Library.ToggleKey then
             Library:Toggle()
         end
@@ -2630,7 +3241,7 @@ function Library:CreateBlock(title, defaultPosition)
         end))
     end
 
-    -- CLEAN HEADER-LESS KEYBIND MODE POPUP (Parented to Container)
+    -- KEYBIND WITH FULL MODE NAME DISPLAY (e.g. "F [TOGGLE]", "R [HOLD]", "ALWAYS")
     function Block:AddKeybind(name, defaultKey, callback)
         callback = callback or function() end
         local boundKey = defaultKey or Enum.KeyCode.Unknown
@@ -2651,25 +3262,25 @@ function Library:CreateBlock(title, defaultPosition)
         Stroke.Parent = BindFrame
 
         local Label = Instance.new("TextLabel")
-        Label.Size = UDim2.new(1, -95, 1, 0)
+        Label.Size = UDim2.new(1, -105, 1, 0)
         Label.Position = UDim2.new(0, 10, 0, 0)
         Label.BackgroundTransparency = 1
         Label.Font = Library.Fonts.Label
         Label.Text = name
         Label.TextColor3 = Library.Theme.TextDim
-        Label.TextSize = 12
+        Label.TextSize = 11
         Label.TextXAlignment = Enum.TextXAlignment.Left
         Label.Parent = BindFrame
 
         local KeyBtn = Instance.new("TextButton")
-        KeyBtn.Size = UDim2.new(0, 80, 0, 20)
-        KeyBtn.Position = UDim2.new(1, -86, 0.5, -10)
+        KeyBtn.Size = UDim2.new(0, 92, 0, 20)
+        KeyBtn.Position = UDim2.new(1, -98, 0.5, -10)
         KeyBtn.BackgroundColor3 = Library.Theme.Header
         KeyBtn.BorderSizePixel = 0
         KeyBtn.Font = Library.Fonts.Badge
-        KeyBtn.Text = "NONE [T]"
+        KeyBtn.Text = "NONE [TOGGLE]"
         KeyBtn.TextColor3 = Library.Theme.Accent
-        KeyBtn.TextSize = 9
+        KeyBtn.TextSize = 8.5
         KeyBtn.ZIndex = 10
         KeyBtn.Parent = BindFrame
 
@@ -2707,7 +3318,7 @@ function Library:CreateBlock(title, defaultPosition)
             if mode == "Always" then
                 KeyBtn.Text = "ALWAYS"
             else
-                KeyBtn.Text = string.upper(boundKey.Name) .. " [" .. mode:sub(1,1) .. "]"
+                KeyBtn.Text = string.upper(boundKey.Name) .. " [" .. string.upper(mode) .. "]"
             end
             Library.KeybindList[name] = {
                 Key = string.upper(boundKey.Name),
@@ -2751,7 +3362,7 @@ function Library:CreateBlock(title, defaultPosition)
             if ModePopup.Visible then
                 local btnPos = KeyBtn.AbsolutePosition
                 local btnSize = KeyBtn.AbsoluteSize
-                ModePopup.Position = UDim2.new(0, btnPos.X - 10, 0, btnPos.Y + btnSize.Y + 4)
+                ModePopup.Position = UDim2.new(0, btnPos.X - 4, 0, btnPos.Y + btnSize.Y + 4)
                 smoothTween(ModePopup, DUR_FAST, { Size = UDim2.new(0, 88, 0, 70) })
             end
         end
