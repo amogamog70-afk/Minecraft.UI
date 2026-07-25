@@ -1,7 +1,7 @@
 -- [[ NURSULTAN CLIENT UI LIBRARY — MASTER CORE ENGINE ]] --
 -- Sharp Square Rectilinear Aesthetics (0 CornerRadius), Harmonized Spring Tweens,
+-- Unclipped Keybind Right-Click Mode Popup & Unclipped Config Selection Dropdown parented to Top Container,
 -- Radio HUD Customization in Settings (Size / Scale, Transparency, Visibility, Volume),
--- Keybind Right-Click Mini GUI Popup Mode Selector (Hold / Toggle / Always),
 -- Interactive Slider Number TextBox, Dedicated Tab Navigation Settings Modal,
 -- Custom Image Icons for Save, Load & Delete.
 
@@ -197,6 +197,7 @@ local Container = Instance.new("Frame")
 Container.Name = "BlockContainer"
 Container.Size = UDim2.new(1, 0, 1, 0)
 Container.BackgroundTransparency = 1
+Container.ClipsDescendants = false
 Container.Parent = ScreenGui
 
 local SnowFolder = Instance.new("Folder")
@@ -808,6 +809,37 @@ ModalPageContainer.Parent = SettingsModal
 local ModalTabs = {}
 local SidebarBtns = {}
 
+-- UNCLIPPED CONFIG SELECTION DROPDOWN (PARENTED TO TOP CONTAINER)
+local ConfigDropList = Instance.new("Frame")
+ConfigDropList.Name = "ConfigDropListOverlay"
+ConfigDropList.Size = UDim2.new(0, 0, 0, 0)
+ConfigDropList.BackgroundColor3 = Library.Theme.Block
+ConfigDropList.BorderSizePixel = 0
+ConfigDropList.ClipsDescendants = true
+ConfigDropList.Visible = false
+ConfigDropList.ZIndex = 300
+ConfigDropList.Parent = Container
+
+local ConfigDropStroke = Instance.new("UIStroke")
+ConfigDropStroke.Color = Library.Theme.StrokeActive
+ConfigDropStroke.Thickness = 1.2
+ConfigDropStroke.ZIndex = 301
+ConfigDropStroke.Parent = ConfigDropList
+
+local ConfigDropScroll = Instance.new("ScrollingFrame")
+ConfigDropScroll.Size = UDim2.new(1, 0, 1, 0)
+ConfigDropScroll.BackgroundTransparency = 1
+ConfigDropScroll.BorderSizePixel = 0
+ConfigDropScroll.ScrollBarThickness = 3
+ConfigDropScroll.ScrollBarImageColor3 = Library.Theme.Accent
+ConfigDropScroll.ZIndex = 301
+ConfigDropScroll.Parent = ConfigDropList
+
+local ConfigDropLayout = Instance.new("UIListLayout")
+ConfigDropLayout.SortOrder = Enum.SortOrder.LayoutOrder
+ConfigDropLayout.Padding = UDim.new(0, 2)
+ConfigDropLayout.Parent = ConfigDropScroll
+
 local function createModalTab(tabName)
     local TabPage = Instance.new("ScrollingFrame")
     TabPage.Name = "Page_" .. tabName
@@ -854,6 +886,7 @@ local function createModalTab(tabName)
     table.insert(SidebarBtns, TabBtn)
 
     TabBtn.MouseButton1Click:Connect(function()
+        ConfigDropList.Visible = false
         for name, data in pairs(ModalTabs) do
             local isSelected = (name == tabName)
             data.Page.Visible = isSelected
@@ -965,35 +998,6 @@ ConfigDropdownBtn.TextSize = 10
 ConfigDropdownBtn.ZIndex = 24
 ConfigDropdownBtn.Parent = ConfigSelectBg
 
-local ConfigDropList = Instance.new("Frame")
-ConfigDropList.Size = UDim2.new(1, 0, 0, 0)
-ConfigDropList.Position = UDim2.new(0, 0, 1, 2)
-ConfigDropList.BackgroundColor3 = Library.Theme.Block
-ConfigDropList.BorderSizePixel = 0
-ConfigDropList.ClipsDescendants = true
-ConfigDropList.Visible = false
-ConfigDropList.ZIndex = 50
-ConfigDropList.Parent = ConfigDropdownBtn
-
-local ConfigDropStroke = Instance.new("UIStroke")
-ConfigDropStroke.Color = Library.Theme.StrokeActive
-ConfigDropStroke.Thickness = 1
-ConfigDropStroke.Parent = ConfigDropList
-
-local ConfigDropScroll = Instance.new("ScrollingFrame")
-ConfigDropScroll.Size = UDim2.new(1, 0, 1, 0)
-ConfigDropScroll.BackgroundTransparency = 1
-ConfigDropScroll.BorderSizePixel = 0
-ConfigDropScroll.ScrollBarThickness = 3
-ConfigDropScroll.ScrollBarImageColor3 = Library.Theme.Accent
-ConfigDropScroll.ZIndex = 51
-ConfigDropScroll.Parent = ConfigDropList
-
-local ConfigDropLayout = Instance.new("UIListLayout")
-ConfigDropLayout.SortOrder = Enum.SortOrder.LayoutOrder
-ConfigDropLayout.Padding = UDim.new(0, 2)
-ConfigDropLayout.Parent = ConfigDropScroll
-
 local function getSavedConfigsList()
     local configs = {}
     pcall(function()
@@ -1033,21 +1037,21 @@ local function refreshConfigDropdownOptions()
         ItemBtn.TextColor3 = (ConfigNameInput.Text == cfgName) and Library.Theme.Accent or Library.Theme.TextDim
         ItemBtn.TextSize = 10
         ItemBtn.TextXAlignment = Enum.TextXAlignment.Left
-        ItemBtn.ZIndex = 52
+        ItemBtn.ZIndex = 302
         ItemBtn.Parent = ConfigDropScroll
 
         ItemBtn.MouseButton1Click:Connect(function()
             ConfigNameInput.Text = cfgName
             ConfigDropdownBtn.Text = cfgName .. ".json v"
             configDropOpen = false
-            local t = smoothTween(ConfigDropList, DUR_NORMAL, { Size = UDim2.new(1, 0, 0, 0) })
+            local t = smoothTween(ConfigDropList, DUR_NORMAL, { Size = UDim2.new(0, ConfigDropdownBtn.AbsoluteSize.X, 0, 0) })
             t.Completed:Connect(function()
                 if not configDropOpen then ConfigDropList.Visible = false end
             end)
         end)
     end
 
-    local totalH = math.min(#cfgList * 24, 100)
+    local totalH = math.min(#cfgList * 24, 110)
     ConfigDropScroll.CanvasSize = UDim2.new(0, 0, 0, #cfgList * 24)
     return totalH
 end
@@ -1056,15 +1060,39 @@ ConfigDropdownBtn.MouseButton1Click:Connect(function()
     configDropOpen = not configDropOpen
     if configDropOpen then
         local height = refreshConfigDropdownOptions()
+        local btnPos = ConfigDropdownBtn.AbsolutePosition
+        local btnSize = ConfigDropdownBtn.AbsoluteSize
+        ConfigDropList.Position = UDim2.new(0, btnPos.X, 0, btnPos.Y + btnSize.Y + 2)
+        ConfigDropList.Size = UDim2.new(0, btnSize.X, 0, 0)
         ConfigDropList.Visible = true
-        smoothTween(ConfigDropList, DUR_NORMAL, { Size = UDim2.new(1, 0, 0, height) })
+        smoothTween(ConfigDropList, DUR_NORMAL, { Size = UDim2.new(0, btnSize.X, 0, height) })
     else
-        local t = smoothTween(ConfigDropList, DUR_NORMAL, { Size = UDim2.new(1, 0, 0, 0) })
+        local t = smoothTween(ConfigDropList, DUR_NORMAL, { Size = UDim2.new(0, ConfigDropdownBtn.AbsoluteSize.X, 0, 0) })
         t.Completed:Connect(function()
             if not configDropOpen then ConfigDropList.Visible = false end
         end)
     end
 end)
+
+-- Close Config Dropdown when clicking outside
+trackConnection(UserInputService.InputBegan:Connect(function(input)
+    if configDropOpen and (input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.MouseButton2) then
+        local clickPos = input.Position
+        local dropPos = ConfigDropList.AbsolutePosition
+        local dropSize = ConfigDropList.AbsoluteSize
+        if clickPos.X < dropPos.X or clickPos.X > dropPos.X + dropSize.X or clickPos.Y < dropPos.Y or clickPos.Y > dropPos.Y + dropSize.Y then
+            local btnPos = ConfigDropdownBtn.AbsolutePosition
+            local btnSize = ConfigDropdownBtn.AbsoluteSize
+            if not (clickPos.X >= btnPos.X and clickPos.X <= btnPos.X + btnSize.X and clickPos.Y >= btnPos.Y and clickPos.Y <= btnPos.Y + btnSize.Y) then
+                configDropOpen = false
+                local t = smoothTween(ConfigDropList, DUR_NORMAL, { Size = UDim2.new(0, btnSize.X, 0, 0) })
+                t.Completed:Connect(function()
+                    if not configDropOpen then ConfigDropList.Visible = false end
+                end)
+            end
+        end
+    end
+end))
 
 local LoadConfigBtn = Instance.new("TextButton")
 LoadConfigBtn.Size = UDim2.new(0.48, 0, 0, 30)
@@ -1776,6 +1804,8 @@ local function toggleSettingsModal(visible)
         SettingsModal.Size = UDim2.new(0, 500, 0, 420)
         smoothTween(SettingsModal, DUR_MODAL, { Position = UDim2.new(0.5, -250, 0.5, -210) }, EASE_SPRING, DIR_OUT)
     else
+        ConfigDropList.Visible = false
+        configDropOpen = false
         local anim = smoothTween(SettingsModal, DUR_MODAL, { Position = UDim2.new(0.5, -250, 0.5, -170) }, EASE_SMOOTH, DIR_IN)
         anim.Completed:Connect(function()
             if not visible then SettingsModal.Visible = false end
@@ -1986,6 +2016,8 @@ function Library:SetVisible(visible)
         MenuBlur.Enabled = false
         SnowFolder.Visible = false
         SettingsModal.Visible = false
+        ConfigDropList.Visible = false
+        configDropOpen = false
     end
 end
 
@@ -2591,7 +2623,7 @@ function Library:CreateBlock(title, defaultPosition)
         end))
     end
 
-    -- KEYBIND WITH RIGHT-CLICK MINI GUI MODE POPUP (Hold / Toggle / Always)
+    -- UNCLIPPED KEYBIND WITH RIGHT-CLICK MINI GUI MODE POPUP (Parented to Container)
     function Block:AddKeybind(name, defaultKey, callback)
         callback = callback or function() end
         local boundKey = defaultKey or Enum.KeyCode.Unknown
@@ -2604,7 +2636,6 @@ function Library:CreateBlock(title, defaultPosition)
         BindFrame.Size = UDim2.new(1, 0, 0, 32)
         BindFrame.BackgroundColor3 = Library.Theme.Card
         BindFrame.BorderSizePixel = 0
-        BindFrame.ClipsDescendants = false
         BindFrame.Parent = Content
 
         local Stroke = Instance.new("UIStroke")
@@ -2635,16 +2666,15 @@ function Library:CreateBlock(title, defaultPosition)
         KeyBtn.ZIndex = 10
         KeyBtn.Parent = BindFrame
 
-        -- RIGHT-CLICK MINI MODE GUI POPUP
+        -- UNCLIPPED RIGHT-CLICK MINI MODE GUI POPUP (PARENTED TO TOP CONTAINER)
         local ModePopup = Instance.new("Frame")
         ModePopup.Name = "ModePopup_" .. name
         ModePopup.Size = UDim2.new(0, 95, 0, 88)
-        ModePopup.Position = UDim2.new(1, -95, 1, 4)
         ModePopup.BackgroundColor3 = Library.Theme.Block
         ModePopup.BorderSizePixel = 0
         ModePopup.Visible = false
-        ModePopup.ZIndex = 80
-        ModePopup.Parent = BindFrame
+        ModePopup.ZIndex = 150
+        ModePopup.Parent = Container
 
         local PopupStroke = Instance.new("UIStroke")
         PopupStroke.Color = Library.Theme.StrokeActive
@@ -2659,7 +2689,7 @@ function Library:CreateBlock(title, defaultPosition)
         PopupHeader.Text = "SELECT MODE"
         PopupHeader.TextColor3 = Library.Theme.Accent
         PopupHeader.TextSize = 8
-        PopupHeader.ZIndex = 81
+        PopupHeader.ZIndex = 151
         PopupHeader.Parent = ModePopup
 
         local PopupLayout = Instance.new("UIListLayout")
@@ -2693,7 +2723,7 @@ function Library:CreateBlock(title, defaultPosition)
             MBtn.Text = m
             MBtn.TextColor3 = (m == mode) and Library.Theme.Accent or Library.Theme.TextDim
             MBtn.TextSize = 9
-            MBtn.ZIndex = 82
+            MBtn.ZIndex = 152
             MBtn.Parent = ModePopup
             modeBtns[m] = MBtn
 
@@ -2717,6 +2747,9 @@ function Library:CreateBlock(title, defaultPosition)
         local function toggleModePopup()
             ModePopup.Visible = not ModePopup.Visible
             if ModePopup.Visible then
+                local btnPos = KeyBtn.AbsolutePosition
+                local btnSize = KeyBtn.AbsoluteSize
+                ModePopup.Position = UDim2.new(0, btnPos.X - 15, 0, btnPos.Y + btnSize.Y + 4)
                 smoothTween(ModePopup, DUR_FAST, { Size = UDim2.new(0, 95, 0, 88) })
             end
         end
@@ -2731,7 +2764,7 @@ function Library:CreateBlock(title, defaultPosition)
             smoothTween(Stroke, DUR_FAST, { Color = Library.Theme.Accent })
         end)
 
-        -- Right Click on button or row: Open Mode Selection GUI
+        -- Right Click: Open Unclipped Mode Menu
         KeyBtn.MouseButton2Click:Connect(function()
             toggleModePopup()
         end)
@@ -2741,6 +2774,22 @@ function Library:CreateBlock(title, defaultPosition)
                 toggleModePopup()
             end
         end)
+
+        -- Close Mode Popup when clicking outside
+        trackConnection(UserInputService.InputBegan:Connect(function(input)
+            if ModePopup.Visible and (input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.MouseButton2) then
+                local clickPos = input.Position
+                local popPos = ModePopup.AbsolutePosition
+                local popSize = ModePopup.AbsoluteSize
+                if clickPos.X < popPos.X or clickPos.X > popPos.X + popSize.X or clickPos.Y < popPos.Y or clickPos.Y > popPos.Y + popSize.Y then
+                    local btnPos = KeyBtn.AbsolutePosition
+                    local btnSize = KeyBtn.AbsoluteSize
+                    if not (clickPos.X >= btnPos.X and clickPos.X <= btnPos.X + btnSize.X and clickPos.Y >= btnPos.Y and clickPos.Y <= btnPos.Y + btnSize.Y) then
+                        ModePopup.Visible = false
+                    end
+                end
+            end
+        end))
 
         table.insert(Block.Elements, {
             Type = "Keybind",
