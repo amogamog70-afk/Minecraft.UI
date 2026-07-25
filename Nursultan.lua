@@ -1,9 +1,7 @@
 -- [[ NURSULTAN CLIENT UI LIBRARY — MASTER CORE ENGINE ]] --
 -- Sharp Square Rectilinear Aesthetics (0 CornerRadius), Harmonized Spring Tweens,
--- Unclipped Keybind Right-Click Mode Popup & Unclipped Config Selection Dropdown parented to Top Container,
--- Radio HUD Customization in Settings (Size / Scale, Transparency, Visibility, Volume),
--- Interactive Slider Number TextBox, Dedicated Tab Navigation Settings Modal,
--- Custom Image Icons for Save, Load & Delete.
+-- Clean Keybind Mode Popup (Header-less 3 buttons), Fixed Radio HUD Transparency Sync across all sub-elements,
+-- Radio HUD Scale Reduction (50% - 100%), Unclipped Dropdowns & Popups, Tab Navigation Settings Modal.
 
 local HttpService      = game:GetService("HttpService")
 local UserInputService = game:GetService("UserInputService")
@@ -713,12 +711,23 @@ HUDPlayBtn.MouseButton1Click:Connect(function()
     end
 end)
 
+-- FULL TRANSPARENCY & SCALE SYNC FOR RADIO HUD & SUB-ELEMENTS
 local function updateRadioHUDProperties()
     RadioHUDFrame.Visible = Library.RadioHUDVisible and Library.Enabled
     local transparencyVal = (Library.RadioHUDTransparency or 0) / 100
+
     RadioHUDFrame.BackgroundTransparency = transparencyVal
     RadioHeader.BackgroundTransparency = transparencyVal
     RadioHUDStroke.Transparency = transparencyVal
+    HUDSoundInputBg.BackgroundTransparency = transparencyVal
+    SeekTrackBg.BackgroundTransparency = transparencyVal
+    HUDPlayBtn.BackgroundTransparency = transparencyVal
+
+    for _, child in ipairs(SpeedRow:GetChildren()) do
+        if child:IsA("TextButton") then
+            child.BackgroundTransparency = transparencyVal
+        end
+    end
 
     local scaleVal = (Library.RadioHUDScale or 100) / 100
     RadioHUDFrame.Size = UDim2.new(0, math.floor(260 * scaleVal), 0, math.floor(165 * scaleVal))
@@ -1074,7 +1083,6 @@ ConfigDropdownBtn.MouseButton1Click:Connect(function()
     end
 end)
 
--- Close Config Dropdown when clicking outside
 trackConnection(UserInputService.InputBegan:Connect(function(input)
     if configDropOpen and (input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.MouseButton2) then
         local clickPos = input.Position
@@ -1537,7 +1545,7 @@ TransValInput.FocusLost:Connect(function()
     end
 end)
 
--- Radio HUD Scale / Size Slider (70% - 150%)
+-- Radio HUD Scale Reduction Slider (50% - 100% ONLY REDUCE SIZE)
 local ScaleRow = Instance.new("Frame")
 ScaleRow.Size = UDim2.new(1, -20, 0, 42)
 ScaleRow.Position = UDim2.new(0, 10, 0, 118)
@@ -1551,7 +1559,7 @@ ScaleLbl.Size = UDim2.new(1, -65, 0, 18)
 ScaleLbl.Position = UDim2.new(0, 8, 0, 2)
 ScaleLbl.BackgroundTransparency = 1
 ScaleLbl.Font = Library.Fonts.Label
-ScaleLbl.Text = "HUD Size Scale (%)"
+ScaleLbl.Text = "HUD Size Scale (50% - 100%)"
 ScaleLbl.TextColor3 = Library.Theme.TextDim
 ScaleLbl.TextSize = 10
 ScaleLbl.TextXAlignment = Enum.TextXAlignment.Left
@@ -1591,7 +1599,7 @@ ScaleTrackBg.ZIndex = 24
 ScaleTrackBg.Parent = ScaleRow
 
 local ScaleFill = Instance.new("Frame")
-local scaleRelX = (Library.RadioHUDScale - 70) / (150 - 70)
+local scaleRelX = math.clamp((Library.RadioHUDScale - 50) / (100 - 50), 0, 1)
 ScaleFill.Size = UDim2.new(scaleRelX, 0, 1, 0)
 ScaleFill.BackgroundColor3 = Library.Theme.Accent
 ScaleFill.BorderSizePixel = 0
@@ -1611,7 +1619,7 @@ local function updateScalePosition(inputX)
     local width = ScaleTrackBg.AbsoluteSize.X
     if width <= 0 then return end
     local relX = math.clamp((inputX - ScaleTrackBg.AbsolutePosition.X) / width, 0, 1)
-    local val = math.floor(70 + (150 - 70) * relX + 0.5)
+    local val = math.floor(50 + (100 - 50) * relX + 0.5)
     Library.RadioHUDScale = val
     ScaleValInput.Text = tostring(val)
     ScaleFill.Size = UDim2.new(relX, 0, 1, 0)
@@ -1641,10 +1649,10 @@ end))
 ScaleValInput.FocusLost:Connect(function()
     local parsed = tonumber(ScaleValInput.Text)
     if parsed then
-        parsed = math.clamp(math.floor(parsed + 0.5), 70, 150)
+        parsed = math.clamp(math.floor(parsed + 0.5), 50, 100)
         Library.RadioHUDScale = parsed
         ScaleValInput.Text = tostring(parsed)
-        local relX = (parsed - 70) / (150 - 70)
+        local relX = (parsed - 50) / (100 - 50)
         ScaleFill.Size = UDim2.new(relX, 0, 1, 0)
         ScaleHandle.Position = UDim2.new(relX, -4, 0.5, -5)
         updateRadioHUDProperties()
@@ -1977,7 +1985,6 @@ function Library:SetTheme(themeName)
                 smoothTween(elem.KeyBtn, DUR_NORMAL, { BackgroundColor3 = t.Header, TextColor3 = t.Accent })
                 if elem.ModePopup then smoothTween(elem.ModePopup, DUR_NORMAL, { BackgroundColor3 = t.Block }) end
                 if elem.PopupStroke then smoothTween(elem.PopupStroke, DUR_NORMAL, { Color = t.StrokeActive }) end
-                if elem.PopupHeader then smoothTween(elem.PopupHeader, DUR_NORMAL, { BackgroundColor3 = t.Header, TextColor3 = t.Accent }) end
             end
         end
     end
@@ -2623,7 +2630,7 @@ function Library:CreateBlock(title, defaultPosition)
         end))
     end
 
-    -- UNCLIPPED KEYBIND WITH RIGHT-CLICK MINI GUI MODE POPUP (Parented to Container)
+    -- CLEAN HEADER-LESS KEYBIND MODE POPUP (Parented to Container)
     function Block:AddKeybind(name, defaultKey, callback)
         callback = callback or function() end
         local boundKey = defaultKey or Enum.KeyCode.Unknown
@@ -2666,10 +2673,10 @@ function Library:CreateBlock(title, defaultPosition)
         KeyBtn.ZIndex = 10
         KeyBtn.Parent = BindFrame
 
-        -- UNCLIPPED RIGHT-CLICK MINI MODE GUI POPUP (PARENTED TO TOP CONTAINER)
+        -- CLEAN HEADER-LESS MODE POPUP MENU (3 BUTTONS)
         local ModePopup = Instance.new("Frame")
         ModePopup.Name = "ModePopup_" .. name
-        ModePopup.Size = UDim2.new(0, 95, 0, 88)
+        ModePopup.Size = UDim2.new(0, 88, 0, 70)
         ModePopup.BackgroundColor3 = Library.Theme.Block
         ModePopup.BorderSizePixel = 0
         ModePopup.Visible = false
@@ -2681,16 +2688,12 @@ function Library:CreateBlock(title, defaultPosition)
         PopupStroke.Thickness = 1.2
         PopupStroke.Parent = ModePopup
 
-        local PopupHeader = Instance.new("TextLabel")
-        PopupHeader.Size = UDim2.new(1, 0, 0, 18)
-        PopupHeader.BackgroundColor3 = Library.Theme.Header
-        PopupHeader.BorderSizePixel = 0
-        PopupHeader.Font = Library.Fonts.Header
-        PopupHeader.Text = "SELECT MODE"
-        PopupHeader.TextColor3 = Library.Theme.Accent
-        PopupHeader.TextSize = 8
-        PopupHeader.ZIndex = 151
-        PopupHeader.Parent = ModePopup
+        local PopupPadding = Instance.new("UIPadding")
+        PopupPadding.PaddingTop = UDim.new(0, 3)
+        PopupPadding.PaddingBottom = UDim.new(0, 3)
+        PopupPadding.PaddingLeft = UDim.new(0, 3)
+        PopupPadding.PaddingRight = UDim.new(0, 3)
+        PopupPadding.Parent = ModePopup
 
         local PopupLayout = Instance.new("UIListLayout")
         PopupLayout.SortOrder = Enum.SortOrder.LayoutOrder
@@ -2715,8 +2718,7 @@ function Library:CreateBlock(title, defaultPosition)
 
         for _, m in ipairs(modes) do
             local MBtn = Instance.new("TextButton")
-            MBtn.Size = UDim2.new(1, -4, 0, 20)
-            MBtn.Position = UDim2.new(0, 2, 0, 0)
+            MBtn.Size = UDim2.new(1, 0, 0, 20)
             MBtn.BackgroundColor3 = (m == mode) and Library.Theme.Header or Library.Theme.Card
             MBtn.BorderSizePixel = 0
             MBtn.Font = Library.Fonts.Badge
@@ -2749,8 +2751,8 @@ function Library:CreateBlock(title, defaultPosition)
             if ModePopup.Visible then
                 local btnPos = KeyBtn.AbsolutePosition
                 local btnSize = KeyBtn.AbsoluteSize
-                ModePopup.Position = UDim2.new(0, btnPos.X - 15, 0, btnPos.Y + btnSize.Y + 4)
-                smoothTween(ModePopup, DUR_FAST, { Size = UDim2.new(0, 95, 0, 88) })
+                ModePopup.Position = UDim2.new(0, btnPos.X - 10, 0, btnPos.Y + btnSize.Y + 4)
+                smoothTween(ModePopup, DUR_FAST, { Size = UDim2.new(0, 88, 0, 70) })
             end
         end
 
@@ -2798,8 +2800,7 @@ function Library:CreateBlock(title, defaultPosition)
             Label = Label,
             KeyBtn = KeyBtn,
             ModePopup = ModePopup,
-            PopupStroke = PopupStroke,
-            PopupHeader = PopupHeader
+            PopupStroke = PopupStroke
         })
 
         -- Keyboard events handling Hold, Toggle, Always modes
