@@ -1,7 +1,6 @@
 -- [[ NURSULTAN CLIENT UI LIBRARY — MASTER CORE ENGINE ]] --
--- Sharp Square Rectilinear Aesthetics (0 Corner Radius), Full Live Theme Switcher,
--- Custom Image Icons for Save (110746782819291) & Delete (81109897851133),
--- Workspace JSON Config Manager, Radio HUD Overlay with Seek Slider, Bulletproof RightShift Toggle.
+-- Sharp Square Rectilinear Aesthetics (0 CornerRadius), Harmonized Spring Tweens,
+-- Full Live Theme Switcher, Modal Drag Lock & Config Dropdown System.
 
 local HttpService      = game:GetService("HttpService")
 local UserInputService = game:GetService("UserInputService")
@@ -79,7 +78,6 @@ local Library = {
     Connections = {},
     OpenDropdowns = {},
     Enabled = true,
-    Animating = false,
     ListeningKeybind = false,
     BlurEnabled = true,
     BlurSize = 18,
@@ -94,6 +92,39 @@ local Library = {
 }
 
 Library.Theme = Library.Themes["Monochrome Dark"]
+
+-- HARMONIZED DESIGN SYSTEM TIMINGS & EASINGS
+local DUR_FAST   = 0.12
+local DUR_NORMAL = 0.18
+local DUR_MODAL  = 0.22
+
+local EASE_SMOOTH = Enum.EasingStyle.Quart
+local EASE_SPRING = Enum.EasingStyle.Back
+local DIR_OUT     = Enum.EasingDirection.Out
+local DIR_IN      = Enum.EasingDirection.In
+
+local ActiveTweens = {}
+
+local function smoothTween(object, duration, properties, easingStyle, easingDirection)
+    easingStyle = easingStyle or EASE_SMOOTH
+    easingDirection = easingDirection or DIR_OUT
+
+    if ActiveTweens[object] then
+        pcall(function() ActiveTweens[object]:Cancel() end)
+        ActiveTweens[object] = nil
+    end
+
+    local anim = TweenService:Create(object, TweenInfo.new(duration, easingStyle, easingDirection), properties)
+    ActiveTweens[object] = anim
+    anim:Play()
+
+    anim.Completed:Connect(function()
+        if ActiveTweens[object] == anim then
+            ActiveTweens[object] = nil
+        end
+    end)
+    return anim
+end
 
 local function formatAssetId(raw)
     if not raw or raw == "" then return "" end
@@ -207,7 +238,6 @@ trackConnection(RunService.RenderStepped:Connect(function(dt)
     end
 end))
 
--- Watermark (No Rounded Corners)
 local Watermark = Instance.new("Frame")
 Watermark.Name = "Watermark"
 Watermark.Size = UDim2.new(0, 270, 0, 32)
@@ -239,7 +269,6 @@ WMarkLabel.TextSize = 11
 WMarkLabel.TextXAlignment = Enum.TextXAlignment.Left
 WMarkLabel.Parent = Watermark
 
--- Gear Icon Button (No Rounded Corners)
 local GearBtnFrame = Instance.new("Frame")
 GearBtnFrame.Name = "GearButtonFrame"
 GearBtnFrame.Size = UDim2.new(0, 38, 0, 38)
@@ -262,13 +291,7 @@ GearIcon.Image = "rbxassetid://7059346373"
 GearIcon.ImageColor3 = Library.Theme.Accent
 GearIcon.Parent = GearBtnFrame
 
-local function tween(object, duration, properties, easingStyle, easingDirection)
-    easingStyle = easingStyle or Enum.EasingStyle.Quart
-    easingDirection = easingDirection or Enum.EasingDirection.Out
-    local anim = TweenService:Create(object, TweenInfo.new(duration, easingStyle, easingDirection), properties)
-    anim:Play()
-    return anim
-end
+local SettingsModal
 
 local function makeDraggable(frame, dragHandle)
     local dragging = false
@@ -276,6 +299,10 @@ local function makeDraggable(frame, dragHandle)
 
     trackConnection(dragHandle.InputBegan:Connect(function(input)
         if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+            if SettingsModal and SettingsModal.Visible and frame ~= SettingsModal then
+                return
+            end
+
             dragging = true
             dragStart = input.Position
             startPos = frame.Position
@@ -298,6 +325,10 @@ local function makeDraggable(frame, dragHandle)
 
     trackConnection(UserInputService.InputChanged:Connect(function(input)
         if input == dragInput and dragging then
+            if SettingsModal and SettingsModal.Visible and frame ~= SettingsModal then
+                dragging = false
+                return
+            end
             local delta = input.Position - dragStart
             local newPos = UDim2.new(
                 startPos.X.Scale,
@@ -316,7 +347,6 @@ local function makeDraggable(frame, dragHandle)
     end))
 end
 
--- Keybind HUD (No Rounded Corners)
 local KeybindHUDFrame = Instance.new("Frame")
 KeybindHUDFrame.Name = "KeybindHUDOverlay"
 KeybindHUDFrame.Size = UDim2.new(0, 190, 0, 32)
@@ -372,10 +402,7 @@ function Library:RefreshKeybindHUD()
         if child:IsA("Frame") then child:Destroy() end
     end
 
-    local count = 0
     for featName, keyName in pairs(Library.KeybindList) do
-        count = count + 1
-
         local Row = Instance.new("Frame")
         Row.Size = UDim2.new(1, 0, 0, 22)
         Row.BackgroundColor3 = Library.Theme.Card
@@ -407,10 +434,9 @@ function Library:RefreshKeybindHUD()
 
     local listHeight = HUDListLayout.AbsoluteContentSize.Y
     HUDListHolder.Size = UDim2.new(1, -12, 0, listHeight)
-    tween(KeybindHUDFrame, 0.2, { Size = UDim2.new(0, 190, 0, 34 + listHeight) })
+    smoothTween(KeybindHUDFrame, DUR_NORMAL, { Size = UDim2.new(0, 190, 0, 34 + listHeight) })
 end
 
--- Radio HUD Frame (No Rounded Corners)
 local RadioHUDFrame = Instance.new("Frame")
 RadioHUDFrame.Name = "RadioHUDOverlay"
 RadioHUDFrame.Size = UDim2.new(0, 260, 0, 165)
@@ -629,7 +655,7 @@ for i, spData in ipairs(speeds) do
         for _, child in ipairs(SpeedRow:GetChildren()) do
             if child:IsA("TextButton") then
                 local isMatch = (child.Text == spData.Text)
-                tween(child, 0.15, {
+                smoothTween(child, DUR_FAST, {
                     BackgroundColor3 = isMatch and Library.Theme.Header or Library.Theme.Card,
                     TextColor3 = isMatch and Library.Theme.Accent or Library.Theme.TextDim
                 })
@@ -645,7 +671,6 @@ local function triggerPlaySound(rawId)
         RadioSound:Play()
         RadioTrackLabel.Text = "Track: " .. soundAsset
         HUDPlayBtn.Text = "PAUSE"
-        print("[Nursultan] Playing Sound Track:", soundAsset)
     end
 end
 
@@ -669,8 +694,7 @@ HUDPlayBtn.MouseButton1Click:Connect(function()
     end
 end)
 
--- Settings Modal Frame (No Rounded Corners)
-local SettingsModal = Instance.new("Frame")
+SettingsModal = Instance.new("Frame")
 SettingsModal.Name = "SettingsModal"
 SettingsModal.Size = UDim2.new(0, 480, 0, 460)
 SettingsModal.Position = UDim2.new(0.5, -240, 0.5, -230)
@@ -776,7 +800,7 @@ end
 addModalSectionLabel("Workspace Config Manager")
 
 local ConfigCard = Instance.new("Frame")
-ConfigCard.Size = UDim2.new(1, -10, 0, 120)
+ConfigCard.Size = UDim2.new(1, -10, 0, 155)
 ConfigCard.BackgroundColor3 = Library.Theme.Card
 ConfigCard.BorderSizePixel = 0
 ConfigCard.ZIndex = 22
@@ -807,7 +831,6 @@ ConfigNameInput.ClearTextOnFocus = false
 ConfigNameInput.ZIndex = 25
 ConfigNameInput.Parent = ConfigNameBg
 
--- Save Config Button with Custom Image Icon: rbxassetid://110746782819291
 local SaveCreateBtn = Instance.new("TextButton")
 SaveCreateBtn.Size = UDim2.new(0, 125, 0, 30)
 SaveCreateBtn.Position = UDim2.new(1, -133, 0, 10)
@@ -829,22 +852,163 @@ SaveIcon.ImageColor3 = Library.Theme.Accent
 SaveIcon.ZIndex = 24
 SaveIcon.Parent = SaveCreateBtn
 
--- Action Buttons Row: Load & Delete (Delete Icon: rbxassetid://81109897851133)
+local ConfigSelectBg = Instance.new("Frame")
+ConfigSelectBg.Size = UDim2.new(1, -16, 0, 30)
+ConfigSelectBg.Position = UDim2.new(0, 8, 0, 48)
+ConfigSelectBg.BackgroundColor3 = Library.Theme.Header
+ConfigSelectBg.BorderSizePixel = 0
+ConfigSelectBg.ZIndex = 23
+ConfigSelectBg.Parent = ConfigCard
+
+local ConfigSelectLbl = Instance.new("TextLabel")
+ConfigSelectLbl.Size = UDim2.new(0, 100, 1, 0)
+ConfigSelectLbl.Position = UDim2.new(0, 8, 0, 0)
+ConfigSelectLbl.BackgroundTransparency = 1
+ConfigSelectLbl.Font = Library.Fonts.Label
+ConfigSelectLbl.Text = "Select Config:"
+ConfigSelectLbl.TextColor3 = Library.Theme.TextDim
+ConfigSelectLbl.TextSize = 10
+ConfigSelectLbl.TextXAlignment = Enum.TextXAlignment.Left
+ConfigSelectLbl.ZIndex = 24
+ConfigSelectLbl.Parent = ConfigSelectBg
+
+local ConfigDropdownBtn = Instance.new("TextButton")
+ConfigDropdownBtn.Size = UDim2.new(1, -110, 0, 24)
+ConfigDropdownBtn.Position = UDim2.new(0, 102, 0.5, -12)
+ConfigDropdownBtn.BackgroundColor3 = Library.Theme.Card
+ConfigDropdownBtn.BorderSizePixel = 0
+ConfigDropdownBtn.Font = Library.Fonts.Badge
+ConfigDropdownBtn.Text = "default.json v"
+ConfigDropdownBtn.TextColor3 = Library.Theme.Accent
+ConfigDropdownBtn.TextSize = 10
+ConfigDropdownBtn.ZIndex = 24
+ConfigDropdownBtn.Parent = ConfigSelectBg
+
+local ConfigDropList = Instance.new("Frame")
+ConfigDropList.Size = UDim2.new(1, 0, 0, 0)
+ConfigDropList.Position = UDim2.new(0, 0, 1, 2)
+ConfigDropList.BackgroundColor3 = Library.Theme.Block
+ConfigDropList.BorderSizePixel = 0
+ConfigDropList.ClipsDescendants = true
+ConfigDropList.Visible = false
+ConfigDropList.ZIndex = 30
+ConfigDropList.Parent = ConfigDropdownBtn
+
+local ConfigDropStroke = Instance.new("UIStroke")
+ConfigDropStroke.Color = Library.Theme.StrokeActive
+ConfigDropStroke.Thickness = 1
+ConfigDropStroke.Parent = ConfigDropList
+
+local ConfigDropScroll = Instance.new("ScrollingFrame")
+ConfigDropScroll.Size = UDim2.new(1, 0, 1, 0)
+ConfigDropScroll.BackgroundTransparency = 1
+ConfigDropScroll.BorderSizePixel = 0
+ConfigDropScroll.ScrollBarThickness = 3
+ConfigDropScroll.ScrollBarImageColor3 = Library.Theme.Accent
+ConfigDropScroll.ZIndex = 31
+ConfigDropScroll.Parent = ConfigDropList
+
+local ConfigDropLayout = Instance.new("UIListLayout")
+ConfigDropLayout.SortOrder = Enum.SortOrder.LayoutOrder
+ConfigDropLayout.Padding = UDim.new(0, 2)
+ConfigDropLayout.Parent = ConfigDropScroll
+
+local function getSavedConfigsList()
+    local configs = {}
+    pcall(function()
+        if listfiles and isfolder and isfolder(Library.ConfigFolder) then
+            local files = listfiles(Library.ConfigFolder)
+            for _, filePath in ipairs(files) do
+                local fileName = filePath:match("([^/^\\]+)%.json$") or filePath:match("([^/^\\]+)$")
+                if fileName then
+                    if fileName:sub(-5) == ".json" then
+                        fileName = fileName:sub(1, -6)
+                    end
+                    table.insert(configs, fileName)
+                end
+            end
+        end
+    end)
+    if #configs == 0 then
+        table.insert(configs, "default")
+    end
+    return configs
+end
+
+local configDropOpen = false
+local function refreshConfigDropdownOptions()
+    for _, child in ipairs(ConfigDropScroll:GetChildren()) do
+        if child:IsA("TextButton") then child:Destroy() end
+    end
+
+    local cfgList = getSavedConfigsList()
+    for _, cfgName in ipairs(cfgList) do
+        local ItemBtn = Instance.new("TextButton")
+        ItemBtn.Size = UDim2.new(1, -4, 0, 22)
+        ItemBtn.BackgroundColor3 = (ConfigNameInput.Text == cfgName) and Library.Theme.Header or Library.Theme.Card
+        ItemBtn.BorderSizePixel = 0
+        ItemBtn.Font = Library.Fonts.Badge
+        ItemBtn.Text = "  " .. cfgName .. ".json"
+        ItemBtn.TextColor3 = (ConfigNameInput.Text == cfgName) and Library.Theme.Accent or Library.Theme.TextDim
+        ItemBtn.TextSize = 10
+        ItemBtn.TextXAlignment = Enum.TextXAlignment.Left
+        ItemBtn.ZIndex = 32
+        ItemBtn.Parent = ConfigDropScroll
+
+        ItemBtn.MouseButton1Click:Connect(function()
+            ConfigNameInput.Text = cfgName
+            ConfigDropdownBtn.Text = cfgName .. ".json v"
+            configDropOpen = false
+            local t = smoothTween(ConfigDropList, DUR_NORMAL, { Size = UDim2.new(1, 0, 0, 0) })
+            t.Completed:Connect(function()
+                if not configDropOpen then ConfigDropList.Visible = false end
+            end)
+        end)
+    end
+
+    local totalH = math.min(#cfgList * 24, 100)
+    ConfigDropScroll.CanvasSize = UDim2.new(0, 0, 0, #cfgList * 24)
+    return totalH
+end
+
+ConfigDropdownBtn.MouseButton1Click:Connect(function()
+    configDropOpen = not configDropOpen
+    if configDropOpen then
+        local height = refreshConfigDropdownOptions()
+        ConfigDropList.Visible = true
+        smoothTween(ConfigDropList, DUR_NORMAL, { Size = UDim2.new(1, 0, 0, height) })
+    else
+        local t = smoothTween(ConfigDropList, DUR_NORMAL, { Size = UDim2.new(1, 0, 0, 0) })
+        t.Completed:Connect(function()
+            if not configDropOpen then ConfigDropList.Visible = false end
+        end)
+    end
+end)
+
 local LoadConfigBtn = Instance.new("TextButton")
 LoadConfigBtn.Size = UDim2.new(0.48, 0, 0, 30)
-LoadConfigBtn.Position = UDim2.new(0, 8, 0, 50)
+LoadConfigBtn.Position = UDim2.new(0, 8, 0, 86)
 LoadConfigBtn.BackgroundColor3 = Library.Theme.Header
 LoadConfigBtn.BorderSizePixel = 0
 LoadConfigBtn.Font = Library.Fonts.Header
-LoadConfigBtn.Text = "LOAD CONFIG"
+LoadConfigBtn.Text = "  LOAD CONFIG"
 LoadConfigBtn.TextColor3 = Library.Theme.Text
 LoadConfigBtn.TextSize = 11
 LoadConfigBtn.ZIndex = 23
 LoadConfigBtn.Parent = ConfigCard
 
+local LoadIcon = Instance.new("ImageLabel")
+LoadIcon.Size = UDim2.new(0, 16, 0, 16)
+LoadIcon.Position = UDim2.new(0, 10, 0.5, -8)
+LoadIcon.BackgroundTransparency = 1
+LoadIcon.Image = "rbxassetid://17119858971"
+LoadIcon.ImageColor3 = Library.Theme.Text
+LoadIcon.ZIndex = 24
+LoadIcon.Parent = LoadConfigBtn
+
 local DeleteConfigBtn = Instance.new("TextButton")
 DeleteConfigBtn.Size = UDim2.new(0.48, 0, 0, 30)
-DeleteConfigBtn.Position = UDim2.new(0.52, -4, 0, 50)
+DeleteConfigBtn.Position = UDim2.new(0.52, -4, 0, 86)
 DeleteConfigBtn.BackgroundColor3 = Library.Theme.Header
 DeleteConfigBtn.BorderSizePixel = 0
 DeleteConfigBtn.Font = Library.Fonts.Header
@@ -858,14 +1022,14 @@ local DeleteIcon = Instance.new("ImageLabel")
 DeleteIcon.Size = UDim2.new(0, 16, 0, 16)
 DeleteIcon.Position = UDim2.new(0, 12, 0.5, -8)
 DeleteIcon.BackgroundTransparency = 1
-DeleteIcon.Image = "rbxassetid://81109897851133"
+DeleteIcon.Image = "rbxassetid://11768918600"
 DeleteIcon.ImageColor3 = Color3.fromRGB(255, 90, 90)
 DeleteIcon.ZIndex = 24
 DeleteIcon.Parent = DeleteConfigBtn
 
 local ConfigStatusLabel = Instance.new("TextLabel")
 ConfigStatusLabel.Size = UDim2.new(1, -16, 0, 20)
-ConfigStatusLabel.Position = UDim2.new(0, 8, 0, 90)
+ConfigStatusLabel.Position = UDim2.new(0, 8, 0, 126)
 ConfigStatusLabel.BackgroundTransparency = 1
 ConfigStatusLabel.Font = Library.Fonts.Label
 ConfigStatusLabel.Text = "Config Folder: workspace/" .. Library.ConfigFolder
@@ -901,7 +1065,7 @@ SaveCreateBtn.MouseButton1Click:Connect(function()
         if writefile then
             writefile(filePath, HttpService:JSONEncode(data))
             ConfigStatusLabel.Text = "Saved: " .. name .. ".json"
-            print("[Nursultan] Saved config to workspace:", filePath)
+            ConfigDropdownBtn.Text = name .. ".json v"
         end
     end)
 end)
@@ -917,7 +1081,7 @@ LoadConfigBtn.MouseButton1Click:Connect(function()
             if decoded then
                 if decoded.Theme then Library:SetTheme(decoded.Theme) end
                 ConfigStatusLabel.Text = "Loaded: " .. name .. ".json"
-                print("[Nursultan] Loaded config from workspace:", filePath)
+                ConfigDropdownBtn.Text = name .. ".json v"
             end
         else
             ConfigStatusLabel.Text = "Config not found: " .. name .. ".json"
@@ -934,7 +1098,8 @@ DeleteConfigBtn.MouseButton1Click:Connect(function()
         if delfile and isfile and isfile(filePath) then
             delfile(filePath)
             ConfigStatusLabel.Text = "Deleted: " .. name .. ".json"
-            print("[Nursultan] Deleted config:", filePath)
+            ConfigNameInput.Text = "default"
+            ConfigDropdownBtn.Text = "default.json v"
         end
     end)
 end)
@@ -1030,7 +1195,6 @@ ApplySkyboxBtn.MouseButton1Click:Connect(function()
             if item.Key2 then pcall(function() skyObj[item.Key2] = formatted end) end
         end
     end
-    print("[Nursultan] Custom Skybox Executed!")
 end)
 
 addModalSectionLabel("Visual Effects & Render")
@@ -1074,11 +1238,11 @@ BTKnob.Parent = BTSwitchBg
 
 BlurToggleBlock.MouseButton1Click:Connect(function()
     Library.BlurEnabled = not Library.BlurEnabled
-    tween(BTSwitchBg, 0.18, { BackgroundColor3 = Library.BlurEnabled and Library.Theme.Accent or Library.Theme.Header })
-    tween(BTKnob, 0.18, {
+    smoothTween(BTSwitchBg, DUR_NORMAL, { BackgroundColor3 = Library.BlurEnabled and Library.Theme.Accent or Library.Theme.Header })
+    smoothTween(BTKnob, DUR_NORMAL, {
         Position = Library.BlurEnabled and UDim2.new(1, -18, 0.5, -8) or UDim2.new(0, 2, 0.5, -8),
         BackgroundColor3 = Library.BlurEnabled and Library.Theme.Background or Library.Theme.TextDim
-    }, Enum.EasingStyle.Quart, Enum.EasingDirection.Out)
+    })
     MenuBlur.Enabled = Library.BlurEnabled and Library.Enabled
 end)
 
@@ -1121,11 +1285,11 @@ STKnob.Parent = STSwitchBg
 
 SnowToggleBlock.MouseButton1Click:Connect(function()
     Library.SnowEnabled = not Library.SnowEnabled
-    tween(STSwitchBg, 0.18, { BackgroundColor3 = Library.SnowEnabled and Library.Theme.Accent or Library.Theme.Header })
-    tween(STKnob, 0.18, {
+    smoothTween(STSwitchBg, DUR_NORMAL, { BackgroundColor3 = Library.SnowEnabled and Library.Theme.Accent or Library.Theme.Header })
+    smoothTween(STKnob, DUR_NORMAL, {
         Position = Library.SnowEnabled and UDim2.new(1, -18, 0.5, -8) or UDim2.new(0, 2, 0.5, -8),
         BackgroundColor3 = Library.SnowEnabled and Library.Theme.Background or Library.Theme.TextDim
-    }, Enum.EasingStyle.Quart, Enum.EasingDirection.Out)
+    })
     SnowFolder.Visible = Library.SnowEnabled and Library.Enabled
 end)
 
@@ -1175,11 +1339,12 @@ local function toggleSettingsModal(visible)
         SettingsModal.Visible = true
         SettingsModal.Position = UDim2.new(0.5, -240, 0.5, -210)
         SettingsModal.Size = UDim2.new(0, 480, 0, 460)
-        tween(SettingsModal, 0.3, { Position = UDim2.new(0.5, -240, 0.5, -230) }, Enum.EasingStyle.Back, Enum.EasingDirection.Out)
+        smoothTween(SettingsModal, DUR_MODAL, { Position = UDim2.new(0.5, -240, 0.5, -230) }, EASE_SPRING, DIR_OUT)
     else
-        tween(SettingsModal, 0.2, { Position = UDim2.new(0.5, -240, 0.5, -190) }, Enum.EasingStyle.Quart, Enum.EasingDirection.In)
-        task.wait(0.2)
-        SettingsModal.Visible = false
+        local anim = smoothTween(SettingsModal, DUR_MODAL, { Position = UDim2.new(0.5, -240, 0.5, -190) }, EASE_SMOOTH, DIR_IN)
+        anim.Completed:Connect(function()
+            if not visible then SettingsModal.Visible = false end
+        end)
     end
 end
 
@@ -1188,88 +1353,92 @@ CloseModalBtn.MouseButton1Click:Connect(function()
 end)
 
 GearIcon.MouseButton1Click:Connect(function()
-    tween(GearIcon, 0.3, { Rotation = 180 }, Enum.EasingStyle.Back, Enum.EasingDirection.Out)
+    smoothTween(GearIcon, DUR_MODAL, { Rotation = 180 }, EASE_SPRING, DIR_OUT)
     toggleSettingsModal()
 end)
 
--- FULL LIVE THEME SWITCHER ENGINE (Updates Modal + All Blocks live!)
 function Library:SetTheme(themeName)
     local t = Library.Themes[themeName]
     if not t then return end
     Library.Theme = t
     Library.CurrentThemeName = themeName
 
-    tween(Watermark, 0.2, { BackgroundColor3 = t.Block })
-    tween(WMarkStroke, 0.2, { Color = t.Stroke })
-    tween(WMarkAccent, 0.2, { BackgroundColor3 = t.Accent })
-    tween(WMarkLabel, 0.2, { TextColor3 = t.Text })
+    smoothTween(Watermark, DUR_NORMAL, { BackgroundColor3 = t.Block })
+    smoothTween(WMarkStroke, DUR_NORMAL, { Color = t.Stroke })
+    smoothTween(WMarkAccent, DUR_NORMAL, { BackgroundColor3 = t.Accent })
+    smoothTween(WMarkLabel, DUR_NORMAL, { TextColor3 = t.Text })
 
-    tween(GearBtnFrame, 0.2, { BackgroundColor3 = t.Block })
-    tween(GearStroke, 0.2, { Color = t.Accent })
-    tween(GearIcon, 0.2, { ImageColor3 = t.Accent })
+    smoothTween(GearBtnFrame, DUR_NORMAL, { BackgroundColor3 = t.Block })
+    smoothTween(GearStroke, DUR_NORMAL, { Color = t.Accent })
+    smoothTween(GearIcon, DUR_NORMAL, { ImageColor3 = t.Accent })
 
-    tween(KeybindHUDFrame, 0.2, { BackgroundColor3 = t.Block })
-    tween(KeybindHUDHeader, 0.2, { BackgroundColor3 = t.Header })
-    tween(KeybindHUDStroke, 0.2, { Color = t.Stroke })
-    tween(HUDDot, 0.2, { BackgroundColor3 = t.Accent })
-    tween(HUDTitle, 0.2, { TextColor3 = t.Text })
+    smoothTween(KeybindHUDFrame, DUR_NORMAL, { BackgroundColor3 = t.Block })
+    smoothTween(KeybindHUDHeader, DUR_NORMAL, { BackgroundColor3 = t.Header })
+    smoothTween(KeybindHUDStroke, DUR_NORMAL, { Color = t.Stroke })
+    smoothTween(HUDDot, DUR_NORMAL, { BackgroundColor3 = t.Accent })
+    smoothTween(HUDTitle, DUR_NORMAL, { TextColor3 = t.Text })
 
-    tween(RadioHUDFrame, 0.2, { BackgroundColor3 = t.Block })
-    tween(RadioHeader, 0.2, { BackgroundColor3 = t.Header })
-    tween(RadioHUDStroke, 0.2, { Color = t.Stroke })
-    tween(RHTitle, 0.2, { TextColor3 = t.Text })
-    tween(MusicIcon, 0.2, { ImageColor3 = t.Accent })
-    tween(HUDPlayBtn, 0.2, { BackgroundColor3 = t.Card, TextColor3 = t.Accent })
-    tween(HUDSoundInputBg, 0.2, { BackgroundColor3 = t.Header })
-    tween(HUDSoundInput, 0.2, { TextColor3 = t.Accent })
-    tween(SeekTimeLabel, 0.2, { TextColor3 = t.Accent })
-    tween(SeekTrackBg, 0.2, { BackgroundColor3 = t.Header })
-    tween(SeekFill, 0.2, { BackgroundColor3 = t.Accent })
-    tween(SeekHandle, 0.2, { BackgroundColor3 = t.Accent })
+    smoothTween(RadioHUDFrame, DUR_NORMAL, { BackgroundColor3 = t.Block })
+    smoothTween(RadioHeader, DUR_NORMAL, { BackgroundColor3 = t.Header })
+    smoothTween(RadioHUDStroke, DUR_NORMAL, { Color = t.Stroke })
+    smoothTween(RHTitle, DUR_NORMAL, { TextColor3 = t.Text })
+    smoothTween(MusicIcon, DUR_NORMAL, { ImageColor3 = t.Accent })
+    smoothTween(HUDPlayBtn, DUR_NORMAL, { BackgroundColor3 = t.Card, TextColor3 = t.Accent })
+    smoothTween(HUDSoundInputBg, DUR_NORMAL, { BackgroundColor3 = t.Header })
+    smoothTween(HUDSoundInput, DUR_NORMAL, { TextColor3 = t.Accent })
+    smoothTween(SeekTimeLabel, DUR_NORMAL, { TextColor3 = t.Accent })
+    smoothTween(SeekTrackBg, DUR_NORMAL, { BackgroundColor3 = t.Header })
+    smoothTween(SeekFill, DUR_NORMAL, { BackgroundColor3 = t.Accent })
+    smoothTween(SeekHandle, DUR_NORMAL, { BackgroundColor3 = t.Accent })
 
-    -- Update Modal Windows Live
-    tween(SettingsModal, 0.2, { BackgroundColor3 = t.Block })
-    tween(ModalHeader, 0.2, { BackgroundColor3 = t.Header })
-    tween(ModalTitle, 0.2, { TextColor3 = t.Text })
-    tween(ModalStroke, 0.2, { Color = t.StrokeActive })
+    smoothTween(SettingsModal, DUR_NORMAL, { BackgroundColor3 = t.Block })
+    smoothTween(ModalHeader, DUR_NORMAL, { BackgroundColor3 = t.Header })
+    smoothTween(ModalTitle, DUR_NORMAL, { TextColor3 = t.Text })
+    smoothTween(ModalStroke, DUR_NORMAL, { Color = t.StrokeActive })
 
-    tween(ConfigCard, 0.2, { BackgroundColor3 = t.Card })
-    tween(ConfigNameBg, 0.2, { BackgroundColor3 = t.Header })
-    tween(ConfigNameInput, 0.2, { TextColor3 = t.Accent })
-    tween(SaveCreateBtn, 0.2, { BackgroundColor3 = t.Header, TextColor3 = t.Accent })
-    tween(SaveIcon, 0.2, { ImageColor3 = t.Accent })
-    tween(LoadConfigBtn, 0.2, { BackgroundColor3 = t.Header, TextColor3 = t.Text })
-    tween(DeleteConfigBtn, 0.2, { BackgroundColor3 = t.Header })
+    smoothTween(ConfigCard, DUR_NORMAL, { BackgroundColor3 = t.Card })
+    smoothTween(ConfigNameBg, DUR_NORMAL, { BackgroundColor3 = t.Header })
+    smoothTween(ConfigNameInput, DUR_NORMAL, { TextColor3 = t.Accent })
+    smoothTween(SaveCreateBtn, DUR_NORMAL, { BackgroundColor3 = t.Header, TextColor3 = t.Accent })
+    smoothTween(SaveIcon, DUR_NORMAL, { ImageColor3 = t.Accent })
+    smoothTween(ConfigSelectBg, DUR_NORMAL, { BackgroundColor3 = t.Header })
+    smoothTween(ConfigSelectLbl, DUR_NORMAL, { TextColor3 = t.TextDim })
+    smoothTween(ConfigDropdownBtn, DUR_NORMAL, { BackgroundColor3 = t.Card, TextColor3 = t.Accent })
+    smoothTween(ConfigDropList, DUR_NORMAL, { BackgroundColor3 = t.Block })
+    smoothTween(ConfigDropStroke, DUR_NORMAL, { Color = t.StrokeActive })
+    smoothTween(LoadConfigBtn, DUR_NORMAL, { BackgroundColor3 = t.Header, TextColor3 = t.Text })
+    smoothTween(LoadIcon, DUR_NORMAL, { ImageColor3 = t.Text })
+    smoothTween(DeleteConfigBtn, DUR_NORMAL, { BackgroundColor3 = t.Header })
 
-    tween(SkyboxCard, 0.2, { BackgroundColor3 = t.Card })
-    tween(ApplySkyboxBtn, 0.2, { BackgroundColor3 = t.Header, TextColor3 = t.Accent })
+    smoothTween(SkyboxCard, DUR_NORMAL, { BackgroundColor3 = t.Card })
+    smoothTween(ApplySkyboxBtn, DUR_NORMAL, { BackgroundColor3 = t.Header, TextColor3 = t.Accent })
     for _, item in ipairs(SkyInputs) do
-        if item.BoxBg then tween(item.BoxBg, 0.2, { BackgroundColor3 = t.Header }) end
-        if item.Input then tween(item.Input, 0.2, { TextColor3 = t.Accent }) end
+        if item.BoxBg then smoothTween(item.BoxBg, DUR_NORMAL, { BackgroundColor3 = t.Header }) end
+        if item.Input then smoothTween(item.Input, DUR_NORMAL, { TextColor3 = t.Accent }) end
     end
 
-    tween(BlurToggleBlock, 0.2, { BackgroundColor3 = t.Card })
-    tween(BTLabel, 0.2, { TextColor3 = t.Text })
-    tween(BTSwitchBg, 0.2, { BackgroundColor3 = Library.BlurEnabled and t.Accent or t.Header })
-    tween(BTKnob, 0.2, { BackgroundColor3 = Library.BlurEnabled and t.Background or t.TextDim })
+    smoothTween(BlurToggleBlock, DUR_NORMAL, { BackgroundColor3 = t.Card })
+    smoothTween(BTLabel, DUR_NORMAL, { TextColor3 = t.Text })
+    smoothTween(BTSwitchBg, DUR_NORMAL, { BackgroundColor3 = Library.BlurEnabled and t.Accent or t.Header })
+    smoothTween(BTKnob, DUR_NORMAL, { BackgroundColor3 = Library.BlurEnabled and t.Background or t.TextDim })
 
-    tween(SnowToggleBlock, 0.2, { BackgroundColor3 = t.Card })
-    tween(STLabel, 0.2, { TextColor3 = t.Text })
-    tween(STSwitchBg, 0.2, { BackgroundColor3 = Library.SnowEnabled and t.Accent or t.Header })
-    tween(STKnob, 0.2, { BackgroundColor3 = Library.SnowEnabled and t.Background or t.TextDim })
+    smoothTween(SnowToggleBlock, DUR_NORMAL, { BackgroundColor3 = t.Card })
+    smoothTween(STLabel, DUR_NORMAL, { TextColor3 = t.Text })
+    smoothTween(STSwitchBg, DUR_NORMAL, { BackgroundColor3 = Library.SnowEnabled and t.Accent or t.Header })
+    smoothTween(STKnob, DUR_NORMAL, { BackgroundColor3 = Library.SnowEnabled and t.Background or t.TextDim })
 
-    tween(ThemeCard, 0.2, { BackgroundColor3 = t.Card })
-    tween(TCLabel, 0.2, { TextColor3 = t.Text })
+    smoothTween(ThemeCard, DUR_NORMAL, { BackgroundColor3 = t.Card })
+    smoothTween(TCLabel, DUR_NORMAL, { TextColor3 = t.Text })
 
     for _, elem in ipairs(Library.ModalElements) do
-        if elem.Label then tween(elem.Label, 0.2, { TextColor3 = t.Accent }) end
-        if elem.Line then tween(elem.Line, 0.2, { BackgroundColor3 = t.Stroke }) end
+        if elem.Label then smoothTween(elem.Label, DUR_NORMAL, { TextColor3 = t.Accent }) end
+        if elem.Line then smoothTween(elem.Line, DUR_NORMAL, { BackgroundColor3 = t.Stroke }) end
     end
 
     for _, child in ipairs(ThemeCard:GetChildren()) do
         if child:IsA("TextButton") then
             local isMatch = (child.Text == string.sub(themeName, 1, 9))
-            tween(child, 0.2, {
+            smoothTween(child, DUR_NORMAL, {
                 BackgroundColor3 = isMatch and t.Accent or t.Header,
                 TextColor3 = isMatch and t.Background or t.TextDim
             })
@@ -1277,42 +1446,42 @@ function Library:SetTheme(themeName)
     end
 
     for _, block in ipairs(Library.Blocks) do
-        if block.Frame then tween(block.Frame, 0.2, { BackgroundColor3 = t.Block }) end
-        if block.Stroke then tween(block.Stroke, 0.2, { Color = t.Stroke }) end
-        if block.Header then tween(block.Header, 0.2, { BackgroundColor3 = t.Header }) end
-        if block.TopGlow then tween(block.TopGlow, 0.2, { BackgroundColor3 = t.Accent }) end
-        if block.Dot then tween(block.Dot, 0.2, { BackgroundColor3 = t.Accent }) end
-        if block.TitleLabel then tween(block.TitleLabel, 0.2, { TextColor3 = t.Text }) end
+        if block.Frame then smoothTween(block.Frame, DUR_NORMAL, { BackgroundColor3 = t.Block }) end
+        if block.Stroke then smoothTween(block.Stroke, DUR_NORMAL, { Color = t.Stroke }) end
+        if block.Header then smoothTween(block.Header, DUR_NORMAL, { BackgroundColor3 = t.Header }) end
+        if block.TopGlow then smoothTween(block.TopGlow, DUR_NORMAL, { BackgroundColor3 = t.Accent }) end
+        if block.Dot then smoothTween(block.Dot, DUR_NORMAL, { BackgroundColor3 = t.Accent }) end
+        if block.TitleLabel then smoothTween(block.TitleLabel, DUR_NORMAL, { TextColor3 = t.Text }) end
 
         for _, elem in ipairs(block.Elements) do
             if elem.Type == "Toggle" then
-                tween(elem.Frame, 0.2, { BackgroundColor3 = t.Card })
-                tween(elem.Stroke, 0.2, { Color = elem.GetState() and t.StrokeHover or t.Stroke })
-                tween(elem.SwitchBg, 0.2, { BackgroundColor3 = elem.GetState() and t.Accent or t.Header })
-                tween(elem.Knob, 0.2, { BackgroundColor3 = elem.GetState() and t.Background or t.TextDim })
-                tween(elem.Label, 0.2, { TextColor3 = elem.GetState() and t.Text or t.TextDim })
+                smoothTween(elem.Frame, DUR_NORMAL, { BackgroundColor3 = t.Card })
+                smoothTween(elem.Stroke, DUR_NORMAL, { Color = elem.GetState() and t.StrokeHover or t.Stroke })
+                smoothTween(elem.SwitchBg, DUR_NORMAL, { BackgroundColor3 = elem.GetState() and t.Accent or t.Header })
+                smoothTween(elem.Knob, DUR_NORMAL, { BackgroundColor3 = elem.GetState() and t.Background or t.TextDim })
+                smoothTween(elem.Label, DUR_NORMAL, { TextColor3 = elem.GetState() and t.Text or t.TextDim })
             elseif elem.Type == "Slider" then
-                tween(elem.Frame, 0.2, { BackgroundColor3 = t.Card })
-                tween(elem.Stroke, 0.2, { Color = t.Stroke })
-                tween(elem.Label, 0.2, { TextColor3 = t.TextDim })
-                tween(elem.ValBadge, 0.2, { BackgroundColor3 = t.Header })
-                tween(elem.ValLabel, 0.2, { TextColor3 = t.Accent })
-                tween(elem.TrackBg, 0.2, { BackgroundColor3 = t.Header })
-                tween(elem.Fill, 0.2, { BackgroundColor3 = t.Accent })
-                tween(elem.Handle, 0.2, { BackgroundColor3 = t.Accent })
+                smoothTween(elem.Frame, DUR_NORMAL, { BackgroundColor3 = t.Card })
+                smoothTween(elem.Stroke, DUR_NORMAL, { Color = t.Stroke })
+                smoothTween(elem.Label, DUR_NORMAL, { TextColor3 = t.TextDim })
+                smoothTween(elem.ValBadge, DUR_NORMAL, { BackgroundColor3 = t.Header })
+                smoothTween(elem.ValLabel, DUR_NORMAL, { TextColor3 = t.Accent })
+                smoothTween(elem.TrackBg, DUR_NORMAL, { BackgroundColor3 = t.Header })
+                smoothTween(elem.Fill, DUR_NORMAL, { BackgroundColor3 = t.Accent })
+                smoothTween(elem.Handle, DUR_NORMAL, { BackgroundColor3 = t.Accent })
             elseif elem.Type == "Button" then
-                tween(elem.Frame, 0.2, { BackgroundColor3 = t.Card, TextColor3 = t.Text })
-                tween(elem.Stroke, 0.2, { Color = t.Stroke })
+                smoothTween(elem.Frame, DUR_NORMAL, { BackgroundColor3 = t.Card, TextColor3 = t.Text })
+                smoothTween(elem.Stroke, DUR_NORMAL, { Color = t.Stroke })
             elseif elem.Type == "Dropdown" then
-                tween(elem.Frame, 0.2, { BackgroundColor3 = t.Card })
-                tween(elem.Stroke, 0.2, { Color = t.Stroke })
-                tween(elem.Label, 0.2, { TextColor3 = t.TextDim })
-                tween(elem.SelBadge, 0.2, { BackgroundColor3 = t.Header, TextColor3 = t.Accent })
+                smoothTween(elem.Frame, DUR_NORMAL, { BackgroundColor3 = t.Card })
+                smoothTween(elem.Stroke, DUR_NORMAL, { Color = t.Stroke })
+                smoothTween(elem.Label, DUR_NORMAL, { TextColor3 = t.TextDim })
+                smoothTween(elem.SelBadge, DUR_NORMAL, { BackgroundColor3 = t.Header, TextColor3 = t.Accent })
             elseif elem.Type == "Keybind" then
-                tween(elem.Frame, 0.2, { BackgroundColor3 = t.Card })
-                tween(elem.Stroke, 0.2, { Color = t.Stroke })
-                tween(elem.Label, 0.2, { TextColor3 = t.TextDim })
-                tween(elem.KeyBtn, 0.2, { BackgroundColor3 = t.Header, TextColor3 = t.Accent })
+                smoothTween(elem.Frame, DUR_NORMAL, { BackgroundColor3 = t.Card })
+                smoothTween(elem.Stroke, DUR_NORMAL, { Color = t.Stroke })
+                smoothTween(elem.Label, DUR_NORMAL, { TextColor3 = t.TextDim })
+                smoothTween(elem.KeyBtn, DUR_NORMAL, { BackgroundColor3 = t.Header, TextColor3 = t.Accent })
             end
         end
     end
@@ -1327,7 +1496,7 @@ function Library:SetVisible(visible)
     if visible then
         if Library.BlurEnabled then
             MenuBlur.Enabled = true
-            tween(MenuBlur, 0.25, { Size = Library.BlurSize })
+            smoothTween(MenuBlur, DUR_NORMAL, { Size = Library.BlurSize })
         end
         SnowFolder.Visible = Library.SnowEnabled
 
@@ -1474,11 +1643,15 @@ function Library:CreateBlock(title, defaultPosition)
             Content.Visible = true
             local targetContentHeight = UIListLayout.AbsoluteContentSize.Y + 14
             Content.Size = UDim2.new(1, 0, 0, targetContentHeight)
-            tween(Frame, 0.2, { Size = UDim2.new(0, 240, 0, 38 + targetContentHeight) })
+            smoothTween(Frame, DUR_NORMAL, { Size = UDim2.new(0, 240, 0, 38 + targetContentHeight) })
         else
-            Content.Visible = false
-            Content.Size = UDim2.new(1, 0, 0, 0)
-            tween(Frame, 0.2, { Size = UDim2.new(0, 240, 0, 38) })
+            local anim = smoothTween(Frame, DUR_NORMAL, { Size = UDim2.new(0, 240, 0, 38) })
+            anim.Completed:Connect(function()
+                if not Block.Expanded then
+                    Content.Visible = false
+                    Content.Size = UDim2.new(1, 0, 0, 0)
+                end
+            end)
         end
     end
 
@@ -1487,8 +1660,8 @@ function Library:CreateBlock(title, defaultPosition)
     CollapseBtn.MouseButton1Click:Connect(function()
         Block.Expanded = not Block.Expanded
         CollapseBtn.Text = Block.Expanded and "-" or "+"
-        tween(CollapseBtn, 0.2, { Rotation = Block.Expanded and 0 or 180 })
-        tween(CollapseBtn, 0.15, { TextColor3 = Block.Expanded and Library.Theme.Text or Library.Theme.TextDim })
+        smoothTween(CollapseBtn, DUR_NORMAL, { Rotation = Block.Expanded and 0 or 180 })
+        smoothTween(CollapseBtn, DUR_FAST, { TextColor3 = Block.Expanded and Library.Theme.Text or Library.Theme.TextDim })
         updateHeight()
     end)
 
@@ -1584,25 +1757,25 @@ function Library:CreateBlock(title, defaultPosition)
         table.insert(Block.Elements, elemData)
 
         local function updateToggle()
-            tween(SwitchBg, 0.18, { BackgroundColor3 = state and Library.Theme.Accent or Library.Theme.Header })
-            tween(SwitchStroke, 0.18, { Color = state and Library.Theme.Accent or Library.Theme.Stroke })
-            tween(Knob, 0.18, {
+            smoothTween(SwitchBg, DUR_NORMAL, { BackgroundColor3 = state and Library.Theme.Accent or Library.Theme.Header })
+            smoothTween(SwitchStroke, DUR_NORMAL, { Color = state and Library.Theme.Accent or Library.Theme.Stroke })
+            smoothTween(Knob, DUR_NORMAL, {
                 Position = state and UDim2.new(1, -16, 0.5, -7) or UDim2.new(0, 2, 0.5, -7),
                 BackgroundColor3 = state and Library.Theme.Background or Library.Theme.TextDim
-            }, Enum.EasingStyle.Quart, Enum.EasingDirection.Out)
-            tween(Label, 0.18, { TextColor3 = state and Library.Theme.Text or Library.Theme.TextDim })
-            tween(Stroke, 0.18, { Color = state and Library.Theme.StrokeHover or Library.Theme.Stroke })
+            })
+            smoothTween(Label, DUR_NORMAL, { TextColor3 = state and Library.Theme.Text or Library.Theme.TextDim })
+            smoothTween(Stroke, DUR_NORMAL, { Color = state and Library.Theme.StrokeHover or Library.Theme.Stroke })
             task.spawn(function() pcall(callback, state) end)
         end
 
         ToggleBtn.MouseEnter:Connect(function()
-            tween(ToggleBtn, 0.15, { BackgroundColor3 = Library.Theme.CardHover })
-            if not state then tween(Stroke, 0.15, { Color = Library.Theme.StrokeHover }) end
+            smoothTween(ToggleBtn, DUR_FAST, { BackgroundColor3 = Library.Theme.CardHover })
+            if not state then smoothTween(Stroke, DUR_FAST, { Color = Library.Theme.StrokeHover }) end
         end)
 
         ToggleBtn.MouseLeave:Connect(function()
-            tween(ToggleBtn, 0.15, { BackgroundColor3 = Library.Theme.Card })
-            if not state then tween(Stroke, 0.15, { Color = Library.Theme.Stroke }) end
+            smoothTween(ToggleBtn, DUR_FAST, { BackgroundColor3 = Library.Theme.Card })
+            if not state then smoothTween(Stroke, DUR_FAST, { Color = Library.Theme.Stroke }) end
         end)
 
         ToggleBtn.MouseButton1Click:Connect(function()
@@ -1688,9 +1861,9 @@ function Library:CreateBlock(title, defaultPosition)
             Close = function()
                 if isOpen then
                     isOpen = false
-                    tween(OptionContainer, 0.2, { Size = UDim2.new(1, -16, 0, 0) })
-                    tween(DropFrame, 0.2, { Size = UDim2.new(1, 0, 0, 36) })
-                    tween(Stroke, 0.15, { Color = Library.Theme.Stroke })
+                    smoothTween(OptionContainer, DUR_NORMAL, { Size = UDim2.new(1, -16, 0, 0) })
+                    smoothTween(DropFrame, DUR_NORMAL, { Size = UDim2.new(1, 0, 0, 36) })
+                    smoothTween(Stroke, DUR_FAST, { Color = Library.Theme.Stroke })
                     updateHeight()
                 end
             end
@@ -1743,9 +1916,9 @@ function Library:CreateBlock(title, defaultPosition)
             end
             local targetH = isOpen and (36 + OptionLayout.AbsoluteContentSize.Y + 8) or 36
             local optH = isOpen and (OptionLayout.AbsoluteContentSize.Y + 8) or 0
-            tween(OptionContainer, 0.22, { Size = UDim2.new(1, -16, 0, optH) })
-            tween(DropFrame, 0.22, { Size = UDim2.new(1, 0, 0, targetH) })
-            tween(Stroke, 0.15, { Color = isOpen and Library.Theme.StrokeActive or Library.Theme.Stroke })
+            smoothTween(OptionContainer, DUR_NORMAL, { Size = UDim2.new(1, -16, 0, optH) })
+            smoothTween(DropFrame, DUR_NORMAL, { Size = UDim2.new(1, 0, 0, targetH) })
+            smoothTween(Stroke, DUR_FAST, { Color = isOpen and Library.Theme.StrokeActive or Library.Theme.Stroke })
             updateHeight()
         end)
     end
@@ -1777,19 +1950,20 @@ function Library:CreateBlock(title, defaultPosition)
         })
 
         BtnFrame.MouseEnter:Connect(function()
-            tween(BtnFrame, 0.15, { BackgroundColor3 = Library.Theme.CardHover })
-            tween(Stroke, 0.15, { Color = Library.Theme.AccentDim })
+            smoothTween(BtnFrame, DUR_FAST, { BackgroundColor3 = Library.Theme.CardHover })
+            smoothTween(Stroke, DUR_FAST, { Color = Library.Theme.AccentDim })
         end)
 
         BtnFrame.MouseLeave:Connect(function()
-            tween(BtnFrame, 0.15, { BackgroundColor3 = Library.Theme.Card })
-            tween(Stroke, 0.15, { Color = Library.Theme.Stroke })
+            smoothTween(BtnFrame, DUR_FAST, { BackgroundColor3 = Library.Theme.Card })
+            smoothTween(Stroke, DUR_FAST, { Color = Library.Theme.Stroke })
         end)
 
         BtnFrame.MouseButton1Click:Connect(function()
-            tween(BtnFrame, 0.08, { Size = UDim2.new(1, -4, 0, 30) }, Enum.EasingStyle.Quart, Enum.EasingDirection.Out)
-            task.wait(0.08)
-            tween(BtnFrame, 0.12, { Size = UDim2.new(1, 0, 0, 32) }, Enum.EasingStyle.Back, Enum.EasingDirection.Out)
+            local anim = smoothTween(BtnFrame, 0.06, { Size = UDim2.new(1, -4, 0, 30) }, EASE_SMOOTH, DIR_OUT)
+            anim.Completed:Connect(function()
+                smoothTween(BtnFrame, 0.1, { Size = UDim2.new(1, 0, 0, 32) }, EASE_SPRING, DIR_OUT)
+            end)
             task.spawn(callback)
         end)
     end
@@ -1902,7 +2076,7 @@ function Library:CreateBlock(title, defaultPosition)
         trackConnection(TrackBg.InputBegan:Connect(function(input)
             if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
                 isDragging = true
-                tween(Stroke, 0.15, { Color = Library.Theme.StrokeActive })
+                smoothTween(Stroke, DUR_FAST, { Color = Library.Theme.StrokeActive })
                 updateSliderPosition(input.Position.X)
             end
         end))
@@ -1911,7 +2085,7 @@ function Library:CreateBlock(title, defaultPosition)
             if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
                 if isDragging then
                     isDragging = false
-                    tween(Stroke, 0.15, { Color = Library.Theme.Stroke })
+                    smoothTween(Stroke, DUR_FAST, { Color = Library.Theme.Stroke })
                 end
             end
         end))
@@ -1977,7 +2151,7 @@ function Library:CreateBlock(title, defaultPosition)
             Library.ListeningKeybind = true
             KeyBtn.Text = "..."
             KeyBtn.TextColor3 = Library.Theme.TextDim
-            tween(Stroke, 0.15, { Color = Library.Theme.Accent })
+            smoothTween(Stroke, DUR_FAST, { Color = Library.Theme.Accent })
         end)
 
         trackConnection(UserInputService.InputBegan:Connect(function(input, gpe)
@@ -1992,7 +2166,7 @@ function Library:CreateBlock(title, defaultPosition)
                     Library.ListeningKeybind = false
                     KeyBtn.Text = string.upper(boundKey.Name)
                     KeyBtn.TextColor3 = Library.Theme.Accent
-                    tween(Stroke, 0.15, { Color = Library.Theme.Stroke })
+                    smoothTween(Stroke, DUR_FAST, { Color = Library.Theme.Stroke })
 
                     Library.KeybindList[name] = string.upper(boundKey.Name)
                     if Library.RefreshKeybindHUD then Library:RefreshKeybindHUD() end
