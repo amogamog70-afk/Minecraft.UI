@@ -1,7 +1,8 @@
 -- [[ NURSULTAN CLIENT UI LIBRARY — MASTER CORE ENGINE ]] --
 -- Sharp Square Rectilinear Aesthetics (0 CornerRadius), Harmonized Spring Tweens,
--- Interactive Slider Number TextBox (Type custom numbers with instant slider bar sync),
--- Dedicated Tab Navigation Settings Modal (Themes, Configs, Skybox, Radio, Visuals),
+-- Radio HUD Customization in Settings (Size / Scale, Transparency, Visibility, Volume),
+-- Keybind Right-Click Mini GUI Popup Mode Selector (Hold / Toggle / Always),
+-- Interactive Slider Number TextBox, Dedicated Tab Navigation Settings Modal,
 -- Custom Image Icons for Save, Load & Delete.
 
 local HttpService      = game:GetService("HttpService")
@@ -85,6 +86,9 @@ local Library = {
     BlurSize = 18,
     SnowEnabled = true,
     SnowCount = 50,
+    RadioHUDVisible = true,
+    RadioHUDTransparency = 0,
+    RadioHUDScale = 100,
     ConfigFolder = "NursultanClient",
     Fonts = {
         Header = Enum.Font.GothamBold,
@@ -403,7 +407,16 @@ function Library:RefreshKeybindHUD()
         if child:IsA("Frame") then child:Destroy() end
     end
 
-    for featName, keyName in pairs(Library.KeybindList) do
+    for featName, data in pairs(Library.KeybindList) do
+        local keyStr = ""
+        local modeStr = "Toggle"
+        if type(data) == "table" then
+            keyStr = data.Key or ""
+            modeStr = data.Mode or "Toggle"
+        else
+            keyStr = tostring(data)
+        end
+
         local Row = Instance.new("Frame")
         Row.Size = UDim2.new(1, 0, 0, 22)
         Row.BackgroundColor3 = Library.Theme.Card
@@ -411,7 +424,7 @@ function Library:RefreshKeybindHUD()
         Row.Parent = HUDListHolder
 
         local NameLbl = Instance.new("TextLabel")
-        NameLbl.Size = UDim2.new(1, -55, 1, 0)
+        NameLbl.Size = UDim2.new(1, -65, 1, 0)
         NameLbl.Position = UDim2.new(0, 6, 0, 0)
         NameLbl.BackgroundTransparency = 1
         NameLbl.Font = Library.Fonts.Label
@@ -422,11 +435,15 @@ function Library:RefreshKeybindHUD()
         NameLbl.Parent = Row
 
         local Badge = Instance.new("TextLabel")
-        Badge.Size = UDim2.new(0, 45, 0, 16)
-        Badge.Position = UDim2.new(1, -48, 0.5, -8)
+        Badge.Size = UDim2.new(0, 58, 0, 16)
+        Badge.Position = UDim2.new(1, -60, 0.5, -8)
         Badge.BackgroundColor3 = Library.Theme.Header
         Badge.Font = Library.Fonts.Badge
-        Badge.Text = keyName
+        if modeStr == "Always" then
+            Badge.Text = "ALWAYS"
+        else
+            Badge.Text = keyStr .. " [" .. modeStr:sub(1,1) .. "]"
+        end
         Badge.TextColor3 = Library.Theme.Accent
         Badge.TextSize = 9
         Badge.BorderSizePixel = 0
@@ -694,6 +711,17 @@ HUDPlayBtn.MouseButton1Click:Connect(function()
         end
     end
 end)
+
+local function updateRadioHUDProperties()
+    RadioHUDFrame.Visible = Library.RadioHUDVisible and Library.Enabled
+    local transparencyVal = (Library.RadioHUDTransparency or 0) / 100
+    RadioHUDFrame.BackgroundTransparency = transparencyVal
+    RadioHeader.BackgroundTransparency = transparencyVal
+    RadioHUDStroke.Transparency = transparencyVal
+
+    local scaleVal = (Library.RadioHUDScale or 100) / 100
+    RadioHUDFrame.Size = UDim2.new(0, math.floor(260 * scaleVal), 0, math.floor(165 * scaleVal))
+end
 
 -- ==============================================================
 -- DEDICATED TAB NAVIGATION SETTINGS MODAL (500 x 420 px)
@@ -1101,6 +1129,9 @@ SaveCreateBtn.MouseButton1Click:Connect(function()
         Theme = Library.CurrentThemeName,
         BlurEnabled = Library.BlurEnabled,
         SnowEnabled = Library.SnowEnabled,
+        RadioHUDVisible = Library.RadioHUDVisible,
+        RadioHUDTransparency = Library.RadioHUDTransparency,
+        RadioHUDScale = Library.RadioHUDScale,
         Blocks = {}
     }
 
@@ -1133,6 +1164,10 @@ LoadConfigBtn.MouseButton1Click:Connect(function()
             local decoded = HttpService:JSONDecode(readfile(filePath))
             if decoded then
                 if decoded.Theme then Library:SetTheme(decoded.Theme) end
+                if decoded.RadioHUDVisible ~= nil then Library.RadioHUDVisible = decoded.RadioHUDVisible end
+                if decoded.RadioHUDTransparency ~= nil then Library.RadioHUDTransparency = decoded.RadioHUDTransparency end
+                if decoded.RadioHUDScale ~= nil then Library.RadioHUDScale = decoded.RadioHUDScale end
+                updateRadioHUDProperties()
                 ConfigStatusLabel.Text = "Loaded: " .. name .. ".json"
                 ConfigDropdownBtn.Text = name .. ".json v"
             end
@@ -1289,9 +1324,9 @@ ApplySkyboxBtn.MouseButton1Click:Connect(function()
     end
 end)
 
--- 4. RADIO TAB PAGE
+-- 4. RADIO TAB PAGE (RADIO HUD & PLAYER CUSTOMIZATION)
 local RadioCard = Instance.new("Frame")
-RadioCard.Size = UDim2.new(1, 0, 0, 140)
+RadioCard.Size = UDim2.new(1, 0, 0, 260)
 RadioCard.BackgroundColor3 = Library.Theme.Card
 RadioCard.BorderSizePixel = 0
 RadioCard.ZIndex = 22
@@ -1302,16 +1337,298 @@ RadioCardTitle.Size = UDim2.new(1, -20, 0, 20)
 RadioCardTitle.Position = UDim2.new(0, 10, 0, 8)
 RadioCardTitle.BackgroundTransparency = 1
 RadioCardTitle.Font = Library.Fonts.Header
-RadioCardTitle.Text = "RADIO PLAYER CONTROLS"
+RadioCardTitle.Text = "RADIO HUD & PLAYER CUSTOMIZATION"
 RadioCardTitle.TextColor3 = Library.Theme.Accent
 RadioCardTitle.TextSize = 11
 RadioCardTitle.TextXAlignment = Enum.TextXAlignment.Left
 RadioCardTitle.ZIndex = 23
 RadioCardTitle.Parent = RadioCard
 
+-- Radio HUD Visibility Toggle
+local RadioVisRow = Instance.new("TextButton")
+RadioVisRow.Size = UDim2.new(1, -20, 0, 32)
+RadioVisRow.Position = UDim2.new(0, 10, 0, 32)
+RadioVisRow.BackgroundColor3 = Library.Theme.Block
+RadioVisRow.BorderSizePixel = 0
+RadioVisRow.AutoButtonColor = false
+RadioVisRow.Text = ""
+RadioVisRow.ZIndex = 23
+RadioVisRow.Parent = RadioCard
+
+local RVLabel = Instance.new("TextLabel")
+RVLabel.Size = UDim2.new(1, -60, 1, 0)
+RVLabel.Position = UDim2.new(0, 10, 0, 0)
+RVLabel.BackgroundTransparency = 1
+RVLabel.Font = Library.Fonts.Label
+RVLabel.Text = "Show Radio HUD Window"
+RVLabel.TextColor3 = Library.Theme.Text
+RVLabel.TextSize = 11
+RVLabel.TextXAlignment = Enum.TextXAlignment.Left
+RVLabel.ZIndex = 24
+RVLabel.Parent = RadioVisRow
+
+local RVSwitchBg = Instance.new("Frame")
+RVSwitchBg.Size = UDim2.new(0, 34, 0, 18)
+RVSwitchBg.Position = UDim2.new(1, -44, 0.5, -9)
+RVSwitchBg.BackgroundColor3 = Library.RadioHUDVisible and Library.Theme.Accent or Library.Theme.Header
+RVSwitchBg.BorderSizePixel = 0
+RVSwitchBg.ZIndex = 24
+RVSwitchBg.Parent = RadioVisRow
+
+local RVKnob = Instance.new("Frame")
+RVKnob.Size = UDim2.new(0, 14, 0, 14)
+RVKnob.Position = Library.RadioHUDVisible and UDim2.new(1, -16, 0.5, -7) or UDim2.new(0, 2, 0.5, -7)
+RVKnob.BackgroundColor3 = Library.RadioHUDVisible and Library.Theme.Background or Library.Theme.TextDim
+RVKnob.BorderSizePixel = 0
+RVKnob.ZIndex = 25
+RVKnob.Parent = RVSwitchBg
+
+RadioVisRow.MouseButton1Click:Connect(function()
+    Library.RadioHUDVisible = not Library.RadioHUDVisible
+    smoothTween(RVSwitchBg, DUR_NORMAL, { BackgroundColor3 = Library.RadioHUDVisible and Library.Theme.Accent or Library.Theme.Header })
+    smoothTween(RVKnob, DUR_NORMAL, {
+        Position = Library.RadioHUDVisible and UDim2.new(1, -16, 0.5, -7) or UDim2.new(0, 2, 0.5, -7),
+        BackgroundColor3 = Library.RadioHUDVisible and Library.Theme.Background or Library.Theme.TextDim
+    })
+    updateRadioHUDProperties()
+end)
+
+-- Radio HUD Transparency Slider (0% - 90%)
+local TransRow = Instance.new("Frame")
+TransRow.Size = UDim2.new(1, -20, 0, 42)
+TransRow.Position = UDim2.new(0, 10, 0, 70)
+TransRow.BackgroundColor3 = Library.Theme.Block
+TransRow.BorderSizePixel = 0
+TransRow.ZIndex = 23
+TransRow.Parent = RadioCard
+
+local TransLbl = Instance.new("TextLabel")
+TransLbl.Size = UDim2.new(1, -65, 0, 18)
+TransLbl.Position = UDim2.new(0, 8, 0, 2)
+TransLbl.BackgroundTransparency = 1
+TransLbl.Font = Library.Fonts.Label
+TransLbl.Text = "HUD Transparency (%)"
+TransLbl.TextColor3 = Library.Theme.TextDim
+TransLbl.TextSize = 10
+TransLbl.TextXAlignment = Enum.TextXAlignment.Left
+TransLbl.ZIndex = 24
+TransLbl.Parent = TransRow
+
+local TransBadge = Instance.new("Frame")
+TransBadge.Size = UDim2.new(0, 45, 0, 16)
+TransBadge.Position = UDim2.new(1, -50, 0, 2)
+TransBadge.BackgroundColor3 = Library.Theme.Header
+TransBadge.BorderSizePixel = 0
+TransBadge.ZIndex = 24
+TransBadge.Parent = TransRow
+
+local TransValInput = Instance.new("TextBox")
+TransValInput.Size = UDim2.new(1, 0, 1, 0)
+TransValInput.BackgroundTransparency = 1
+TransValInput.Font = Library.Fonts.Badge
+TransValInput.Text = tostring(Library.RadioHUDTransparency)
+TransValInput.TextColor3 = Library.Theme.Accent
+TransValInput.TextSize = 10
+TransValInput.TextXAlignment = Enum.TextXAlignment.Center
+TransValInput.Active = true
+TransValInput.Selectable = true
+TransValInput.ClearTextOnFocus = false
+TransValInput.ZIndex = 25
+TransValInput.Parent = TransBadge
+
+local TransTrackBg = Instance.new("TextButton")
+TransTrackBg.Size = UDim2.new(1, -16, 0, 6)
+TransTrackBg.Position = UDim2.new(0, 8, 0, 26)
+TransTrackBg.BackgroundColor3 = Library.Theme.Header
+TransTrackBg.BorderSizePixel = 0
+TransTrackBg.AutoButtonColor = false
+TransTrackBg.Text = ""
+TransTrackBg.ZIndex = 24
+TransTrackBg.Parent = TransRow
+
+local TransFill = Instance.new("Frame")
+local transRelX = (Library.RadioHUDTransparency / 90)
+TransFill.Size = UDim2.new(transRelX, 0, 1, 0)
+TransFill.BackgroundColor3 = Library.Theme.Accent
+TransFill.BorderSizePixel = 0
+TransFill.ZIndex = 25
+TransFill.Parent = TransTrackBg
+
+local TransHandle = Instance.new("Frame")
+TransHandle.Size = UDim2.new(0, 8, 0, 10)
+TransHandle.Position = UDim2.new(transRelX, -4, 0.5, -5)
+TransHandle.BackgroundColor3 = Library.Theme.Accent
+TransHandle.BorderSizePixel = 0
+TransHandle.ZIndex = 25
+TransHandle.Parent = TransTrackBg
+
+local isDraggingTrans = false
+local function updateTransPosition(inputX)
+    local width = TransTrackBg.AbsoluteSize.X
+    if width <= 0 then return end
+    local relX = math.clamp((inputX - TransTrackBg.AbsolutePosition.X) / width, 0, 1)
+    local val = math.floor(relX * 90 + 0.5)
+    Library.RadioHUDTransparency = val
+    TransValInput.Text = tostring(val)
+    TransFill.Size = UDim2.new(relX, 0, 1, 0)
+    TransHandle.Position = UDim2.new(relX, -4, 0.5, -5)
+    updateRadioHUDProperties()
+end
+
+trackConnection(TransTrackBg.InputBegan:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+        isDraggingTrans = true
+        updateTransPosition(input.Position.X)
+    end
+end))
+
+trackConnection(UserInputService.InputEnded:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+        isDraggingTrans = false
+    end
+end))
+
+trackConnection(UserInputService.InputChanged:Connect(function(input)
+    if isDraggingTrans and (input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch) then
+        updateTransPosition(input.Position.X)
+    end
+end))
+
+TransValInput.FocusLost:Connect(function()
+    local parsed = tonumber(TransValInput.Text)
+    if parsed then
+        parsed = math.clamp(math.floor(parsed + 0.5), 0, 90)
+        Library.RadioHUDTransparency = parsed
+        TransValInput.Text = tostring(parsed)
+        local relX = parsed / 90
+        TransFill.Size = UDim2.new(relX, 0, 1, 0)
+        TransHandle.Position = UDim2.new(relX, -4, 0.5, -5)
+        updateRadioHUDProperties()
+    else
+        TransValInput.Text = tostring(Library.RadioHUDTransparency)
+    end
+end)
+
+-- Radio HUD Scale / Size Slider (70% - 150%)
+local ScaleRow = Instance.new("Frame")
+ScaleRow.Size = UDim2.new(1, -20, 0, 42)
+ScaleRow.Position = UDim2.new(0, 10, 0, 118)
+ScaleRow.BackgroundColor3 = Library.Theme.Block
+ScaleRow.BorderSizePixel = 0
+ScaleRow.ZIndex = 23
+ScaleRow.Parent = RadioCard
+
+local ScaleLbl = Instance.new("TextLabel")
+ScaleLbl.Size = UDim2.new(1, -65, 0, 18)
+ScaleLbl.Position = UDim2.new(0, 8, 0, 2)
+ScaleLbl.BackgroundTransparency = 1
+ScaleLbl.Font = Library.Fonts.Label
+ScaleLbl.Text = "HUD Size Scale (%)"
+ScaleLbl.TextColor3 = Library.Theme.TextDim
+ScaleLbl.TextSize = 10
+ScaleLbl.TextXAlignment = Enum.TextXAlignment.Left
+ScaleLbl.ZIndex = 24
+ScaleLbl.Parent = ScaleRow
+
+local ScaleBadge = Instance.new("Frame")
+ScaleBadge.Size = UDim2.new(0, 45, 0, 16)
+ScaleBadge.Position = UDim2.new(1, -50, 0, 2)
+ScaleBadge.BackgroundColor3 = Library.Theme.Header
+ScaleBadge.BorderSizePixel = 0
+ScaleBadge.ZIndex = 24
+ScaleBadge.Parent = ScaleRow
+
+local ScaleValInput = Instance.new("TextBox")
+ScaleValInput.Size = UDim2.new(1, 0, 1, 0)
+ScaleValInput.BackgroundTransparency = 1
+ScaleValInput.Font = Library.Fonts.Badge
+ScaleValInput.Text = tostring(Library.RadioHUDScale)
+ScaleValInput.TextColor3 = Library.Theme.Accent
+ScaleValInput.TextSize = 10
+ScaleValInput.TextXAlignment = Enum.TextXAlignment.Center
+ScaleValInput.Active = true
+ScaleValInput.Selectable = true
+ScaleValInput.ClearTextOnFocus = false
+ScaleValInput.ZIndex = 25
+ScaleValInput.Parent = ScaleBadge
+
+local ScaleTrackBg = Instance.new("TextButton")
+ScaleTrackBg.Size = UDim2.new(1, -16, 0, 6)
+ScaleTrackBg.Position = UDim2.new(0, 8, 0, 26)
+ScaleTrackBg.BackgroundColor3 = Library.Theme.Header
+ScaleTrackBg.BorderSizePixel = 0
+ScaleTrackBg.AutoButtonColor = false
+ScaleTrackBg.Text = ""
+ScaleTrackBg.ZIndex = 24
+ScaleTrackBg.Parent = ScaleRow
+
+local ScaleFill = Instance.new("Frame")
+local scaleRelX = (Library.RadioHUDScale - 70) / (150 - 70)
+ScaleFill.Size = UDim2.new(scaleRelX, 0, 1, 0)
+ScaleFill.BackgroundColor3 = Library.Theme.Accent
+ScaleFill.BorderSizePixel = 0
+ScaleFill.ZIndex = 25
+ScaleFill.Parent = ScaleTrackBg
+
+local ScaleHandle = Instance.new("Frame")
+ScaleHandle.Size = UDim2.new(0, 8, 0, 10)
+ScaleHandle.Position = UDim2.new(scaleRelX, -4, 0.5, -5)
+ScaleHandle.BackgroundColor3 = Library.Theme.Accent
+ScaleHandle.BorderSizePixel = 0
+ScaleHandle.ZIndex = 25
+ScaleHandle.Parent = ScaleTrackBg
+
+local isDraggingScale = false
+local function updateScalePosition(inputX)
+    local width = ScaleTrackBg.AbsoluteSize.X
+    if width <= 0 then return end
+    local relX = math.clamp((inputX - ScaleTrackBg.AbsolutePosition.X) / width, 0, 1)
+    local val = math.floor(70 + (150 - 70) * relX + 0.5)
+    Library.RadioHUDScale = val
+    ScaleValInput.Text = tostring(val)
+    ScaleFill.Size = UDim2.new(relX, 0, 1, 0)
+    ScaleHandle.Position = UDim2.new(relX, -4, 0.5, -5)
+    updateRadioHUDProperties()
+end
+
+trackConnection(ScaleTrackBg.InputBegan:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+        isDraggingScale = true
+        updateScalePosition(input.Position.X)
+    end
+end))
+
+trackConnection(UserInputService.InputEnded:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+        isDraggingScale = false
+    end
+end))
+
+trackConnection(UserInputService.InputChanged:Connect(function(input)
+    if isDraggingScale and (input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch) then
+        updateScalePosition(input.Position.X)
+    end
+end))
+
+ScaleValInput.FocusLost:Connect(function()
+    local parsed = tonumber(ScaleValInput.Text)
+    if parsed then
+        parsed = math.clamp(math.floor(parsed + 0.5), 70, 150)
+        Library.RadioHUDScale = parsed
+        ScaleValInput.Text = tostring(parsed)
+        local relX = (parsed - 70) / (150 - 70)
+        ScaleFill.Size = UDim2.new(relX, 0, 1, 0)
+        ScaleHandle.Position = UDim2.new(relX, -4, 0.5, -5)
+        updateRadioHUDProperties()
+    else
+        ScaleValInput.Text = tostring(Library.RadioHUDScale)
+    end
+end)
+
+-- Sound ID & Playback Controls in Radio Tab
 local SoundInputBg = Instance.new("Frame")
 SoundInputBg.Size = UDim2.new(1, -20, 0, 30)
-SoundInputBg.Position = UDim2.new(0, 10, 0, 32)
+SoundInputBg.Position = UDim2.new(0, 10, 0, 166)
 SoundInputBg.BackgroundColor3 = Library.Theme.Header
 SoundInputBg.BorderSizePixel = 0
 SoundInputBg.ZIndex = 23
@@ -1336,18 +1653,24 @@ TabSoundInput.Parent = SoundInputBg
 
 local PlaySoundBtn = Instance.new("TextButton")
 PlaySoundBtn.Size = UDim2.new(1, -20, 0, 30)
-PlaySoundBtn.Position = UDim2.new(0, 10, 0, 70)
+PlaySoundBtn.Position = UDim2.new(0, 10, 0, 204)
 PlaySoundBtn.BackgroundColor3 = Library.Theme.Header
 PlaySoundBtn.BorderSizePixel = 0
 PlaySoundBtn.Font = Library.Fonts.Header
-PlaySoundBtn.Text = "PLAY TRACK"
+PlaySoundBtn.Text = "PLAY / PAUSE TRACK"
 PlaySoundBtn.TextColor3 = Library.Theme.Accent
 PlaySoundBtn.TextSize = 10
 PlaySoundBtn.ZIndex = 23
 PlaySoundBtn.Parent = RadioCard
 
 PlaySoundBtn.MouseButton1Click:Connect(function()
-    triggerPlaySound(TabSoundInput.Text)
+    if TabSoundInput.Text ~= "" then
+        triggerPlaySound(TabSoundInput.Text)
+    elseif RadioSound.IsPlaying then
+        RadioSound:Pause()
+    elseif RadioSound.SoundId ~= "" then
+        RadioSound:Play()
+    end
 end)
 
 -- 5. VISUALS TAB PAGE
@@ -1553,6 +1876,24 @@ function Library:SetTheme(themeName)
 
     smoothTween(RadioCard, DUR_NORMAL, { BackgroundColor3 = t.Card })
     smoothTween(RadioCardTitle, DUR_NORMAL, { TextColor3 = t.Accent })
+    smoothTween(RadioVisRow, DUR_NORMAL, { BackgroundColor3 = t.Block })
+    smoothTween(RVLabel, DUR_NORMAL, { TextColor3 = t.Text })
+    smoothTween(RVSwitchBg, DUR_NORMAL, { BackgroundColor3 = Library.RadioHUDVisible and t.Accent or t.Header })
+    smoothTween(RVKnob, DUR_NORMAL, { BackgroundColor3 = Library.RadioHUDVisible and t.Background or t.TextDim })
+    smoothTween(TransRow, DUR_NORMAL, { BackgroundColor3 = t.Block })
+    smoothTween(TransLbl, DUR_NORMAL, { TextColor3 = t.TextDim })
+    smoothTween(TransBadge, DUR_NORMAL, { BackgroundColor3 = t.Header })
+    smoothTween(TransValInput, DUR_NORMAL, { TextColor3 = t.Accent })
+    smoothTween(TransTrackBg, DUR_NORMAL, { BackgroundColor3 = t.Header })
+    smoothTween(TransFill, DUR_NORMAL, { BackgroundColor3 = t.Accent })
+    smoothTween(TransHandle, DUR_NORMAL, { BackgroundColor3 = t.Accent })
+    smoothTween(ScaleRow, DUR_NORMAL, { BackgroundColor3 = t.Block })
+    smoothTween(ScaleLbl, DUR_NORMAL, { TextColor3 = t.TextDim })
+    smoothTween(ScaleBadge, DUR_NORMAL, { BackgroundColor3 = t.Header })
+    smoothTween(ScaleValInput, DUR_NORMAL, { TextColor3 = t.Accent })
+    smoothTween(ScaleTrackBg, DUR_NORMAL, { BackgroundColor3 = t.Header })
+    smoothTween(ScaleFill, DUR_NORMAL, { BackgroundColor3 = t.Accent })
+    smoothTween(ScaleHandle, DUR_NORMAL, { BackgroundColor3 = t.Accent })
     smoothTween(SoundInputBg, DUR_NORMAL, { BackgroundColor3 = t.Header })
     smoothTween(TabSoundInput, DUR_NORMAL, { TextColor3 = t.Accent })
     smoothTween(PlaySoundBtn, DUR_NORMAL, { BackgroundColor3 = t.Header, TextColor3 = t.Accent })
@@ -1604,6 +1945,9 @@ function Library:SetTheme(themeName)
                 smoothTween(elem.Stroke, DUR_NORMAL, { Color = t.Stroke })
                 smoothTween(elem.Label, DUR_NORMAL, { TextColor3 = t.TextDim })
                 smoothTween(elem.KeyBtn, DUR_NORMAL, { BackgroundColor3 = t.Header, TextColor3 = t.Accent })
+                if elem.ModePopup then smoothTween(elem.ModePopup, DUR_NORMAL, { BackgroundColor3 = t.Block }) end
+                if elem.PopupStroke then smoothTween(elem.PopupStroke, DUR_NORMAL, { Color = t.StrokeActive }) end
+                if elem.PopupHeader then smoothTween(elem.PopupHeader, DUR_NORMAL, { BackgroundColor3 = t.Header, TextColor3 = t.Accent }) end
             end
         end
     end
@@ -1628,8 +1972,7 @@ function Library:SetVisible(visible)
         GearBtnFrame.BackgroundTransparency = 0
         KeybindHUDFrame.BackgroundTransparency = 0
         KeybindHUDStroke.Transparency = 0
-        RadioHUDFrame.BackgroundTransparency = 0
-        RadioHUDStroke.Transparency = 0
+        updateRadioHUDProperties()
 
         for i, blockData in ipairs(Library.Blocks) do
             local f = blockData.Frame
@@ -2134,7 +2477,6 @@ function Library:CreateBlock(title, defaultPosition)
         ValStroke.Thickness = 1
         ValStroke.Parent = ValBadge
 
-        -- INTERACTIVE TEXTBOX INSTEAD OF STATIC TEXTLABEL
         local ValInput = Instance.new("TextBox")
         ValInput.Size = UDim2.new(1, 0, 1, 0)
         ValInput.BackgroundTransparency = 1
@@ -2249,15 +2591,20 @@ function Library:CreateBlock(title, defaultPosition)
         end))
     end
 
+    -- KEYBIND WITH RIGHT-CLICK MINI GUI MODE POPUP (Hold / Toggle / Always)
     function Block:AddKeybind(name, defaultKey, callback)
         callback = callback or function() end
         local boundKey = defaultKey or Enum.KeyCode.Unknown
+        local mode = "Toggle" -- Modes: "Toggle", "Hold", "Always"
+        local activeState = false
         local listening = false
 
         local BindFrame = Instance.new("Frame")
+        BindFrame.Name = name .. "_Keybind"
         BindFrame.Size = UDim2.new(1, 0, 0, 32)
         BindFrame.BackgroundColor3 = Library.Theme.Card
         BindFrame.BorderSizePixel = 0
+        BindFrame.ClipsDescendants = false
         BindFrame.Parent = Content
 
         local Stroke = Instance.new("UIStroke")
@@ -2266,7 +2613,7 @@ function Library:CreateBlock(title, defaultPosition)
         Stroke.Parent = BindFrame
 
         local Label = Instance.new("TextLabel")
-        Label.Size = UDim2.new(1, -75, 1, 0)
+        Label.Size = UDim2.new(1, -95, 1, 0)
         Label.Position = UDim2.new(0, 10, 0, 0)
         Label.BackgroundTransparency = 1
         Label.Font = Library.Fonts.Label
@@ -2277,28 +2624,106 @@ function Library:CreateBlock(title, defaultPosition)
         Label.Parent = BindFrame
 
         local KeyBtn = Instance.new("TextButton")
-        KeyBtn.Size = UDim2.new(0, 65, 0, 20)
-        KeyBtn.Position = UDim2.new(1, -71, 0.5, -10)
+        KeyBtn.Size = UDim2.new(0, 80, 0, 20)
+        KeyBtn.Position = UDim2.new(1, -86, 0.5, -10)
         KeyBtn.BackgroundColor3 = Library.Theme.Header
         KeyBtn.BorderSizePixel = 0
         KeyBtn.Font = Library.Fonts.Badge
-        KeyBtn.Text = string.upper(boundKey.Name)
+        KeyBtn.Text = "NONE [T]"
         KeyBtn.TextColor3 = Library.Theme.Accent
-        KeyBtn.TextSize = 10
+        KeyBtn.TextSize = 9
+        KeyBtn.ZIndex = 10
         KeyBtn.Parent = BindFrame
 
-        Library.KeybindList[name] = string.upper(boundKey.Name)
-        if Library.RefreshKeybindHUD then Library:RefreshKeybindHUD() end
+        -- RIGHT-CLICK MINI MODE GUI POPUP
+        local ModePopup = Instance.new("Frame")
+        ModePopup.Name = "ModePopup_" .. name
+        ModePopup.Size = UDim2.new(0, 95, 0, 88)
+        ModePopup.Position = UDim2.new(1, -95, 1, 4)
+        ModePopup.BackgroundColor3 = Library.Theme.Block
+        ModePopup.BorderSizePixel = 0
+        ModePopup.Visible = false
+        ModePopup.ZIndex = 80
+        ModePopup.Parent = BindFrame
 
-        table.insert(Block.Elements, {
-            Type = "Keybind",
-            Frame = BindFrame,
-            Stroke = Stroke,
-            Label = Label,
-            KeyBtn = KeyBtn
-        })
+        local PopupStroke = Instance.new("UIStroke")
+        PopupStroke.Color = Library.Theme.StrokeActive
+        PopupStroke.Thickness = 1.2
+        PopupStroke.Parent = ModePopup
 
+        local PopupHeader = Instance.new("TextLabel")
+        PopupHeader.Size = UDim2.new(1, 0, 0, 18)
+        PopupHeader.BackgroundColor3 = Library.Theme.Header
+        PopupHeader.BorderSizePixel = 0
+        PopupHeader.Font = Library.Fonts.Header
+        PopupHeader.Text = "SELECT MODE"
+        PopupHeader.TextColor3 = Library.Theme.Accent
+        PopupHeader.TextSize = 8
+        PopupHeader.ZIndex = 81
+        PopupHeader.Parent = ModePopup
+
+        local PopupLayout = Instance.new("UIListLayout")
+        PopupLayout.SortOrder = Enum.SortOrder.LayoutOrder
+        PopupLayout.Padding = UDim.new(0, 2)
+        PopupLayout.Parent = ModePopup
+
+        local modes = { "Toggle", "Hold", "Always" }
+        local modeBtns = {}
+
+        local function updateDisplay()
+            if mode == "Always" then
+                KeyBtn.Text = "ALWAYS"
+            else
+                KeyBtn.Text = string.upper(boundKey.Name) .. " [" .. mode:sub(1,1) .. "]"
+            end
+            Library.KeybindList[name] = {
+                Key = string.upper(boundKey.Name),
+                Mode = mode
+            }
+            if Library.RefreshKeybindHUD then Library:RefreshKeybindHUD() end
+        end
+
+        for _, m in ipairs(modes) do
+            local MBtn = Instance.new("TextButton")
+            MBtn.Size = UDim2.new(1, -4, 0, 20)
+            MBtn.Position = UDim2.new(0, 2, 0, 0)
+            MBtn.BackgroundColor3 = (m == mode) and Library.Theme.Header or Library.Theme.Card
+            MBtn.BorderSizePixel = 0
+            MBtn.Font = Library.Fonts.Badge
+            MBtn.Text = m
+            MBtn.TextColor3 = (m == mode) and Library.Theme.Accent or Library.Theme.TextDim
+            MBtn.TextSize = 9
+            MBtn.ZIndex = 82
+            MBtn.Parent = ModePopup
+            modeBtns[m] = MBtn
+
+            MBtn.MouseButton1Click:Connect(function()
+                mode = m
+                for mName, btn in pairs(modeBtns) do
+                    btn.BackgroundColor3 = (mName == mode) and Library.Theme.Header or Library.Theme.Card
+                    btn.TextColor3 = (mName == mode) and Library.Theme.Accent or Library.Theme.TextDim
+                end
+                updateDisplay()
+                ModePopup.Visible = false
+                if mode == "Always" then
+                    activeState = true
+                    task.spawn(function() pcall(callback, boundKey, mode, true) end)
+                end
+            end)
+        end
+
+        updateDisplay()
+
+        local function toggleModePopup()
+            ModePopup.Visible = not ModePopup.Visible
+            if ModePopup.Visible then
+                smoothTween(ModePopup, DUR_FAST, { Size = UDim2.new(0, 95, 0, 88) })
+            end
+        end
+
+        -- Left Click: Set Key
         KeyBtn.MouseButton1Click:Connect(function()
+            if ModePopup.Visible then ModePopup.Visible = false return end
             listening = true
             Library.ListeningKeybind = true
             KeyBtn.Text = "..."
@@ -2306,6 +2731,29 @@ function Library:CreateBlock(title, defaultPosition)
             smoothTween(Stroke, DUR_FAST, { Color = Library.Theme.Accent })
         end)
 
+        -- Right Click on button or row: Open Mode Selection GUI
+        KeyBtn.MouseButton2Click:Connect(function()
+            toggleModePopup()
+        end)
+
+        BindFrame.InputBegan:Connect(function(input)
+            if input.UserInputType == Enum.UserInputType.MouseButton2 then
+                toggleModePopup()
+            end
+        end)
+
+        table.insert(Block.Elements, {
+            Type = "Keybind",
+            Frame = BindFrame,
+            Stroke = Stroke,
+            Label = Label,
+            KeyBtn = KeyBtn,
+            ModePopup = ModePopup,
+            PopupStroke = PopupStroke,
+            PopupHeader = PopupHeader
+        })
+
+        -- Keyboard events handling Hold, Toggle, Always modes
         trackConnection(UserInputService.InputBegan:Connect(function(input, gpe)
             if listening then
                 if input.UserInputType == Enum.UserInputType.Keyboard then
@@ -2316,13 +2764,32 @@ function Library:CreateBlock(title, defaultPosition)
                     end
                     listening = false
                     Library.ListeningKeybind = false
-                    KeyBtn.Text = string.upper(boundKey.Name)
                     KeyBtn.TextColor3 = Library.Theme.Accent
                     smoothTween(Stroke, DUR_FAST, { Color = Library.Theme.Stroke })
 
-                    Library.KeybindList[name] = string.upper(boundKey.Name)
-                    if Library.RefreshKeybindHUD then Library:RefreshKeybindHUD() end
-                    task.spawn(function() pcall(callback, boundKey) end)
+                    updateDisplay()
+                    task.spawn(function() pcall(callback, boundKey, mode, activeState) end)
+                end
+            elseif not gpe and boundKey ~= Enum.KeyCode.Unknown then
+                if input.UserInputType == Enum.UserInputType.Keyboard and input.KeyCode == boundKey then
+                    if mode == "Toggle" then
+                        activeState = not activeState
+                        task.spawn(function() pcall(callback, boundKey, mode, activeState) end)
+                    elseif mode == "Hold" then
+                        activeState = true
+                        task.spawn(function() pcall(callback, boundKey, mode, true) end)
+                    end
+                end
+            end
+        end))
+
+        trackConnection(UserInputService.InputEnded:Connect(function(input, gpe)
+            if not gpe and boundKey ~= Enum.KeyCode.Unknown then
+                if input.UserInputType == Enum.UserInputType.Keyboard and input.KeyCode == boundKey then
+                    if mode == "Hold" then
+                        activeState = false
+                        task.spawn(function() pcall(callback, boundKey, mode, false) end)
+                    end
                 end
             end
         end))
