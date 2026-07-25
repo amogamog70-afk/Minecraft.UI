@@ -1,6 +1,8 @@
 -- [[ NURSULTAN CLIENT UI LIBRARY — MASTER CORE ENGINE ]] --
 -- Sharp Square Rectilinear Aesthetics (0 CornerRadius), Harmonized Spring Tweens,
--- Full Live Theme Switcher, Modal Drag Lock & Config Dropdown System.
+-- Interactive Slider Number TextBox (Type custom numbers with instant slider bar sync),
+-- Dedicated Tab Navigation Settings Modal (Themes, Configs, Skybox, Radio, Visuals),
+-- Custom Image Icons for Save, Load & Delete.
 
 local HttpService      = game:GetService("HttpService")
 local UserInputService = game:GetService("UserInputService")
@@ -93,7 +95,6 @@ local Library = {
 
 Library.Theme = Library.Themes["Monochrome Dark"]
 
--- HARMONIZED DESIGN SYSTEM TIMINGS & EASINGS
 local DUR_FAST   = 0.12
 local DUR_NORMAL = 0.18
 local DUR_MODAL  = 0.22
@@ -694,10 +695,13 @@ HUDPlayBtn.MouseButton1Click:Connect(function()
     end
 end)
 
+-- ==============================================================
+-- DEDICATED TAB NAVIGATION SETTINGS MODAL (500 x 420 px)
+-- ==============================================================
 SettingsModal = Instance.new("Frame")
 SettingsModal.Name = "SettingsModal"
-SettingsModal.Size = UDim2.new(0, 480, 0, 460)
-SettingsModal.Position = UDim2.new(0.5, -240, 0.5, -230)
+SettingsModal.Size = UDim2.new(0, 500, 0, 420)
+SettingsModal.Position = UDim2.new(0.5, -250, 0.5, -210)
 SettingsModal.BackgroundColor3 = Library.Theme.Block
 SettingsModal.BorderSizePixel = 0
 SettingsModal.Visible = false
@@ -722,7 +726,7 @@ ModalTitle.Size = UDim2.new(1, -50, 1, 0)
 ModalTitle.Position = UDim2.new(0, 15, 0, 0)
 ModalTitle.BackgroundTransparency = 1
 ModalTitle.Font = Library.Fonts.Header
-ModalTitle.Text = "CLIENT SETTINGS, JSON CONFIGS & SKYBOX"
+ModalTitle.Text = "NURSULTAN CLIENT  |  SETTINGS & MANAGER"
 ModalTitle.TextColor3 = Library.Theme.Text
 ModalTitle.TextSize = 11
 ModalTitle.TextXAlignment = Enum.TextXAlignment.Left
@@ -742,73 +746,122 @@ CloseModalBtn.Parent = ModalHeader
 
 makeDraggable(SettingsModal, ModalHeader)
 
-local ModalScroll = Instance.new("ScrollingFrame")
-ModalScroll.Size = UDim2.new(1, -20, 1, -55)
-ModalScroll.Position = UDim2.new(0, 10, 0, 48)
-ModalScroll.BackgroundTransparency = 1
-ModalScroll.BorderSizePixel = 0
-ModalScroll.ScrollBarThickness = 4
-ModalScroll.ScrollBarImageColor3 = Library.Theme.Accent
-ModalScroll.ZIndex = 21
-ModalScroll.Parent = SettingsModal
+-- SIDEBAR TAB NAVIGATION (LEFT: 130px)
+local ModalSidebar = Instance.new("Frame")
+ModalSidebar.Name = "ModalSidebar"
+ModalSidebar.Size = UDim2.new(0, 130, 1, -40)
+ModalSidebar.Position = UDim2.new(0, 0, 0, 40)
+ModalSidebar.BackgroundColor3 = Library.Theme.Header
+ModalSidebar.BorderSizePixel = 0
+ModalSidebar.ZIndex = 21
+ModalSidebar.Parent = SettingsModal
 
-local ModalLayout = Instance.new("UIListLayout")
-ModalLayout.SortOrder = Enum.SortOrder.LayoutOrder
-ModalLayout.Padding = UDim.new(0, 8)
-ModalLayout.Parent = ModalScroll
+local SidebarLayout = Instance.new("UIListLayout")
+SidebarLayout.SortOrder = Enum.SortOrder.LayoutOrder
+SidebarLayout.Padding = UDim.new(0, 4)
+SidebarLayout.Parent = ModalSidebar
 
-ModalLayout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
-    ModalScroll.CanvasSize = UDim2.new(0, 0, 0, ModalLayout.AbsoluteContentSize.Y + 20)
-end)
+local SidebarPadding = Instance.new("UIPadding")
+SidebarPadding.PaddingTop = UDim.new(0, 10)
+SidebarPadding.PaddingLeft = UDim.new(0, 8)
+SidebarPadding.PaddingRight = UDim.new(0, 8)
+SidebarPadding.Parent = ModalSidebar
 
-local function addModalSectionLabel(text)
-    local Frame = Instance.new("Frame")
-    Frame.Size = UDim2.new(1, -10, 0, 22)
-    Frame.BackgroundTransparency = 1
-    Frame.ZIndex = 22
-    Frame.Parent = ModalScroll
+-- CONTENT AREA (RIGHT: 370px)
+local ModalPageContainer = Instance.new("Frame")
+ModalPageContainer.Name = "ModalPageContainer"
+ModalPageContainer.Size = UDim2.new(1, -130, 1, -40)
+ModalPageContainer.Position = UDim2.new(0, 130, 0, 40)
+ModalPageContainer.BackgroundTransparency = 1
+ModalPageContainer.ClipsDescendants = false
+ModalPageContainer.ZIndex = 21
+ModalPageContainer.Parent = SettingsModal
 
-    local Lbl = Instance.new("TextLabel")
-    Lbl.Size = UDim2.new(0, 0, 1, 0)
-    Lbl.AutomaticSize = Enum.AutomaticSize.X
-    Lbl.BackgroundTransparency = 1
-    Lbl.Font = Library.Fonts.Header
-    Lbl.Text = string.upper(text)
-    Lbl.TextColor3 = Library.Theme.Accent
-    Lbl.TextSize = 11
-    Lbl.TextXAlignment = Enum.TextXAlignment.Left
-    Lbl.ZIndex = 22
-    Lbl.Parent = Frame
+local ModalTabs = {}
+local SidebarBtns = {}
 
-    local Line = Instance.new("Frame")
-    Line.Size = UDim2.new(1, 0, 0, 1)
-    Line.Position = UDim2.new(0, 0, 0.5, 0)
-    Line.BackgroundColor3 = Library.Theme.Stroke
-    Line.BorderSizePixel = 0
-    Line.ZIndex = 22
-    Line.Parent = Frame
+local function createModalTab(tabName)
+    local TabPage = Instance.new("ScrollingFrame")
+    TabPage.Name = "Page_" .. tabName
+    TabPage.Size = UDim2.new(1, -20, 1, -20)
+    TabPage.Position = UDim2.new(0, 10, 0, 10)
+    TabPage.BackgroundTransparency = 1
+    TabPage.BorderSizePixel = 0
+    TabPage.ScrollBarThickness = 4
+    TabPage.ScrollBarImageColor3 = Library.Theme.Accent
+    TabPage.Visible = false
+    TabPage.ZIndex = 22
+    TabPage.Parent = ModalPageContainer
 
-    Lbl:GetPropertyChangedSignal("AbsoluteSize"):Connect(function()
-        local w = Lbl.AbsoluteSize.X
-        Line.Position = UDim2.new(0, w + 10, 0.5, 0)
-        Line.Size = UDim2.new(1, -(w + 10), 0, 1)
+    local PageLayout = Instance.new("UIListLayout")
+    PageLayout.SortOrder = Enum.SortOrder.LayoutOrder
+    PageLayout.Padding = UDim.new(0, 10)
+    PageLayout.Parent = TabPage
+
+    PageLayout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
+        TabPage.CanvasSize = UDim2.new(0, 0, 0, PageLayout.AbsoluteContentSize.Y + 15)
     end)
 
-    table.insert(Library.ModalElements, { Label = Lbl, Line = Line })
+    local TabBtn = Instance.new("TextButton")
+    TabBtn.Size = UDim2.new(1, 0, 0, 32)
+    TabBtn.BackgroundColor3 = Library.Theme.Card
+    TabBtn.BorderSizePixel = 0
+    TabBtn.Font = Library.Fonts.Header
+    TabBtn.Text = string.upper(tabName)
+    TabBtn.TextColor3 = Library.Theme.TextDim
+    TabBtn.TextSize = 10
+    TabBtn.ZIndex = 22
+    TabBtn.Parent = ModalSidebar
+
+    local TabIndicator = Instance.new("Frame")
+    TabIndicator.Size = UDim2.new(0, 3, 1, 0)
+    TabIndicator.Position = UDim2.new(0, 0, 0, 0)
+    TabIndicator.BackgroundColor3 = Library.Theme.Accent
+    TabIndicator.BorderSizePixel = 0
+    TabIndicator.Visible = false
+    TabIndicator.ZIndex = 23
+    TabIndicator.Parent = TabBtn
+
+    ModalTabs[tabName] = { Page = TabPage, Btn = TabBtn, Indicator = TabIndicator }
+    table.insert(SidebarBtns, TabBtn)
+
+    TabBtn.MouseButton1Click:Connect(function()
+        for name, data in pairs(ModalTabs) do
+            local isSelected = (name == tabName)
+            data.Page.Visible = isSelected
+            data.Indicator.Visible = isSelected
+            smoothTween(data.Btn, DUR_FAST, {
+                BackgroundColor3 = isSelected and Library.Theme.Block or Library.Theme.Card,
+                TextColor3 = isSelected and Library.Theme.Accent or Library.Theme.TextDim
+            })
+        end
+    end)
+
+    return TabPage
 end
 
-addModalSectionLabel("Workspace Config Manager")
+local ConfigsPage = createModalTab("Configs")
+local ThemesPage  = createModalTab("Themes")
+local SkyboxPage  = createModalTab("Skybox")
+local RadioPage   = createModalTab("Radio")
+local VisualsPage = createModalTab("Visuals")
 
+ModalTabs["Configs"].Page.Visible = true
+ModalTabs["Configs"].Indicator.Visible = true
+ModalTabs["Configs"].Btn.BackgroundColor3 = Library.Theme.Block
+ModalTabs["Configs"].Btn.TextColor3 = Library.Theme.Accent
+
+-- 1. CONFIGS TAB PAGE
 local ConfigCard = Instance.new("Frame")
-ConfigCard.Size = UDim2.new(1, -10, 0, 155)
+ConfigCard.Size = UDim2.new(1, 0, 0, 160)
 ConfigCard.BackgroundColor3 = Library.Theme.Card
 ConfigCard.BorderSizePixel = 0
 ConfigCard.ZIndex = 22
-ConfigCard.Parent = ModalScroll
+ConfigCard.Parent = ConfigsPage
 
 local ConfigNameBg = Instance.new("Frame")
 ConfigNameBg.Size = UDim2.new(1, -145, 0, 30)
-ConfigNameBg.Position = UDim2.new(0, 8, 0, 10)
+ConfigNameBg.Position = UDim2.new(0, 10, 0, 12)
 ConfigNameBg.BackgroundColor3 = Library.Theme.Header
 ConfigNameBg.BorderSizePixel = 0
 ConfigNameBg.ZIndex = 23
@@ -819,7 +872,7 @@ ConfigNameInput.Size = UDim2.new(1, -10, 1, 0)
 ConfigNameInput.Position = UDim2.new(0, 5, 0, 0)
 ConfigNameInput.BackgroundTransparency = 1
 ConfigNameInput.Font = Library.Fonts.Badge
-ConfigNameInput.PlaceholderText = "Config Name (e.g. Rage, Legit)..."
+ConfigNameInput.PlaceholderText = "Config Name (e.g. Rage)..."
 ConfigNameInput.PlaceholderColor3 = Library.Theme.TextDim
 ConfigNameInput.Text = "default"
 ConfigNameInput.TextColor3 = Library.Theme.Accent
@@ -832,8 +885,8 @@ ConfigNameInput.ZIndex = 25
 ConfigNameInput.Parent = ConfigNameBg
 
 local SaveCreateBtn = Instance.new("TextButton")
-SaveCreateBtn.Size = UDim2.new(0, 125, 0, 30)
-SaveCreateBtn.Position = UDim2.new(1, -133, 0, 10)
+SaveCreateBtn.Size = UDim2.new(0, 120, 0, 30)
+SaveCreateBtn.Position = UDim2.new(1, -130, 0, 12)
 SaveCreateBtn.BackgroundColor3 = Library.Theme.Header
 SaveCreateBtn.BorderSizePixel = 0
 SaveCreateBtn.Font = Library.Fonts.Header
@@ -853,15 +906,15 @@ SaveIcon.ZIndex = 24
 SaveIcon.Parent = SaveCreateBtn
 
 local ConfigSelectBg = Instance.new("Frame")
-ConfigSelectBg.Size = UDim2.new(1, -16, 0, 30)
-ConfigSelectBg.Position = UDim2.new(0, 8, 0, 48)
+ConfigSelectBg.Size = UDim2.new(1, -20, 0, 30)
+ConfigSelectBg.Position = UDim2.new(0, 10, 0, 50)
 ConfigSelectBg.BackgroundColor3 = Library.Theme.Header
 ConfigSelectBg.BorderSizePixel = 0
 ConfigSelectBg.ZIndex = 23
 ConfigSelectBg.Parent = ConfigCard
 
 local ConfigSelectLbl = Instance.new("TextLabel")
-ConfigSelectLbl.Size = UDim2.new(0, 100, 1, 0)
+ConfigSelectLbl.Size = UDim2.new(0, 95, 1, 0)
 ConfigSelectLbl.Position = UDim2.new(0, 8, 0, 0)
 ConfigSelectLbl.BackgroundTransparency = 1
 ConfigSelectLbl.Font = Library.Fonts.Label
@@ -873,8 +926,8 @@ ConfigSelectLbl.ZIndex = 24
 ConfigSelectLbl.Parent = ConfigSelectBg
 
 local ConfigDropdownBtn = Instance.new("TextButton")
-ConfigDropdownBtn.Size = UDim2.new(1, -110, 0, 24)
-ConfigDropdownBtn.Position = UDim2.new(0, 102, 0.5, -12)
+ConfigDropdownBtn.Size = UDim2.new(1, -105, 0, 24)
+ConfigDropdownBtn.Position = UDim2.new(0, 98, 0.5, -12)
 ConfigDropdownBtn.BackgroundColor3 = Library.Theme.Card
 ConfigDropdownBtn.BorderSizePixel = 0
 ConfigDropdownBtn.Font = Library.Fonts.Badge
@@ -891,7 +944,7 @@ ConfigDropList.BackgroundColor3 = Library.Theme.Block
 ConfigDropList.BorderSizePixel = 0
 ConfigDropList.ClipsDescendants = true
 ConfigDropList.Visible = false
-ConfigDropList.ZIndex = 30
+ConfigDropList.ZIndex = 50
 ConfigDropList.Parent = ConfigDropdownBtn
 
 local ConfigDropStroke = Instance.new("UIStroke")
@@ -905,7 +958,7 @@ ConfigDropScroll.BackgroundTransparency = 1
 ConfigDropScroll.BorderSizePixel = 0
 ConfigDropScroll.ScrollBarThickness = 3
 ConfigDropScroll.ScrollBarImageColor3 = Library.Theme.Accent
-ConfigDropScroll.ZIndex = 31
+ConfigDropScroll.ZIndex = 51
 ConfigDropScroll.Parent = ConfigDropList
 
 local ConfigDropLayout = Instance.new("UIListLayout")
@@ -952,7 +1005,7 @@ local function refreshConfigDropdownOptions()
         ItemBtn.TextColor3 = (ConfigNameInput.Text == cfgName) and Library.Theme.Accent or Library.Theme.TextDim
         ItemBtn.TextSize = 10
         ItemBtn.TextXAlignment = Enum.TextXAlignment.Left
-        ItemBtn.ZIndex = 32
+        ItemBtn.ZIndex = 52
         ItemBtn.Parent = ConfigDropScroll
 
         ItemBtn.MouseButton1Click:Connect(function()
@@ -987,19 +1040,19 @@ end)
 
 local LoadConfigBtn = Instance.new("TextButton")
 LoadConfigBtn.Size = UDim2.new(0.48, 0, 0, 30)
-LoadConfigBtn.Position = UDim2.new(0, 8, 0, 86)
+LoadConfigBtn.Position = UDim2.new(0, 10, 0, 88)
 LoadConfigBtn.BackgroundColor3 = Library.Theme.Header
 LoadConfigBtn.BorderSizePixel = 0
 LoadConfigBtn.Font = Library.Fonts.Header
 LoadConfigBtn.Text = "  LOAD CONFIG"
 LoadConfigBtn.TextColor3 = Library.Theme.Text
-LoadConfigBtn.TextSize = 11
+LoadConfigBtn.TextSize = 10
 LoadConfigBtn.ZIndex = 23
 LoadConfigBtn.Parent = ConfigCard
 
 local LoadIcon = Instance.new("ImageLabel")
 LoadIcon.Size = UDim2.new(0, 16, 0, 16)
-LoadIcon.Position = UDim2.new(0, 10, 0.5, -8)
+LoadIcon.Position = UDim2.new(0, 8, 0.5, -8)
 LoadIcon.BackgroundTransparency = 1
 LoadIcon.Image = "rbxassetid://17119858971"
 LoadIcon.ImageColor3 = Library.Theme.Text
@@ -1008,19 +1061,19 @@ LoadIcon.Parent = LoadConfigBtn
 
 local DeleteConfigBtn = Instance.new("TextButton")
 DeleteConfigBtn.Size = UDim2.new(0.48, 0, 0, 30)
-DeleteConfigBtn.Position = UDim2.new(0.52, -4, 0, 86)
+DeleteConfigBtn.Position = UDim2.new(0.52, -5, 0, 88)
 DeleteConfigBtn.BackgroundColor3 = Library.Theme.Header
 DeleteConfigBtn.BorderSizePixel = 0
 DeleteConfigBtn.Font = Library.Fonts.Header
 DeleteConfigBtn.Text = "   DELETE"
 DeleteConfigBtn.TextColor3 = Color3.fromRGB(255, 90, 90)
-DeleteConfigBtn.TextSize = 11
+DeleteConfigBtn.TextSize = 10
 DeleteConfigBtn.ZIndex = 23
 DeleteConfigBtn.Parent = ConfigCard
 
 local DeleteIcon = Instance.new("ImageLabel")
 DeleteIcon.Size = UDim2.new(0, 16, 0, 16)
-DeleteIcon.Position = UDim2.new(0, 12, 0.5, -8)
+DeleteIcon.Position = UDim2.new(0, 10, 0.5, -8)
 DeleteIcon.BackgroundTransparency = 1
 DeleteIcon.Image = "rbxassetid://11768918600"
 DeleteIcon.ImageColor3 = Color3.fromRGB(255, 90, 90)
@@ -1028,11 +1081,11 @@ DeleteIcon.ZIndex = 24
 DeleteIcon.Parent = DeleteConfigBtn
 
 local ConfigStatusLabel = Instance.new("TextLabel")
-ConfigStatusLabel.Size = UDim2.new(1, -16, 0, 20)
-ConfigStatusLabel.Position = UDim2.new(0, 8, 0, 126)
+ConfigStatusLabel.Size = UDim2.new(1, -20, 0, 20)
+ConfigStatusLabel.Position = UDim2.new(0, 10, 0, 126)
 ConfigStatusLabel.BackgroundTransparency = 1
 ConfigStatusLabel.Font = Library.Fonts.Label
-ConfigStatusLabel.Text = "Config Folder: workspace/" .. Library.ConfigFolder
+ConfigStatusLabel.Text = "Folder: workspace/" .. Library.ConfigFolder
 ConfigStatusLabel.TextColor3 = Library.Theme.TextDim
 ConfigStatusLabel.TextSize = 10
 ConfigStatusLabel.TextXAlignment = Enum.TextXAlignment.Left
@@ -1104,33 +1157,72 @@ DeleteConfigBtn.MouseButton1Click:Connect(function()
     end)
 end)
 
-addModalSectionLabel("Custom Skybox Manager")
+-- 2. THEMES TAB PAGE
+local ThemeCard = Instance.new("Frame")
+ThemeCard.Size = UDim2.new(1, 0, 0, 160)
+ThemeCard.BackgroundColor3 = Library.Theme.Card
+ThemeCard.BorderSizePixel = 0
+ThemeCard.ZIndex = 22
+ThemeCard.Parent = ThemesPage
 
+local TCLabel = Instance.new("TextLabel")
+TCLabel.Size = UDim2.new(1, -20, 0, 24)
+TCLabel.Position = UDim2.new(0, 10, 0, 8)
+TCLabel.BackgroundTransparency = 1
+TCLabel.Font = Library.Fonts.Header
+TCLabel.Text = "SELECT COLOR PALETTE"
+TCLabel.TextColor3 = Library.Theme.Accent
+TCLabel.TextSize = 11
+TCLabel.TextXAlignment = Enum.TextXAlignment.Left
+TCLabel.ZIndex = 23
+TCLabel.Parent = ThemeCard
+
+local themeNames = {"Monochrome Dark", "Midnight Purple", "Emerald Cyan", "Ruby Red"}
+for idx, thName in ipairs(themeNames) do
+    local ThBtn = Instance.new("TextButton")
+    ThBtn.Size = UDim2.new(1, -20, 0, 26)
+    ThBtn.Position = UDim2.new(0, 10, 0, 36 + ((idx - 1) * 30))
+    ThBtn.BackgroundColor3 = (thName == Library.CurrentThemeName) and Library.Theme.Header or Library.Theme.Block
+    ThBtn.BorderSizePixel = 0
+    ThBtn.Font = Library.Fonts.Badge
+    ThBtn.Text = "  " .. thName
+    ThBtn.TextColor3 = (thName == Library.CurrentThemeName) and Library.Theme.Accent or Library.Theme.TextDim
+    ThBtn.TextSize = 10
+    ThBtn.TextXAlignment = Enum.TextXAlignment.Left
+    ThBtn.ZIndex = 24
+    ThBtn.Parent = ThemeCard
+
+    ThBtn.MouseButton1Click:Connect(function()
+        Library:SetTheme(thName)
+    end)
+end
+
+-- 3. SKYBOX TAB PAGE
 local SkyboxCard = Instance.new("Frame")
-SkyboxCard.Size = UDim2.new(1, -10, 0, 185)
+SkyboxCard.Size = UDim2.new(1, 0, 0, 195)
 SkyboxCard.BackgroundColor3 = Library.Theme.Card
 SkyboxCard.BorderSizePixel = 0
 SkyboxCard.ZIndex = 22
-SkyboxCard.Parent = ModalScroll
+SkyboxCard.Parent = SkyboxPage
 
 local SkyInputs = {}
 local faces = {
-    { Name = "Skybox Front / Back (Line 1)", Key1 = "SkyboxFt", Key2 = "SkyboxBk" },
-    { Name = "Skybox Left / Right (Line 2)", Key1 = "SkyboxLf", Key2 = "SkyboxRt" },
-    { Name = "Skybox Top Texture (Line 3)", Key1 = "SkyboxUp", Key2 = nil },
-    { Name = "Skybox Bottom Texture (Line 4)", Key1 = "SkyboxDn", Key2 = nil }
+    { Name = "Front / Back (Line 1)", Key1 = "SkyboxFt", Key2 = "SkyboxBk" },
+    { Name = "Left / Right (Line 2)", Key1 = "SkyboxLf", Key2 = "SkyboxRt" },
+    { Name = "Top Texture (Line 3)", Key1 = "SkyboxUp", Key2 = nil },
+    { Name = "Bottom Texture (Line 4)", Key1 = "SkyboxDn", Key2 = nil }
 }
 
 for i, faceData in ipairs(faces) do
     local InputRow = Instance.new("Frame")
-    InputRow.Size = UDim2.new(1, -16, 0, 32)
-    InputRow.Position = UDim2.new(0, 8, 0, 8 + ((i - 1) * 36))
+    InputRow.Size = UDim2.new(1, -20, 0, 32)
+    InputRow.Position = UDim2.new(0, 10, 0, 8 + ((i - 1) * 36))
     InputRow.BackgroundTransparency = 1
     InputRow.ZIndex = 23
     InputRow.Parent = SkyboxCard
 
     local FaceLbl = Instance.new("TextLabel")
-    FaceLbl.Size = UDim2.new(0, 180, 1, 0)
+    FaceLbl.Size = UDim2.new(0, 130, 1, 0)
     FaceLbl.BackgroundTransparency = 1
     FaceLbl.Font = Library.Fonts.Label
     FaceLbl.Text = faceData.Name
@@ -1141,8 +1233,8 @@ for i, faceData in ipairs(faces) do
     FaceLbl.Parent = InputRow
 
     local BoxBg = Instance.new("Frame")
-    BoxBg.Size = UDim2.new(1, -185, 0, 26)
-    BoxBg.Position = UDim2.new(0, 185, 0.5, -13)
+    BoxBg.Size = UDim2.new(1, -135, 0, 26)
+    BoxBg.Position = UDim2.new(0, 135, 0.5, -13)
     BoxBg.BackgroundColor3 = Library.Theme.Header
     BoxBg.BorderSizePixel = 0
     BoxBg.ZIndex = 23
@@ -1153,7 +1245,7 @@ for i, faceData in ipairs(faces) do
     TxtInput.Position = UDim2.new(0, 5, 0, 0)
     TxtInput.BackgroundTransparency = 1
     TxtInput.Font = Library.Fonts.Badge
-    TxtInput.PlaceholderText = "Paste Texture ID or rbxassetid://..."
+    TxtInput.PlaceholderText = "Paste Texture ID..."
     TxtInput.PlaceholderColor3 = Library.Theme.TextDim
     TxtInput.Text = ""
     TxtInput.TextColor3 = Library.Theme.Accent
@@ -1169,14 +1261,14 @@ for i, faceData in ipairs(faces) do
 end
 
 local ApplySkyboxBtn = Instance.new("TextButton")
-ApplySkyboxBtn.Size = UDim2.new(1, -16, 0, 28)
-ApplySkyboxBtn.Position = UDim2.new(0, 8, 0, 150)
+ApplySkyboxBtn.Size = UDim2.new(1, -20, 0, 30)
+ApplySkyboxBtn.Position = UDim2.new(0, 10, 0, 154)
 ApplySkyboxBtn.BackgroundColor3 = Library.Theme.Header
 ApplySkyboxBtn.BorderSizePixel = 0
 ApplySkyboxBtn.Font = Library.Fonts.Header
 ApplySkyboxBtn.Text = "EXECUTE CUSTOM SKYBOX"
 ApplySkyboxBtn.TextColor3 = Library.Theme.Accent
-ApplySkyboxBtn.TextSize = 11
+ApplySkyboxBtn.TextSize = 10
 ApplySkyboxBtn.ZIndex = 23
 ApplySkyboxBtn.Parent = SkyboxCard
 
@@ -1197,16 +1289,76 @@ ApplySkyboxBtn.MouseButton1Click:Connect(function()
     end
 end)
 
-addModalSectionLabel("Visual Effects & Render")
+-- 4. RADIO TAB PAGE
+local RadioCard = Instance.new("Frame")
+RadioCard.Size = UDim2.new(1, 0, 0, 140)
+RadioCard.BackgroundColor3 = Library.Theme.Card
+RadioCard.BorderSizePixel = 0
+RadioCard.ZIndex = 22
+RadioCard.Parent = RadioPage
 
+local RadioCardTitle = Instance.new("TextLabel")
+RadioCardTitle.Size = UDim2.new(1, -20, 0, 20)
+RadioCardTitle.Position = UDim2.new(0, 10, 0, 8)
+RadioCardTitle.BackgroundTransparency = 1
+RadioCardTitle.Font = Library.Fonts.Header
+RadioCardTitle.Text = "RADIO PLAYER CONTROLS"
+RadioCardTitle.TextColor3 = Library.Theme.Accent
+RadioCardTitle.TextSize = 11
+RadioCardTitle.TextXAlignment = Enum.TextXAlignment.Left
+RadioCardTitle.ZIndex = 23
+RadioCardTitle.Parent = RadioCard
+
+local SoundInputBg = Instance.new("Frame")
+SoundInputBg.Size = UDim2.new(1, -20, 0, 30)
+SoundInputBg.Position = UDim2.new(0, 10, 0, 32)
+SoundInputBg.BackgroundColor3 = Library.Theme.Header
+SoundInputBg.BorderSizePixel = 0
+SoundInputBg.ZIndex = 23
+SoundInputBg.Parent = RadioCard
+
+local TabSoundInput = Instance.new("TextBox")
+TabSoundInput.Size = UDim2.new(1, -10, 1, 0)
+TabSoundInput.Position = UDim2.new(0, 5, 0, 0)
+TabSoundInput.BackgroundTransparency = 1
+TabSoundInput.Font = Library.Fonts.Badge
+TabSoundInput.PlaceholderText = "Paste Sound ID (e.g. 1837843912)..."
+TabSoundInput.PlaceholderColor3 = Library.Theme.TextDim
+TabSoundInput.Text = ""
+TabSoundInput.TextColor3 = Library.Theme.Accent
+TabSoundInput.TextSize = 10
+TabSoundInput.TextXAlignment = Enum.TextXAlignment.Left
+TabSoundInput.Active = true
+TabSoundInput.Selectable = true
+TabSoundInput.ClearTextOnFocus = false
+TabSoundInput.ZIndex = 35
+TabSoundInput.Parent = SoundInputBg
+
+local PlaySoundBtn = Instance.new("TextButton")
+PlaySoundBtn.Size = UDim2.new(1, -20, 0, 30)
+PlaySoundBtn.Position = UDim2.new(0, 10, 0, 70)
+PlaySoundBtn.BackgroundColor3 = Library.Theme.Header
+PlaySoundBtn.BorderSizePixel = 0
+PlaySoundBtn.Font = Library.Fonts.Header
+PlaySoundBtn.Text = "PLAY TRACK"
+PlaySoundBtn.TextColor3 = Library.Theme.Accent
+PlaySoundBtn.TextSize = 10
+PlaySoundBtn.ZIndex = 23
+PlaySoundBtn.Parent = RadioCard
+
+PlaySoundBtn.MouseButton1Click:Connect(function()
+    triggerPlaySound(TabSoundInput.Text)
+end)
+
+-- 5. VISUALS TAB PAGE
 local BlurToggleBlock = Instance.new("TextButton")
-BlurToggleBlock.Size = UDim2.new(1, -10, 0, 36)
+BlurToggleBlock.Size = UDim2.new(1, 0, 0, 40)
 BlurToggleBlock.BackgroundColor3 = Library.Theme.Card
 BlurToggleBlock.BorderSizePixel = 0
 BlurToggleBlock.AutoButtonColor = false
 BlurToggleBlock.Text = ""
 BlurToggleBlock.ZIndex = 22
-BlurToggleBlock.Parent = ModalScroll
+BlurToggleBlock.Parent = VisualsPage
 
 local BTLabel = Instance.new("TextLabel")
 BTLabel.Size = UDim2.new(1, -60, 1, 0)
@@ -1215,7 +1367,7 @@ BTLabel.BackgroundTransparency = 1
 BTLabel.Font = Library.Fonts.Label
 BTLabel.Text = "Background Blur Effect"
 BTLabel.TextColor3 = Library.Theme.Text
-BTLabel.TextSize = 12
+BTLabel.TextSize = 11
 BTLabel.TextXAlignment = Enum.TextXAlignment.Left
 BTLabel.ZIndex = 23
 BTLabel.Parent = BlurToggleBlock
@@ -1247,13 +1399,13 @@ BlurToggleBlock.MouseButton1Click:Connect(function()
 end)
 
 local SnowToggleBlock = Instance.new("TextButton")
-SnowToggleBlock.Size = UDim2.new(1, -10, 0, 36)
+SnowToggleBlock.Size = UDim2.new(1, 0, 0, 40)
 SnowToggleBlock.BackgroundColor3 = Library.Theme.Card
 SnowToggleBlock.BorderSizePixel = 0
 SnowToggleBlock.AutoButtonColor = false
 SnowToggleBlock.Text = ""
 SnowToggleBlock.ZIndex = 22
-SnowToggleBlock.Parent = ModalScroll
+SnowToggleBlock.Parent = VisualsPage
 
 local STLabel = Instance.new("TextLabel")
 STLabel.Size = UDim2.new(1, -60, 1, 0)
@@ -1262,7 +1414,7 @@ STLabel.BackgroundTransparency = 1
 STLabel.Font = Library.Fonts.Label
 STLabel.Text = "Screen Snow Falling Particles"
 STLabel.TextColor3 = Library.Theme.Text
-STLabel.TextSize = 12
+STLabel.TextSize = 11
 STLabel.TextXAlignment = Enum.TextXAlignment.Left
 STLabel.ZIndex = 23
 STLabel.Parent = SnowToggleBlock
@@ -1293,55 +1445,15 @@ SnowToggleBlock.MouseButton1Click:Connect(function()
     SnowFolder.Visible = Library.SnowEnabled and Library.Enabled
 end)
 
-addModalSectionLabel("Themes & Customization")
-
-local ThemeCard = Instance.new("Frame")
-ThemeCard.Size = UDim2.new(1, -10, 0, 40)
-ThemeCard.BackgroundColor3 = Library.Theme.Card
-ThemeCard.BorderSizePixel = 0
-ThemeCard.ZIndex = 22
-ThemeCard.Parent = ModalScroll
-
-local TCLabel = Instance.new("TextLabel")
-TCLabel.Size = UDim2.new(0, 150, 1, 0)
-TCLabel.Position = UDim2.new(0, 12, 0, 0)
-TCLabel.BackgroundTransparency = 1
-TCLabel.Font = Library.Fonts.Label
-TCLabel.Text = "Color Theme"
-TCLabel.TextColor3 = Library.Theme.Text
-TCLabel.TextSize = 12
-TCLabel.TextXAlignment = Enum.TextXAlignment.Left
-TCLabel.ZIndex = 23
-TCLabel.Parent = ThemeCard
-
-local themeNames = {"Monochrome Dark", "Midnight Purple", "Emerald Cyan", "Ruby Red"}
-for idx, thName in ipairs(themeNames) do
-    local ThBtn = Instance.new("TextButton")
-    ThBtn.Size = UDim2.new(0, 70, 0, 24)
-    ThBtn.Position = UDim2.new(1, -295 + ((idx - 1) * 73), 0.5, -12)
-    ThBtn.BackgroundColor3 = (thName == Library.CurrentThemeName) and Library.Theme.Accent or Library.Theme.Header
-    ThBtn.BorderSizePixel = 0
-    ThBtn.Font = Library.Fonts.Badge
-    ThBtn.Text = string.sub(thName, 1, 9)
-    ThBtn.TextColor3 = (thName == Library.CurrentThemeName) and Library.Theme.Background or Library.Theme.TextDim
-    ThBtn.TextSize = 9
-    ThBtn.ZIndex = 24
-    ThBtn.Parent = ThemeCard
-
-    ThBtn.MouseButton1Click:Connect(function()
-        Library:SetTheme(thName)
-    end)
-end
-
 local function toggleSettingsModal(visible)
     if visible == nil then visible = not SettingsModal.Visible end
     if visible then
         SettingsModal.Visible = true
-        SettingsModal.Position = UDim2.new(0.5, -240, 0.5, -210)
-        SettingsModal.Size = UDim2.new(0, 480, 0, 460)
-        smoothTween(SettingsModal, DUR_MODAL, { Position = UDim2.new(0.5, -240, 0.5, -230) }, EASE_SPRING, DIR_OUT)
+        SettingsModal.Position = UDim2.new(0.5, -250, 0.5, -190)
+        SettingsModal.Size = UDim2.new(0, 500, 0, 420)
+        smoothTween(SettingsModal, DUR_MODAL, { Position = UDim2.new(0.5, -250, 0.5, -210) }, EASE_SPRING, DIR_OUT)
     else
-        local anim = smoothTween(SettingsModal, DUR_MODAL, { Position = UDim2.new(0.5, -240, 0.5, -190) }, EASE_SMOOTH, DIR_IN)
+        local anim = smoothTween(SettingsModal, DUR_MODAL, { Position = UDim2.new(0.5, -250, 0.5, -170) }, EASE_SMOOTH, DIR_IN)
         anim.Completed:Connect(function()
             if not visible then SettingsModal.Visible = false end
         end)
@@ -1393,8 +1505,18 @@ function Library:SetTheme(themeName)
 
     smoothTween(SettingsModal, DUR_NORMAL, { BackgroundColor3 = t.Block })
     smoothTween(ModalHeader, DUR_NORMAL, { BackgroundColor3 = t.Header })
+    smoothTween(ModalSidebar, DUR_NORMAL, { BackgroundColor3 = t.Header })
     smoothTween(ModalTitle, DUR_NORMAL, { TextColor3 = t.Text })
     smoothTween(ModalStroke, DUR_NORMAL, { Color = t.StrokeActive })
+
+    for name, data in pairs(ModalTabs) do
+        local isSel = (name == Library.CurrentThemeName or data.Page.Visible)
+        smoothTween(data.Btn, DUR_NORMAL, {
+            BackgroundColor3 = isSel and t.Block or t.Card,
+            TextColor3 = isSel and t.Accent or t.TextDim
+        })
+        smoothTween(data.Indicator, DUR_NORMAL, { BackgroundColor3 = t.Accent })
+    end
 
     smoothTween(ConfigCard, DUR_NORMAL, { BackgroundColor3 = t.Card })
     smoothTween(ConfigNameBg, DUR_NORMAL, { BackgroundColor3 = t.Header })
@@ -1410,12 +1532,30 @@ function Library:SetTheme(themeName)
     smoothTween(LoadIcon, DUR_NORMAL, { ImageColor3 = t.Text })
     smoothTween(DeleteConfigBtn, DUR_NORMAL, { BackgroundColor3 = t.Header })
 
+    smoothTween(ThemeCard, DUR_NORMAL, { BackgroundColor3 = t.Card })
+    smoothTween(TCLabel, DUR_NORMAL, { TextColor3 = t.Accent })
+    for _, child in ipairs(ThemeCard:GetChildren()) do
+        if child:IsA("TextButton") then
+            local isMatch = (child.Text:find(themeName))
+            smoothTween(child, DUR_NORMAL, {
+                BackgroundColor3 = isMatch and t.Header or t.Block,
+                TextColor3 = isMatch and t.Accent or t.TextDim
+            })
+        end
+    end
+
     smoothTween(SkyboxCard, DUR_NORMAL, { BackgroundColor3 = t.Card })
     smoothTween(ApplySkyboxBtn, DUR_NORMAL, { BackgroundColor3 = t.Header, TextColor3 = t.Accent })
     for _, item in ipairs(SkyInputs) do
         if item.BoxBg then smoothTween(item.BoxBg, DUR_NORMAL, { BackgroundColor3 = t.Header }) end
         if item.Input then smoothTween(item.Input, DUR_NORMAL, { TextColor3 = t.Accent }) end
     end
+
+    smoothTween(RadioCard, DUR_NORMAL, { BackgroundColor3 = t.Card })
+    smoothTween(RadioCardTitle, DUR_NORMAL, { TextColor3 = t.Accent })
+    smoothTween(SoundInputBg, DUR_NORMAL, { BackgroundColor3 = t.Header })
+    smoothTween(TabSoundInput, DUR_NORMAL, { TextColor3 = t.Accent })
+    smoothTween(PlaySoundBtn, DUR_NORMAL, { BackgroundColor3 = t.Header, TextColor3 = t.Accent })
 
     smoothTween(BlurToggleBlock, DUR_NORMAL, { BackgroundColor3 = t.Card })
     smoothTween(BTLabel, DUR_NORMAL, { TextColor3 = t.Text })
@@ -1426,24 +1566,6 @@ function Library:SetTheme(themeName)
     smoothTween(STLabel, DUR_NORMAL, { TextColor3 = t.Text })
     smoothTween(STSwitchBg, DUR_NORMAL, { BackgroundColor3 = Library.SnowEnabled and t.Accent or t.Header })
     smoothTween(STKnob, DUR_NORMAL, { BackgroundColor3 = Library.SnowEnabled and t.Background or t.TextDim })
-
-    smoothTween(ThemeCard, DUR_NORMAL, { BackgroundColor3 = t.Card })
-    smoothTween(TCLabel, DUR_NORMAL, { TextColor3 = t.Text })
-
-    for _, elem in ipairs(Library.ModalElements) do
-        if elem.Label then smoothTween(elem.Label, DUR_NORMAL, { TextColor3 = t.Accent }) end
-        if elem.Line then smoothTween(elem.Line, DUR_NORMAL, { BackgroundColor3 = t.Stroke }) end
-    end
-
-    for _, child in ipairs(ThemeCard:GetChildren()) do
-        if child:IsA("TextButton") then
-            local isMatch = (child.Text == string.sub(themeName, 1, 9))
-            smoothTween(child, DUR_NORMAL, {
-                BackgroundColor3 = isMatch and t.Accent or t.Header,
-                TextColor3 = isMatch and t.Background or t.TextDim
-            })
-        end
-    end
 
     for _, block in ipairs(Library.Blocks) do
         if block.Frame then smoothTween(block.Frame, DUR_NORMAL, { BackgroundColor3 = t.Block }) end
@@ -1465,7 +1587,7 @@ function Library:SetTheme(themeName)
                 smoothTween(elem.Stroke, DUR_NORMAL, { Color = t.Stroke })
                 smoothTween(elem.Label, DUR_NORMAL, { TextColor3 = t.TextDim })
                 smoothTween(elem.ValBadge, DUR_NORMAL, { BackgroundColor3 = t.Header })
-                smoothTween(elem.ValLabel, DUR_NORMAL, { TextColor3 = t.Accent })
+                smoothTween(elem.ValInput, DUR_NORMAL, { TextColor3 = t.Accent })
                 smoothTween(elem.TrackBg, DUR_NORMAL, { BackgroundColor3 = t.Header })
                 smoothTween(elem.Fill, DUR_NORMAL, { BackgroundColor3 = t.Accent })
                 smoothTween(elem.Handle, DUR_NORMAL, { BackgroundColor3 = t.Accent })
@@ -1557,7 +1679,7 @@ function Library:CreateBlock(title, defaultPosition)
     Frame.Position = defaultPosition
     Frame.BackgroundColor3 = Library.Theme.Block
     Frame.BorderSizePixel = 0
-    Frame.ClipsDescendants = false
+    Frame.ClipsDescendants = true
     Frame.Parent = Container
     Block.Frame = Frame
 
@@ -1619,7 +1741,7 @@ function Library:CreateBlock(title, defaultPosition)
     Content.Size = UDim2.new(1, 0, 0, 0)
     Content.Position = UDim2.new(0, 0, 0, 38)
     Content.BackgroundTransparency = 1
-    Content.ClipsDescendants = false
+    Content.ClipsDescendants = true
     Content.Visible = true
     Content.Parent = Frame
     Block.Content = Content
@@ -1639,17 +1761,17 @@ function Library:CreateBlock(title, defaultPosition)
     makeDraggable(Frame, Header)
 
     local function updateHeight()
+        local targetContentHeight = UIListLayout.AbsoluteContentSize.Y + 14
         if Block.Expanded then
             Content.Visible = true
-            local targetContentHeight = UIListLayout.AbsoluteContentSize.Y + 14
-            Content.Size = UDim2.new(1, 0, 0, targetContentHeight)
+            smoothTween(Content, DUR_NORMAL, { Size = UDim2.new(1, 0, 0, targetContentHeight) })
             smoothTween(Frame, DUR_NORMAL, { Size = UDim2.new(0, 240, 0, 38 + targetContentHeight) })
         else
+            smoothTween(Content, DUR_NORMAL, { Size = UDim2.new(1, 0, 0, 0) })
             local anim = smoothTween(Frame, DUR_NORMAL, { Size = UDim2.new(0, 240, 0, 38) })
             anim.Completed:Connect(function()
                 if not Block.Expanded then
                     Content.Visible = false
-                    Content.Size = UDim2.new(1, 0, 0, 0)
                 end
             end)
         end
@@ -1968,6 +2090,7 @@ function Library:CreateBlock(title, defaultPosition)
         end)
     end
 
+    -- SLIDER WITH INTERACTIVE NUMBER TEXTBOX INPUT
     function Block:AddSlider(name, min, max, default, callback)
         min = min or 0
         max = max or 100
@@ -2011,14 +2134,20 @@ function Library:CreateBlock(title, defaultPosition)
         ValStroke.Thickness = 1
         ValStroke.Parent = ValBadge
 
-        local ValLabel = Instance.new("TextLabel")
-        ValLabel.Size = UDim2.new(1, 0, 1, 0)
-        ValLabel.BackgroundTransparency = 1
-        ValLabel.Font = Library.Fonts.Badge
-        ValLabel.Text = tostring(value)
-        ValLabel.TextColor3 = Library.Theme.Accent
-        ValLabel.TextSize = 11
-        ValLabel.Parent = ValBadge
+        -- INTERACTIVE TEXTBOX INSTEAD OF STATIC TEXTLABEL
+        local ValInput = Instance.new("TextBox")
+        ValInput.Size = UDim2.new(1, 0, 1, 0)
+        ValInput.BackgroundTransparency = 1
+        ValInput.Font = Library.Fonts.Badge
+        ValInput.Text = tostring(value)
+        ValInput.TextColor3 = Library.Theme.Accent
+        ValInput.TextSize = 11
+        ValInput.TextXAlignment = Enum.TextXAlignment.Center
+        ValInput.Active = true
+        ValInput.Selectable = true
+        ValInput.ClearTextOnFocus = false
+        ValInput.ZIndex = 10
+        ValInput.Parent = ValBadge
 
         local TrackBg = Instance.new("TextButton")
         TrackBg.Size = UDim2.new(1, -20, 0, 6)
@@ -2049,13 +2178,36 @@ function Library:CreateBlock(title, defaultPosition)
             Stroke = Stroke,
             Label = Label,
             ValBadge = ValBadge,
-            ValLabel = ValLabel,
+            ValInput = ValInput,
             TrackBg = TrackBg,
             Fill = Fill,
             Handle = Handle
         })
 
         local isDragging = false
+
+        local function setSliderVal(num, triggerCallback)
+            num = math.clamp(math.floor(num + 0.5), min, max)
+            value = num
+            ValInput.Text = tostring(value)
+
+            local relX = (max > min) and ((value - min) / (max - min)) or 0
+            Fill.Size = UDim2.new(relX, 0, 1, 0)
+            Handle.Position = UDim2.new(relX, -5, 0.5, -6)
+
+            if triggerCallback then
+                task.spawn(function() pcall(callback, value) end)
+            end
+        end
+
+        ValInput.FocusLost:Connect(function(enterPressed)
+            local parsed = tonumber(ValInput.Text)
+            if parsed then
+                setSliderVal(parsed, true)
+            else
+                ValInput.Text = tostring(value)
+            end
+        end)
 
         local function updateSliderPosition(inputX)
             local barWidth = TrackBg.AbsoluteSize.X
@@ -2068,7 +2220,7 @@ function Library:CreateBlock(title, defaultPosition)
 
             if newValue ~= value then
                 value = newValue
-                ValLabel.Text = tostring(value)
+                ValInput.Text = tostring(value)
                 task.spawn(function() pcall(callback, value) end)
             end
         end
