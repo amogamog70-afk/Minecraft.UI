@@ -570,28 +570,44 @@ end))
 
 local GearBtnFrame = Instance.new("Frame")
 GearBtnFrame.Name = "GearButtonFrame"
-GearBtnFrame.Size = UDim2.new(0, 38, 0, 38)
-GearBtnFrame.Position = UDim2.new(1, -53, 0, 15)
+GearBtnFrame.Size = UDim2.new(0, 36, 0, 36)
+GearBtnFrame.Position = UDim2.new(1, -48, 0, 10)
 GearBtnFrame.BackgroundColor3 = Library.Theme.Block
+GearBtnFrame.BackgroundTransparency = 0.06
 GearBtnFrame.BorderSizePixel = 0
-GearBtnFrame.Parent = Container
+GearBtnFrame.Parent = ScreenGui
 UI.GearBtnFrame = GearBtnFrame
+
+addCorner(GearBtnFrame, 18)
 
 local GearStroke = Instance.new("UIStroke")
 GearStroke.Color = Library.Theme.Accent
-GearStroke.Thickness = 1.5
+GearStroke.Transparency = 0.25
+GearStroke.Thickness = 1.2
 GearStroke.Parent = GearBtnFrame
 UI.GearStroke = GearStroke
 
 local GearIcon = Instance.new("ImageButton")
 GearIcon.Name = "GearIcon"
-GearIcon.Size = UDim2.new(0, 22, 0, 22)
-GearIcon.Position = UDim2.new(0.5, -11, 0.5, -11)
+GearIcon.Size = UDim2.new(0, 20, 0, 20)
+GearIcon.Position = UDim2.new(0.5, -10, 0.5, -10)
 GearIcon.BackgroundTransparency = 1
 GearIcon.Image = "rbxassetid://7059346373"
 GearIcon.ImageColor3 = Library.Theme.Accent
 GearIcon.Parent = GearBtnFrame
 UI.GearIcon = GearIcon
+
+GearBtnFrame.MouseEnter:Connect(function()
+    smoothTween(GearBtnFrame, DUR_FAST, { BackgroundColor3 = Library.Theme.Header })
+    smoothTween(GearStroke, DUR_FAST, { Transparency = 0 })
+    smoothTween(GearIcon, DUR_FAST, { Size = UDim2.new(0, 22, 0, 22), Position = UDim2.new(0.5, -11, 0.5, -11) })
+end)
+
+GearBtnFrame.MouseLeave:Connect(function()
+    smoothTween(GearBtnFrame, DUR_FAST, { BackgroundColor3 = Library.Theme.Block })
+    smoothTween(GearStroke, DUR_FAST, { Transparency = 0.25 })
+    smoothTween(GearIcon, DUR_FAST, { Size = UDim2.new(0, 20, 0, 20), Position = UDim2.new(0.5, -10, 0.5, -10) })
+end)
 
 local isDraggingGear = false
 local dragGearStart = nil
@@ -1141,23 +1157,39 @@ local function updateRadioHUDProperties()
     RadioHUDUIScale.Scale = scaleVal
 end
 
+-- Modal Backdrop (Blocks clicks/interactions to background UI when Settings is open)
+local ModalBackdrop = Instance.new("TextButton")
+ModalBackdrop.Name = "ModalBackdrop"
+ModalBackdrop.Size = UDim2.new(1, 0, 1, 0)
+ModalBackdrop.Position = UDim2.new(0, 0, 0, 0)
+ModalBackdrop.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+ModalBackdrop.BackgroundTransparency = 1
+ModalBackdrop.Visible = false
+ModalBackdrop.Text = ""
+ModalBackdrop.AutoButtonColor = false
+ModalBackdrop.Active = true
+ModalBackdrop.Modal = true -- CRITICAL: Unlocks mouse & blocks click-through to UI elements behind modal!
+ModalBackdrop.ZIndex = 50
+ModalBackdrop.Parent = ScreenGui
+UI.ModalBackdrop = ModalBackdrop
+
 -- ==============================================================
--- DEDICATED TAB NAVIGATION SETTINGS MODAL (500 x 420 px)
+-- DEDICATED TAB NAVIGATION SETTINGS MODAL (520 x 420 px)
 -- ==============================================================
 SettingsModal = Instance.new("Frame")
 SettingsModal.Name = "SettingsModal"
-SettingsModal.Size = UDim2.new(0, 500, 0, 420)
-SettingsModal.Position = UDim2.new(0.5, -250, 0.5, -210)
+SettingsModal.Size = UDim2.new(0, 520, 0, 420)
+SettingsModal.Position = UDim2.new(0.5, -260, 0.5, -210)
 SettingsModal.BackgroundColor3 = Library.Theme.Block
 SettingsModal.BackgroundTransparency = 0.04
 SettingsModal.BorderSizePixel = 0
 SettingsModal.ClipsDescendants = true
 SettingsModal.Visible = false
-SettingsModal.ZIndex = 20
-SettingsModal.Parent = Container
+SettingsModal.ZIndex = 60
+SettingsModal.Parent = ScreenGui
 UI.SettingsModal = SettingsModal
 
-addCorner(SettingsModal, 10)
+addCorner(SettingsModal, 14)
 
 local ModalStroke = Instance.new("UIStroke")
 ModalStroke.Color = Library.Theme.StrokeActive
@@ -1172,10 +1204,10 @@ ModalHeader.Size = UDim2.new(1, 0, 0, 40)
 ModalHeader.BackgroundColor3 = Library.Theme.Header
 ModalHeader.BackgroundTransparency = 0.08
 ModalHeader.BorderSizePixel = 0
-ModalHeader.ZIndex = 21
+ModalHeader.ZIndex = 61
 ModalHeader.Parent = SettingsModal
 UI.ModalHeader = ModalHeader
-addCorner(ModalHeader, 10)
+addCorner(ModalHeader, 14)
 
 local ModalLogoIcon = Instance.new("ImageLabel")
 ModalLogoIcon.Name = "ModalLogoIcon"
@@ -3185,19 +3217,29 @@ end
 local function toggleSettingsModal(visible)
     if visible == nil then visible = not SettingsModal.Visible end
     if visible then
+        ModalBackdrop.Visible = true
         SettingsModal.Visible = true
-        SettingsModal.Position = UDim2.new(0.5, -250, 0.5, -190)
-        SettingsModal.Size = UDim2.new(0, 500, 0, 420)
-        smoothTween(SettingsModal, DUR_MODAL, { Position = UDim2.new(0.5, -250, 0.5, -210) }, EASE_SPRING, DIR_OUT)
+        SettingsModal.Position = UDim2.new(0.5, -260, 0.5, -190)
+        SettingsModal.Size = UDim2.new(0, 520, 0, 420)
+        smoothTween(ModalBackdrop, DUR_MODAL, { BackgroundTransparency = 0.45 }, EASE_SMOOTH, DIR_OUT)
+        smoothTween(SettingsModal, DUR_MODAL, { Position = UDim2.new(0.5, -260, 0.5, -210) }, EASE_SPRING, DIR_OUT)
     else
         ConfigDropList.Visible = false
         configDropOpen = false
-        local anim = smoothTween(SettingsModal, DUR_MODAL, { Position = UDim2.new(0.5, -250, 0.5, -170) }, EASE_SMOOTH, DIR_IN)
+        smoothTween(ModalBackdrop, DUR_MODAL, { BackgroundTransparency = 1 }, EASE_SMOOTH, DIR_IN)
+        local anim = smoothTween(SettingsModal, DUR_MODAL, { Position = UDim2.new(0.5, -260, 0.5, -170) }, EASE_SMOOTH, DIR_IN)
         anim.Completed:Connect(function()
-            if not visible then SettingsModal.Visible = false end
+            if not visible then
+                SettingsModal.Visible = false
+                ModalBackdrop.Visible = false
+            end
         end)
     end
 end
+
+ModalBackdrop.MouseButton1Click:Connect(function()
+    toggleSettingsModal(false)
+end)
 
 CloseModalBtn.MouseButton1Click:Connect(function()
     toggleSettingsModal(false)
@@ -3375,9 +3417,25 @@ function Library:SetTheme(themeName)
         if block.TopGlow then smoothTween(block.TopGlow, DUR_NORMAL, { BackgroundColor3 = t.Accent }) end
         if block.Dot then smoothTween(block.Dot, DUR_NORMAL, { BackgroundColor3 = t.Accent }) end
         if block.TitleLabel then smoothTween(block.TitleLabel, DUR_NORMAL, { TextColor3 = t.Text }) end
+        if block.Content then smoothTween(block.Content, DUR_NORMAL, { ScrollBarImageColor3 = t.Accent }) end
 
         for _, elem in ipairs(block.Elements) do
-            if elem.Type == "Toggle" then
+            if elem.Type == "Section" then
+                if elem.Line then smoothTween(elem.Line, DUR_NORMAL, { BackgroundColor3 = t.Stroke }) end
+                if elem.TitleBg then smoothTween(elem.TitleBg, DUR_NORMAL, { BackgroundColor3 = t.Block }) end
+                if elem.TitleLbl then smoothTween(elem.TitleLbl, DUR_NORMAL, { TextColor3 = t.Accent }) end
+            elseif elem.Type == "SubTab" then
+                if elem.TabRow then smoothTween(elem.TabRow, DUR_NORMAL, { BackgroundColor3 = t.Header }) end
+                if elem.Buttons then
+                    for _, btn in ipairs(elem.Buttons) do
+                        local sel = (btn.Text == block.ActiveSubTab)
+                        smoothTween(btn, DUR_NORMAL, {
+                            BackgroundColor3 = sel and t.Block or t.Header,
+                            TextColor3 = sel and t.Accent or t.TextDim
+                        })
+                    end
+                end
+            elseif elem.Type == "Toggle" then
                 smoothTween(elem.Frame, DUR_NORMAL, { BackgroundColor3 = t.Card })
                 smoothTween(elem.Stroke, DUR_NORMAL, { Color = elem.GetState() and t.StrokeHover or t.Stroke })
                 smoothTween(elem.SwitchBg, DUR_NORMAL, { BackgroundColor3 = elem.GetState() and t.Accent or t.Header })
@@ -4498,7 +4556,7 @@ function Library:CreateBlock(title, defaultPosition)
 
         local sTab = subTab or Block.CurrentSubTab
         if sTab then sTab = string.upper(sTab) end
-        table.insert(Block.Elements, { Frame = SectionFrame, SubTab = sTab })
+        table.insert(Block.Elements, { Type = "Section", Frame = SectionFrame, Line = Line, TitleBg = TitleBg, TitleLbl = TitleLbl, SubTab = sTab })
         if Block.ActiveSubTab and sTab and sTab ~= Block.ActiveSubTab then
             SectionFrame.Visible = false
         end
@@ -4571,6 +4629,7 @@ function Library:CreateBlock(title, defaultPosition)
         end
 
         refreshSubTabVisibility()
+        table.insert(Block.Elements, { Type = "SubTab", TabRow = TabRow, Buttons = buttons, SubTab = nil })
         updateHeight()
         return TabRow
     end
