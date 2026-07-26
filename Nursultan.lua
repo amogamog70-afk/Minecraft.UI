@@ -223,6 +223,63 @@ local function smoothTween(object, duration, properties, easingStyle, easingDire
     return anim
 end
 
+local function resolveSoundCloudToMp3(scUrl)
+    local clientId = "iZ864qAfWFxgqnosawMuUZqq800acFi6"
+    local encodedUrl = scUrl:gsub("([^%w%-%_%.%~])", function(c)
+        return string.format("%%%02X", string.byte(c))
+    end)
+
+    -- Stage 1: Official SoundCloud API V2 Resolve Endpoint
+    local apiResolveUrl = "https://api-v2.soundcloud.com/resolve?url=" .. encodedUrl .. "&client_id=" .. clientId
+    local ok, jsonText = pcall(function() return game:HttpGet(apiResolveUrl, true) end)
+
+    if ok and jsonText and jsonText:find("media") then
+        local okDecode, data = pcall(function() return HttpService:JSONDecode(jsonText) end)
+        if okDecode and data and data.media and data.media.transcodings then
+            local streamTargetUrl = nil
+            for _, tc in ipairs(data.media.transcodings) do
+                if tc.format and tc.format.protocol == "progressive" then
+                    streamTargetUrl = tc.url
+                    break
+                end
+            end
+            if not streamTargetUrl and #data.media.transcodings > 0 then
+                streamTargetUrl = data.media.transcodings[1].url
+            end
+
+            if streamTargetUrl then
+                local fetchStreamUrl = streamTargetUrl .. "?client_id=" .. clientId
+                local ok2, jsonStream = pcall(function() return game:HttpGet(fetchStreamUrl, true) end)
+                if ok2 and jsonStream then
+                    local okDec2, streamData = pcall(function() return HttpService:JSONDecode(jsonStream) end)
+                    if okDec2 and streamData and streamData.url then
+                        local okAudio, audioBytes = pcall(function() return game:HttpGet(streamData.url, true) end)
+                        if okAudio and audioBytes and #audioBytes > 1000 then
+                            return audioBytes
+                        end
+                    end
+                end
+            end
+        end
+    end
+
+    -- Stage 2: Public SoundCloud API Proxy Fallback
+    local proxyUrl = "https://api.bongo.best/soundcloud?url=" .. encodedUrl
+    local okProxy, proxyJson = pcall(function() return game:HttpGet(proxyUrl, true) end)
+    if okProxy and proxyJson then
+        local okDecProxy, proxyData = pcall(function() return HttpService:JSONDecode(proxyJson) end)
+        if okDecProxy and proxyData and (proxyData.url or proxyData.audio_url) then
+            local directAudioUrl = proxyData.url or proxyData.audio_url
+            local okAudio, audioBytes = pcall(function() return game:HttpGet(directAudioUrl, true) end)
+            if okAudio and audioBytes and #audioBytes > 1000 then
+                return audioBytes
+            end
+        end
+    end
+
+    return nil
+end
+
 local function formatAssetId(raw)
     if not raw or raw == "" then return "" end
     local str = tostring(raw):match("^%s*(.-)%s*$") -- Trim whitespace
@@ -242,36 +299,29 @@ local function formatAssetId(raw)
         if writefile and getcustomasset then
             local tempFileName = "star_radio_stream.mp3"
 
-            -- First try direct download
-            local success, content = pcall(function()
-                return game:HttpGet(str, true)
-            end)
-
-            if success and content and #content > 1000 then
-                -- Check if response is SoundCloud HTML page
-                if content:find("<!DOCTYPE") or content:find("<html") or content:find("soundcloud") then
-                    -- Extract direct media stream URL from SoundCloud metadata
-                    local streamUrl = content:match('"(https?://api%-v2%.soundcloud%.com/media/[^"]+)"')
-                        or content:match('"(https?://cf%-media%.soundcloud%.com/[^"]+)"')
-                        or content:match('"(https?://[^"]+%.mp3[^"]*)"')
-
-                    if streamUrl then
-                        streamUrl = streamUrl:gsub('\\"', '"'):gsub('"', '')
-                        local streamOk, streamData = pcall(function()
-                            return game:HttpGet(streamUrl, true)
-                        end)
-                        if streamOk and streamData and #streamData > 1000 then
-                            content = streamData
+            if str:find("soundcloud.com") then
+                local audioBytes = resolveSoundCloudToMp3(str)
+                if audioBytes then
+                    pcall(function() writefile(tempFileName, audioBytes) end)
+                    if isfile and isfile(tempFileName) then
+                        local okAsset, customAsset = pcall(function() return getcustomasset(tempFileName) end)
+                        if okAsset and customAsset and customAsset ~= "" then
+                            return customAsset
                         end
                     end
                 end
+            else
+                local success, content = pcall(function()
+                    return game:HttpGet(str, true)
+                end)
 
-                -- Write downloaded audio bytes to file
-                pcall(function() writefile(tempFileName, content) end)
-                if isfile and isfile(tempFileName) then
-                    local okAsset, customAsset = pcall(function() return getcustomasset(tempFileName) end)
-                    if okAsset and customAsset and customAsset ~= "" then
-                        return customAsset
+                if success and content and #content > 1000 then
+                    pcall(function() writefile(tempFileName, content) end)
+                    if isfile and isfile(tempFileName) then
+                        local okAsset, customAsset = pcall(function() return getcustomasset(tempFileName) end)
+                        if okAsset and customAsset and customAsset ~= "" then
+                            return customAsset
+                        end
                     end
                 end
             end
