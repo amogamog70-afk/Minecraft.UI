@@ -205,8 +205,12 @@ Container.BackgroundTransparency = 1
 Container.ClipsDescendants = false
 Container.Parent = ScreenGui
 
-local SnowFolder = Instance.new("Folder")
+local SnowFolder = Instance.new("Frame")
 SnowFolder.Name = "SnowParticles"
+SnowFolder.Size = UDim2.new(1, 0, 1, 0)
+SnowFolder.BackgroundTransparency = 1
+SnowFolder.ClipsDescendants = false
+SnowFolder.ZIndex = 2
 SnowFolder.Parent = Container
 
 local Flakes = {}
@@ -1335,16 +1339,66 @@ PresetTitle.ZIndex = 23
 PresetTitle.Parent = SkyPresetCard
 
 local SkyboxPresets = {
-    { Name = "Purple Nebula", Tex = "rbxassetid://159454299" },
-    { Name = "Cyberpunk Dusk", Tex = "rbxassetid://6053897711" },
-    { Name = "Deep Space Galaxy", Tex = "rbxassetid://263300898" },
-    { Name = "Red Blood Moon", Tex = "rbxassetid://368388290" },
-    { Name = "Sunset Horizon", Tex = "rbxassetid://60083163" },
-    { Name = "Night Sky Stars", Tex = "rbxassetid://12064107" },
-    { Name = "Pastel Pink Sunset", Tex = "rbxassetid://490317379" },
-    { Name = "Anime Blue Clouds", Tex = "rbxassetid://8281241" },
-    { Name = "Dark Eclipse", Tex = "rbxassetid://159197607" },
-    { Name = "Vaporwave Dream", Tex = "rbxassetid://141749449" }
+    {
+        Name = "Purple Nebula",
+        Ft = "rbxassetid://159454299", Bk = "rbxassetid://159454296",
+        Lf = "rbxassetid://159454293", Rt = "rbxassetid://159454300",
+        Up = "rbxassetid://159454288", Dn = "rbxassetid://159454286"
+    },
+    {
+        Name = "Night Sky Stars",
+        Ft = "rbxassetid://12064107", Bk = "rbxassetid://12064115",
+        Lf = "rbxassetid://12064124", Rt = "rbxassetid://12064134",
+        Up = "rbxassetid://12064152", Dn = "rbxassetid://12064143"
+    },
+    {
+        Name = "Pink Sunset",
+        Ft = "rbxassetid://271042516", Bk = "rbxassetid://271042556",
+        Lf = "rbxassetid://271042310", Rt = "rbxassetid://271042467",
+        Up = "rbxassetid://271042661", Dn = "rbxassetid://271042742"
+    },
+    {
+        Name = "Deep Space",
+        Ft = "rbxassetid://263300898", Bk = "rbxassetid://263300941",
+        Lf = "rbxassetid://263300984", Rt = "rbxassetid://263301026",
+        Up = "rbxassetid://263301068", Dn = "rbxassetid://263301104"
+    },
+    {
+        Name = "Red Blood Moon",
+        Ft = "rbxassetid://368388290", Bk = "rbxassetid://368388339",
+        Lf = "rbxassetid://368388377", Rt = "rbxassetid://368388417",
+        Up = "rbxassetid://368388456", Dn = "rbxassetid://368388489"
+    },
+    {
+        Name = "Sunset Horizon",
+        Ft = "rbxassetid://60083046", Bk = "rbxassetid://60083090",
+        Lf = "rbxassetid://60083134", Rt = "rbxassetid://60083177",
+        Up = "rbxassetid://60083216", Dn = "rbxassetid://60083256"
+    },
+    {
+        Name = "Vaporwave Dream",
+        Ft = "rbxassetid://141749425", Bk = "rbxassetid://141749449",
+        Lf = "rbxassetid://141749474", Rt = "rbxassetid://141749502",
+        Up = "rbxassetid://141749526", Dn = "rbxassetid://141749552"
+    },
+    {
+        Name = "Cloudy Blue Day",
+        Ft = "rbxassetid://171454397", Bk = "rbxassetid://171454425",
+        Lf = "rbxassetid://171454448", Rt = "rbxassetid://171454468",
+        Up = "rbxassetid://171454490", Dn = "rbxassetid://171454510"
+    },
+    {
+        Name = "Dark Eclipse",
+        Ft = "rbxassetid://159197607", Bk = "rbxassetid://159197645",
+        Lf = "rbxassetid://159197682", Rt = "rbxassetid://159197720",
+        Up = "rbxassetid://159197758", Dn = "rbxassetid://159197796"
+    },
+    {
+        Name = "Realistic Twilight",
+        Ft = "rbxassetid://924373703", Bk = "rbxassetid://924373727",
+        Lf = "rbxassetid://924373752", Rt = "rbxassetid://924373778",
+        Up = "rbxassetid://924373801", Dn = "rbxassetid://924373826"
+    }
 }
 
 local SkyInputs = {}
@@ -1386,8 +1440,7 @@ for idx, pData in ipairs(SkyboxPresets) do
     PBtn.Parent = SkyPresetCard
 
     PBtn.MouseButton1Click:Connect(function()
-        local formatted = formatAssetId(pData.Tex)
-        applySkyboxTextures(formatted, formatted, formatted, formatted, formatted, formatted)
+        applySkyboxTextures(pData.Ft, pData.Bk, pData.Lf, pData.Rt, pData.Up, pData.Dn)
         for _, child in ipairs(SkyPresetCard:GetChildren()) do
             if child:IsA("TextButton") then
                 child.TextColor3 = (child == PBtn) and Library.Theme.Accent or Library.Theme.Text
@@ -1999,7 +2052,7 @@ end)
 
 -- Card 2: Falling Particles & Custom Texture Manager
 local ParticleCard = Instance.new("Frame")
-ParticleCard.Size = UDim2.new(1, 0, 0, 245)
+ParticleCard.Size = UDim2.new(1, 0, 0, 248)
 ParticleCard.BackgroundColor3 = Library.Theme.Card
 ParticleCard.BorderSizePixel = 0
 ParticleCard.ZIndex = 22
@@ -2389,6 +2442,41 @@ ApplyPartTexBtn.MouseButton1Click:Connect(function()
     Library.ParticleTexture = PartTexInput.Text
     rebuildParticles()
 end)
+
+-- Ready-To-Use Quick Particle Presets (Sakura, Snowflake, Star, Square)
+local PartPresetRow = Instance.new("Frame")
+PartPresetRow.Size = UDim2.new(1, -20, 0, 24)
+PartPresetRow.Position = UDim2.new(0, 10, 0, 210)
+PartPresetRow.BackgroundTransparency = 1
+PartPresetRow.ZIndex = 23
+PartPresetRow.Parent = ParticleCard
+
+local partPresets = {
+    { Name = "Sakura", Tex = "rbxassetid://6974271850" },
+    { Name = "Snowflake", Tex = "rbxassetid://1142203024" },
+    { Name = "Stars", Tex = "rbxassetid://6974272188" },
+    { Name = "Square", Tex = "" }
+}
+
+for idx, pTexData in ipairs(partPresets) do
+    local PTexBtn = Instance.new("TextButton")
+    PTexBtn.Size = UDim2.new(0.23, 0, 1, 0)
+    PTexBtn.Position = UDim2.new((idx - 1) * 0.25, 0, 0, 0)
+    PTexBtn.BackgroundColor3 = Library.Theme.Header
+    PTexBtn.BorderSizePixel = 0
+    PTexBtn.Font = Library.Fonts.Badge
+    PTexBtn.Text = pTexData.Name
+    PTexBtn.TextColor3 = Library.Theme.Accent
+    PTexBtn.TextSize = 9
+    PTexBtn.ZIndex = 24
+    PTexBtn.Parent = PartPresetRow
+
+    PTexBtn.MouseButton1Click:Connect(function()
+        PartTexInput.Text = pTexData.Tex
+        Library.ParticleTexture = pTexData.Tex
+        rebuildParticles()
+    end)
+end
 
 local function toggleSettingsModal(visible)
     if visible == nil then visible = not SettingsModal.Visible end
