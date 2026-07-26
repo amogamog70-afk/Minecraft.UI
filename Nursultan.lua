@@ -18,64 +18,148 @@ local Players          = game:GetService("Players")
 
 local Library = {
     Themes = {
-        ["Monochrome Dark"] = {
-            Background   = Color3.fromRGB(12, 12, 14),
-            Header       = Color3.fromRGB(20, 20, 24),
-            Block        = Color3.fromRGB(16, 16, 19),
-            Card         = Color3.fromRGB(22, 22, 27),
-            CardHover    = Color3.fromRGB(30, 30, 38),
-            Stroke       = Color3.fromRGB(42, 42, 52),
-            StrokeHover  = Color3.fromRGB(90, 90, 105),
-            StrokeActive = Color3.fromRGB(240, 240, 245),
-            Accent       = Color3.fromRGB(255, 255, 255),
-            AccentDim    = Color3.fromRGB(170, 170, 185),
-            Text         = Color3.fromRGB(245, 245, 250),
-            TextDim      = Color3.fromRGB(140, 140, 155)
+        ["Monochrome Slate"] = {
+            Background   = Color3.fromRGB(14, 15, 17),
+            Header       = Color3.fromRGB(22, 24, 28),
+            Block        = Color3.fromRGB(18, 20, 24),
+            Card         = Color3.fromRGB(25, 27, 32),
+            CardHover    = Color3.fromRGB(33, 36, 43),
+            Stroke       = Color3.fromRGB(48, 52, 62),
+            StrokeHover  = Color3.fromRGB(85, 92, 108),
+            StrokeActive = Color3.fromRGB(215, 222, 235),
+            Accent       = Color3.fromRGB(220, 225, 238),
+            AccentDim    = Color3.fromRGB(150, 158, 175),
+            Text         = Color3.fromRGB(240, 243, 248),
+            TextDim      = Color3.fromRGB(145, 152, 168)
         },
-        ["Midnight Purple"] = {
-            Background   = Color3.fromRGB(12, 10, 18),
-            Header       = Color3.fromRGB(22, 18, 32),
-            Block        = Color3.fromRGB(16, 14, 24),
-            Card         = Color3.fromRGB(24, 20, 36),
-            CardHover    = Color3.fromRGB(34, 28, 50),
-            Stroke       = Color3.fromRGB(55, 45, 80),
-            StrokeHover  = Color3.fromRGB(120, 90, 180),
-            StrokeActive = Color3.fromRGB(180, 130, 255),
-            Accent       = Color3.fromRGB(175, 95, 255),
-            AccentDim    = Color3.fromRGB(130, 65, 200),
-            Text         = Color3.fromRGB(250, 245, 255),
-            TextDim      = Color3.fromRGB(160, 145, 180)
+        ["Lavender Mist"] = {
+            Background   = Color3.fromRGB(15, 14, 20),
+            Header       = Color3.fromRGB(24, 22, 32),
+            Block        = Color3.fromRGB(19, 17, 26),
+            Card         = Color3.fromRGB(27, 24, 37),
+            CardHover    = Color3.fromRGB(37, 33, 50),
+            Stroke       = Color3.fromRGB(58, 50, 78),
+            StrokeHover  = Color3.fromRGB(110, 95, 148),
+            StrokeActive = Color3.fromRGB(175, 160, 220),
+            Accent       = Color3.fromRGB(180, 165, 225),
+            AccentDim    = Color3.fromRGB(130, 115, 170),
+            Text         = Color3.fromRGB(245, 242, 252),
+            TextDim      = Color3.fromRGB(155, 145, 175)
         },
-        ["Emerald Cyan"] = {
-            Background   = Color3.fromRGB(10, 16, 18),
-            Header       = Color3.fromRGB(16, 26, 30),
-            Block        = Color3.fromRGB(13, 22, 25),
-            Card         = Color3.fromRGB(18, 32, 36),
-            CardHover    = Color3.fromRGB(26, 44, 50),
-            Stroke       = Color3.fromRGB(40, 75, 85),
-            StrokeHover  = Color3.fromRGB(80, 150, 170),
-            StrokeActive = Color3.fromRGB(0, 230, 255),
-            Accent       = Color3.fromRGB(0, 220, 240),
-            AccentDim    = Color3.fromRGB(0, 160, 180),
-            Text         = Color3.fromRGB(240, 255, 255),
-            TextDim      = Color3.fromRGB(140, 175, 185)
+        ["Nordic Sage"] = {
+            Background   = Color3.fromRGB(13, 17, 15),
+            Header       = Color3.fromRGB(20, 27, 24),
+            Block        = Color3.fromRGB(16, 22, 19),
+            Card         = Color3.fromRGB(23, 31, 27),
+            CardHover    = Color3.fromRGB(31, 42, 37),
+            Stroke       = Color3.fromRGB(45, 62, 54),
+            StrokeHover  = Color3.fromRGB(85, 118, 102),
+            StrokeActive = Color3.fromRGB(145, 195, 165),
+            Accent       = Color3.fromRGB(145, 195, 165),
+            AccentDim    = Color3.fromRGB(105, 148, 122),
+            Text         = Color3.fromRGB(240, 248, 243),
+            TextDim      = Color3.fromRGB(142, 165, 152)
         },
-        ["Ruby Red"] = {
-            Background   = Color3.fromRGB(18, 10, 12),
-            Header       = Color3.fromRGB(30, 16, 20),
-            Block        = Color3.fromRGB(24, 13, 16),
-            Card         = Color3.fromRGB(34, 18, 22),
-            CardHover    = Color3.fromRGB(48, 24, 30),
-            Stroke       = Color3.fromRGB(75, 40, 50),
-            StrokeHover  = Color3.fromRGB(160, 70, 90),
-            StrokeActive = Color3.fromRGB(255, 80, 110),
-            Accent       = Color3.fromRGB(255, 65, 95),
-            AccentDim    = Color3.fromRGB(190, 45, 70),
-            Text         = Color3.fromRGB(255, 245, 248),
-            TextDim      = Color3.fromRGB(180, 140, 150)
+        ["Rose Gold"] = {
+            Background   = Color3.fromRGB(18, 14, 15),
+            Header       = Color3.fromRGB(28, 22, 23),
+            Block        = Color3.fromRGB(23, 18, 19),
+            Card         = Color3.fromRGB(32, 25, 27),
+            CardHover    = Color3.fromRGB(43, 34, 36),
+            Stroke       = Color3.fromRGB(68, 52, 55),
+            StrokeHover  = Color3.fromRGB(135, 102, 108),
+            StrokeActive = Color3.fromRGB(225, 165, 160),
+            Accent       = Color3.fromRGB(225, 165, 160),
+            AccentDim    = Color3.fromRGB(170, 120, 116),
+            Text         = Color3.fromRGB(252, 242, 243),
+            TextDim      = Color3.fromRGB(175, 148, 150)
+        },
+        ["Ocean Breeze"] = {
+            Background   = Color3.fromRGB(12, 16, 22),
+            Header       = Color3.fromRGB(18, 26, 35),
+            Block        = Color3.fromRGB(15, 21, 29),
+            Card         = Color3.fromRGB(21, 30, 41),
+            CardHover    = Color3.fromRGB(29, 41, 56),
+            Stroke       = Color3.fromRGB(42, 60, 82),
+            StrokeHover  = Color3.fromRGB(82, 115, 155),
+            StrokeActive = Color3.fromRGB(140, 180, 220),
+            Accent       = Color3.fromRGB(140, 180, 220),
+            AccentDim    = Color3.fromRGB(98, 132, 168),
+            Text         = Color3.fromRGB(240, 246, 252),
+            TextDim      = Color3.fromRGB(140, 160, 185)
+        },
+        ["Sakura Blossom"] = {
+            Background   = Color3.fromRGB(18, 13, 16),
+            Header       = Color3.fromRGB(29, 21, 26),
+            Block        = Color3.fromRGB(24, 17, 21),
+            Card         = Color3.fromRGB(33, 24, 29),
+            CardHover    = Color3.fromRGB(45, 33, 40),
+            Stroke       = Color3.fromRGB(72, 52, 64),
+            StrokeHover  = Color3.fromRGB(142, 102, 126),
+            StrokeActive = Color3.fromRGB(235, 170, 195),
+            Accent       = Color3.fromRGB(235, 170, 195),
+            AccentDim    = Color3.fromRGB(178, 122, 145),
+            Text         = Color3.fromRGB(253, 244, 248),
+            TextDim      = Color3.fromRGB(178, 150, 165)
+        },
+        ["Muted Mint"] = {
+            Background   = Color3.fromRGB(12, 17, 19),
+            Header       = Color3.fromRGB(18, 27, 30),
+            Block        = Color3.fromRGB(15, 22, 25),
+            Card         = Color3.fromRGB(20, 31, 35),
+            CardHover    = Color3.fromRGB(28, 43, 48),
+            Stroke       = Color3.fromRGB(42, 65, 74),
+            StrokeHover  = Color3.fromRGB(80, 125, 142),
+            StrokeActive = Color3.fromRGB(130, 205, 195),
+            Accent       = Color3.fromRGB(130, 205, 195),
+            AccentDim    = Color3.fromRGB(92, 152, 144),
+            Text         = Color3.fromRGB(240, 252, 250),
+            TextDim      = Color3.fromRGB(140, 172, 168)
+        },
+        ["Sunset Amber"] = {
+            Background   = Color3.fromRGB(18, 14, 12),
+            Header       = Color3.fromRGB(29, 22, 18),
+            Block        = Color3.fromRGB(24, 18, 15),
+            Card         = Color3.fromRGB(33, 25, 20),
+            CardHover    = Color3.fromRGB(45, 34, 27),
+            Stroke       = Color3.fromRGB(72, 54, 42),
+            StrokeHover  = Color3.fromRGB(142, 106, 82),
+            StrokeActive = Color3.fromRGB(230, 165, 130),
+            Accent       = Color3.fromRGB(230, 165, 130),
+            AccentDim    = Color3.fromRGB(175, 120, 90),
+            Text         = Color3.fromRGB(253, 246, 240),
+            TextDim      = Color3.fromRGB(178, 152, 138)
+        },
+        ["Platinum Steel"] = {
+            Background   = Color3.fromRGB(16, 16, 18),
+            Header       = Color3.fromRGB(25, 25, 29),
+            Block        = Color3.fromRGB(20, 20, 23),
+            Card         = Color3.fromRGB(28, 28, 33),
+            CardHover    = Color3.fromRGB(38, 38, 45),
+            Stroke       = Color3.fromRGB(55, 55, 65),
+            StrokeHover  = Color3.fromRGB(100, 100, 118),
+            StrokeActive = Color3.fromRGB(225, 228, 235),
+            Accent       = Color3.fromRGB(225, 228, 235),
+            AccentDim    = Color3.fromRGB(160, 164, 175),
+            Text         = Color3.fromRGB(248, 249, 252),
+            TextDim      = Color3.fromRGB(152, 155, 165)
+        },
+        ["Aura Indigo"] = {
+            Background   = Color3.fromRGB(14, 13, 22),
+            Header       = Color3.fromRGB(22, 20, 35),
+            Block        = Color3.fromRGB(18, 16, 28),
+            Card         = Color3.fromRGB(25, 22, 39),
+            CardHover    = Color3.fromRGB(35, 31, 54),
+            Stroke       = Color3.fromRGB(52, 46, 80),
+            StrokeHover  = Color3.fromRGB(102, 90, 155),
+            StrokeActive = Color3.fromRGB(155, 165, 235),
+            Accent       = Color3.fromRGB(155, 165, 235),
+            AccentDim    = Color3.fromRGB(110, 118, 178),
+            Text         = Color3.fromRGB(244, 245, 255),
+            TextDim      = Color3.fromRGB(150, 152, 180)
         }
     },
-    CurrentThemeName = "Monochrome Dark",
+    CurrentThemeName = "Monochrome Slate",
     ToggleKey = Enum.KeyCode.RightShift,
     Blocks = {},
     ModalElements = {},
@@ -156,6 +240,14 @@ local function formatTime(seconds)
     local mins = math.floor(seconds / 60)
     local secs = seconds % 60
     return string.format("%02d:%02d", mins, secs)
+end
+
+local function addCorner(parent, radius)
+    if not parent then return end
+    local corner = Instance.new("UICorner")
+    corner.CornerRadius = UDim.new(0, radius or 6)
+    corner.Parent = parent
+    return corner
 end
 
 pcall(function()
@@ -318,42 +410,38 @@ end))
 
 local TopWatermark = Instance.new("Frame")
 TopWatermark.Name = "StarTopWatermark"
-TopWatermark.AutomaticSize = Enum.AutomaticSize.X
-TopWatermark.Size = UDim2.new(0, 0, 0, 26)
-TopWatermark.Position = UDim2.new(0, 16, 0, 14)
+TopWatermark.Size = UDim2.new(0, 380, 0, 32)
+TopWatermark.Position = UDim2.new(0.5, -190, 0, 12)
 TopWatermark.BackgroundColor3 = Library.Theme.Block
-TopWatermark.BackgroundTransparency = 0.20
+TopWatermark.BackgroundTransparency = 0.06
 TopWatermark.BorderSizePixel = 0
 TopWatermark.Parent = ScreenGui
 
+addCorner(TopWatermark, 8)
+
 local TopWMarkStroke = Instance.new("UIStroke")
-TopWMarkStroke.Color = Library.Theme.Stroke
-TopWMarkStroke.Transparency = 0.3
-TopWMarkStroke.Thickness = 1.0
+TopWMarkStroke.Color = Library.Theme.StrokeActive
+TopWMarkStroke.Transparency = 0.2
+TopWMarkStroke.Thickness = 1.2
 TopWMarkStroke.Parent = TopWatermark
 
 local TopWMarkGlow = Instance.new("Frame")
-TopWMarkGlow.Size = UDim2.new(1, -8, 0, 2)
-TopWMarkGlow.Position = UDim2.new(0, 4, 0, 1)
+TopWMarkGlow.Size = UDim2.new(1, -16, 0, 2)
+TopWMarkGlow.Position = UDim2.new(0, 8, 0, 1)
 TopWMarkGlow.BackgroundColor3 = Library.Theme.Accent
 TopWMarkGlow.BorderSizePixel = 0
 TopWMarkGlow.Parent = TopWatermark
 
-local TopWMarkPadding = Instance.new("UIPadding")
-TopWMarkPadding.PaddingLeft = UDim.new(0, 10)
-TopWMarkPadding.PaddingRight = UDim.new(0, 10)
-TopWMarkPadding.Parent = TopWatermark
-
 local TopWMarkLayout = Instance.new("UIListLayout")
 TopWMarkLayout.FillDirection = Enum.FillDirection.Horizontal
-TopWMarkLayout.HorizontalAlignment = Enum.HorizontalAlignment.Left
+TopWMarkLayout.HorizontalAlignment = Enum.HorizontalAlignment.Center
 TopWMarkLayout.VerticalAlignment = Enum.VerticalAlignment.Center
-TopWMarkLayout.Padding = UDim.new(0, 7)
+TopWMarkLayout.Padding = UDim.new(0, 6)
 TopWMarkLayout.Parent = TopWatermark
 
 local TopWMarkIcon = Instance.new("ImageLabel")
 TopWMarkIcon.Name = "TopWMarkIcon"
-TopWMarkIcon.Size = UDim2.new(0, 16, 0, 16)
+TopWMarkIcon.Size = UDim2.new(0, 18, 0, 18)
 TopWMarkIcon.BackgroundTransparency = 1
 TopWMarkIcon.Image = "rbxassetid://93992148478224"
 TopWMarkIcon.ImageColor3 = Library.Theme.Accent
@@ -361,19 +449,17 @@ TopWMarkIcon.Parent = TopWatermark
 
 local TopWMarkTitle = Instance.new("TextLabel")
 TopWMarkTitle.Name = "TopWMarkTitle"
-TopWMarkTitle.AutomaticSize = Enum.AutomaticSize.X
-TopWMarkTitle.Size = UDim2.new(0, 0, 1, 0)
+TopWMarkTitle.Size = UDim2.new(0, 52, 1, 0)
 TopWMarkTitle.BackgroundTransparency = 1
 TopWMarkTitle.Font = Library.Fonts.Header
 TopWMarkTitle.Text = "STAR.UI"
 TopWMarkTitle.TextColor3 = Library.Theme.Accent
-TopWMarkTitle.TextSize = 11
+TopWMarkTitle.TextSize = 11.5
 TopWMarkTitle.Parent = TopWatermark
 
 local function addWMarkSep()
     local Sep = Instance.new("TextLabel")
-    Sep.AutomaticSize = Enum.AutomaticSize.X
-    Sep.Size = UDim2.new(0, 0, 1, 0)
+    Sep.Size = UDim2.new(0, 6, 1, 0)
     Sep.BackgroundTransparency = 1
     Sep.Font = Library.Fonts.Label
     Sep.Text = "|"
@@ -388,28 +474,27 @@ addWMarkSep()
 local LocalPlayer = Players.LocalPlayer
 local PlayerHeadshot = Instance.new("ImageLabel")
 PlayerHeadshot.Name = "PlayerHeadshot"
-PlayerHeadshot.Size = UDim2.new(0, 16, 0, 16)
+PlayerHeadshot.Size = UDim2.new(0, 18, 0, 18)
 PlayerHeadshot.BackgroundTransparency = 1
 PlayerHeadshot.Image = "rbxthumb://type=AvatarHeadShot&id=" .. (LocalPlayer and LocalPlayer.UserId or 1) .. "&w=48&h=48"
 PlayerHeadshot.Parent = TopWatermark
 
 local PlayerNameLabel = Instance.new("TextLabel")
 PlayerNameLabel.Name = "PlayerNameLabel"
-PlayerNameLabel.AutomaticSize = Enum.AutomaticSize.X
-PlayerNameLabel.Size = UDim2.new(0, 0, 1, 0)
+PlayerNameLabel.Size = UDim2.new(0, 65, 1, 0)
 PlayerNameLabel.BackgroundTransparency = 1
 PlayerNameLabel.Font = Library.Fonts.Label
 PlayerNameLabel.Text = LocalPlayer and LocalPlayer.DisplayName or "User"
 PlayerNameLabel.TextColor3 = Library.Theme.Text
 PlayerNameLabel.TextSize = 10.5
+PlayerNameLabel.TextTruncate = Enum.TextTruncate.AtEnd
 PlayerNameLabel.Parent = TopWatermark
 
 addWMarkSep()
 
 local WMarkFpsLabel = Instance.new("TextLabel")
 WMarkFpsLabel.Name = "WMarkFpsLabel"
-WMarkFpsLabel.AutomaticSize = Enum.AutomaticSize.X
-WMarkFpsLabel.Size = UDim2.new(0, 0, 1, 0)
+WMarkFpsLabel.Size = UDim2.new(0, 48, 1, 0)
 WMarkFpsLabel.BackgroundTransparency = 1
 WMarkFpsLabel.Font = Library.Fonts.Badge
 WMarkFpsLabel.Text = "60 FPS"
@@ -421,14 +506,25 @@ addWMarkSep()
 
 local WMarkPingLabel = Instance.new("TextLabel")
 WMarkPingLabel.Name = "WMarkPingLabel"
-WMarkPingLabel.AutomaticSize = Enum.AutomaticSize.X
-WMarkPingLabel.Size = UDim2.new(0, 0, 1, 0)
+WMarkPingLabel.Size = UDim2.new(0, 42, 1, 0)
 WMarkPingLabel.BackgroundTransparency = 1
 WMarkPingLabel.Font = Library.Fonts.Badge
 WMarkPingLabel.Text = "0 ms"
 WMarkPingLabel.TextColor3 = Library.Theme.Accent
 WMarkPingLabel.TextSize = 10
 WMarkPingLabel.Parent = TopWatermark
+
+addWMarkSep()
+
+local WMarkTimeLabel = Instance.new("TextLabel")
+WMarkTimeLabel.Name = "WMarkTimeLabel"
+WMarkTimeLabel.Size = UDim2.new(0, 52, 1, 0)
+WMarkTimeLabel.BackgroundTransparency = 1
+WMarkTimeLabel.Font = Library.Fonts.Badge
+WMarkTimeLabel.Text = "00:00:00"
+WMarkTimeLabel.TextColor3 = Library.Theme.Text
+WMarkTimeLabel.TextSize = 10
+WMarkTimeLabel.Parent = TopWatermark
 
 UI.Watermark = TopWatermark
 UI.WMarkStroke = TopWMarkStroke
@@ -438,6 +534,7 @@ UI.WMarkTitle = TopWMarkTitle
 UI.PlayerNameLabel = PlayerNameLabel
 UI.WMarkFpsLabel = WMarkFpsLabel
 UI.WMarkPingLabel = WMarkPingLabel
+UI.WMarkTimeLabel = WMarkTimeLabel
 
 local fpsFrameCount = 0
 local lastFpsCheck = tick()
@@ -579,10 +676,12 @@ KeybindHUDFrame.Name = "KeybindHUDOverlay"
 KeybindHUDFrame.Size = UDim2.new(0, 230, 0, 32)
 KeybindHUDFrame.Position = UDim2.new(1, -250, 0.35, 0)
 KeybindHUDFrame.BackgroundColor3 = Library.Theme.Block
-KeybindHUDFrame.BackgroundTransparency = 0.18
+KeybindHUDFrame.BackgroundTransparency = 0.06
 KeybindHUDFrame.BorderSizePixel = 0
 KeybindHUDFrame.Parent = ScreenGui
 UI.KeybindHUDFrame = KeybindHUDFrame
+
+addCorner(KeybindHUDFrame, 8)
 
 local KeybindHUDStroke = Instance.new("UIStroke")
 KeybindHUDStroke.Color = Library.Theme.Stroke
@@ -743,10 +842,12 @@ RadioHUDFrame.Name = "RadioHUDOverlay"
 RadioHUDFrame.Size = UDim2.new(0, 260, 0, 165)
 RadioHUDFrame.Position = UDim2.new(1, -275, 1, -180)
 RadioHUDFrame.BackgroundColor3 = Library.Theme.Block
-RadioHUDFrame.BackgroundTransparency = 0.18
+RadioHUDFrame.BackgroundTransparency = 0.06
 RadioHUDFrame.BorderSizePixel = 0
 RadioHUDFrame.Parent = ScreenGui
 UI.RadioHUDFrame = RadioHUDFrame
+
+addCorner(RadioHUDFrame, 8)
 
 local RadioHUDUIScale = Instance.new("UIScale")
 RadioHUDUIScale.Name = "RadioHUDUIScale"
@@ -1046,12 +1147,14 @@ SettingsModal.Name = "SettingsModal"
 SettingsModal.Size = UDim2.new(0, 500, 0, 420)
 SettingsModal.Position = UDim2.new(0.5, -250, 0.5, -210)
 SettingsModal.BackgroundColor3 = Library.Theme.Block
-SettingsModal.BackgroundTransparency = 0.12
+SettingsModal.BackgroundTransparency = 0.04
 SettingsModal.BorderSizePixel = 0
 SettingsModal.Visible = false
 SettingsModal.ZIndex = 20
 SettingsModal.Parent = Container
 UI.SettingsModal = SettingsModal
+
+addCorner(SettingsModal, 10)
 
 local ModalStroke = Instance.new("UIStroke")
 ModalStroke.Color = Library.Theme.StrokeActive
@@ -1644,7 +1747,7 @@ end
 -- 2. THEMES TAB PAGE
 do
     local ThemeCard = Instance.new("Frame")
-    ThemeCard.Size = UDim2.new(1, 0, 0, 160)
+    ThemeCard.Size = UDim2.new(1, 0, 0, 205)
     ThemeCard.BackgroundColor3 = Library.Theme.Card
     ThemeCard.BorderSizePixel = 0
     ThemeCard.ZIndex = 22
@@ -1656,7 +1759,7 @@ do
     TCLabel.Position = UDim2.new(0, 10, 0, 8)
     TCLabel.BackgroundTransparency = 1
     TCLabel.Font = Library.Fonts.Header
-    TCLabel.Text = "SELECT COLOR PALETTE"
+    TCLabel.Text = "SELECT COLOR PALETTE (10 EYE-FRIENDLY THEMES)"
     TCLabel.TextColor3 = Library.Theme.Accent
     TCLabel.TextSize = 11
     TCLabel.TextXAlignment = Enum.TextXAlignment.Left
@@ -1664,17 +1767,27 @@ do
     TCLabel.Parent = ThemeCard
     UI.TCLabel = TCLabel
 
-    local themeNames = {"Monochrome Dark", "Midnight Purple", "Emerald Cyan", "Ruby Red"}
+    local themeNames = {
+        "Monochrome Slate", "Lavender Mist",
+        "Nordic Sage", "Rose Gold",
+        "Ocean Breeze", "Sakura Blossom",
+        "Muted Mint", "Sunset Amber",
+        "Platinum Steel", "Aura Indigo"
+    }
+
     for idx, thName in ipairs(themeNames) do
+        local col = ((idx - 1) % 2)
+        local row = math.floor((idx - 1) / 2)
+
         local ThBtn = Instance.new("TextButton")
-        ThBtn.Size = UDim2.new(1, -20, 0, 26)
-        ThBtn.Position = UDim2.new(0, 10, 0, 36 + ((idx - 1) * 30))
+        ThBtn.Size = UDim2.new(0.48, -4, 0, 26)
+        ThBtn.Position = UDim2.new(col * 0.51, 10, 0, 36 + (row * 30))
         ThBtn.BackgroundColor3 = (thName == Library.CurrentThemeName) and Library.Theme.Header or Library.Theme.Block
         ThBtn.BorderSizePixel = 0
         ThBtn.Font = Library.Fonts.Badge
         ThBtn.Text = "  " .. thName
         ThBtn.TextColor3 = (thName == Library.CurrentThemeName) and Library.Theme.Accent or Library.Theme.TextDim
-        ThBtn.TextSize = 10
+        ThBtn.TextSize = 9.5
         ThBtn.TextXAlignment = Enum.TextXAlignment.Left
         ThBtn.ZIndex = 24
         ThBtn.Parent = ThemeCard
@@ -3286,7 +3399,7 @@ function Library:SetVisible(visible)
             local f = blockData.Frame
             local targetPos = blockData.DefaultPos or f.Position
             f.Position = targetPos
-            f.BackgroundTransparency = 0.15
+            f.BackgroundTransparency = 0.04
             if blockData.Stroke then blockData.Stroke.Transparency = 0.3 end
         end
     else
@@ -3335,11 +3448,13 @@ function Library:CreateBlock(title, defaultPosition)
     Frame.Size = UDim2.new(0, 240, 0, 42)
     Frame.Position = defaultPosition
     Frame.BackgroundColor3 = Library.Theme.Block
-    Frame.BackgroundTransparency = 0.15
+    Frame.BackgroundTransparency = 0.04
     Frame.BorderSizePixel = 0
     Frame.ClipsDescendants = true
     Frame.Parent = Container
     Block.Frame = Frame
+
+    addCorner(Frame, 8)
 
     local FrameStroke = Instance.new("UIStroke")
     FrameStroke.Color = Library.Theme.Stroke
@@ -3502,6 +3617,7 @@ function Library:CreateBlock(title, defaultPosition)
         ToggleBtn.AutoButtonColor = false
         ToggleBtn.Text = ""
         ToggleBtn.Parent = Content
+        addCorner(ToggleBtn, 5)
 
         local Stroke = Instance.new("UIStroke")
         Stroke.Color = Library.Theme.Stroke
@@ -3531,6 +3647,7 @@ function Library:CreateBlock(title, defaultPosition)
         KeyBadgeBtn.TextSize = 8.5
         KeyBadgeBtn.ZIndex = 6
         KeyBadgeBtn.Parent = ToggleBtn
+        addCorner(KeyBadgeBtn, 4)
 
         local SwitchBg = Instance.new("Frame")
         SwitchBg.Size = UDim2.new(0, 32, 0, 18)
@@ -3539,6 +3656,7 @@ function Library:CreateBlock(title, defaultPosition)
         SwitchBg.BorderSizePixel = 0
         SwitchBg.ZIndex = 6
         SwitchBg.Parent = ToggleBtn
+        addCorner(SwitchBg, 9)
 
         local SwitchStroke = Instance.new("UIStroke")
         SwitchStroke.Color = state and Library.Theme.Accent or Library.Theme.Stroke
@@ -3552,6 +3670,7 @@ function Library:CreateBlock(title, defaultPosition)
         Knob.BorderSizePixel = 0
         Knob.ZIndex = 7
         Knob.Parent = SwitchBg
+        addCorner(Knob, 7)
 
         local ModePopup = Instance.new("Frame")
         ModePopup.Name = "ModePopup_" .. name
@@ -3771,6 +3890,7 @@ function Library:CreateBlock(title, defaultPosition)
         DropFrame.ClipsDescendants = false
         DropFrame.ZIndex = 5
         DropFrame.Parent = Content
+        addCorner(DropFrame, 6)
 
         local Stroke = Instance.new("UIStroke")
         Stroke.Color = Library.Theme.Stroke
@@ -3807,6 +3927,7 @@ function Library:CreateBlock(title, defaultPosition)
         SelBadge.TextSize = 10
         SelBadge.ZIndex = 6
         SelBadge.Parent = HeaderBtn
+        addCorner(SelBadge, 4)
 
         local OptionContainer = Instance.new("Frame")
         OptionContainer.Size = UDim2.new(1, -16, 0, 0)
@@ -3901,6 +4022,7 @@ function Library:CreateBlock(title, defaultPosition)
         BtnFrame.TextColor3 = Library.Theme.Text
         BtnFrame.TextSize = 12
         BtnFrame.Parent = Content
+        addCorner(BtnFrame, 6)
 
         local Stroke = Instance.new("UIStroke")
         Stroke.Color = Library.Theme.Stroke
@@ -3947,6 +4069,7 @@ function Library:CreateBlock(title, defaultPosition)
         SliderFrame.BackgroundColor3 = Library.Theme.Card
         SliderFrame.BorderSizePixel = 0
         SliderFrame.Parent = Content
+        addCorner(SliderFrame, 6)
 
         local Stroke = Instance.new("UIStroke")
         Stroke.Color = Library.Theme.Stroke
@@ -3970,6 +4093,7 @@ function Library:CreateBlock(title, defaultPosition)
         ValBadge.BackgroundColor3 = Library.Theme.Header
         ValBadge.BorderSizePixel = 0
         ValBadge.Parent = SliderFrame
+        addCorner(ValBadge, 4)
 
         local ValStroke = Instance.new("UIStroke")
         ValStroke.Color = Library.Theme.Stroke
@@ -3998,6 +4122,7 @@ function Library:CreateBlock(title, defaultPosition)
         TrackBg.AutoButtonColor = false
         TrackBg.Text = ""
         TrackBg.Parent = SliderFrame
+        addCorner(TrackBg, 3)
 
         local Fill = Instance.new("Frame")
         local initRelX = (value - min) / (max - min)
@@ -4005,6 +4130,7 @@ function Library:CreateBlock(title, defaultPosition)
         Fill.BackgroundColor3 = Library.Theme.Accent
         Fill.BorderSizePixel = 0
         Fill.Parent = TrackBg
+        addCorner(Fill, 3)
 
         local Handle = Instance.new("Frame")
         Handle.Size = UDim2.new(0, 10, 0, 12)
@@ -4012,6 +4138,7 @@ function Library:CreateBlock(title, defaultPosition)
         Handle.BackgroundColor3 = Library.Theme.Accent
         Handle.BorderSizePixel = 0
         Handle.Parent = TrackBg
+        addCorner(Handle, 4)
 
         table.insert(Block.Elements, {
             Type = "Slider",
@@ -4104,6 +4231,7 @@ function Library:CreateBlock(title, defaultPosition)
         BindFrame.BackgroundColor3 = Library.Theme.Card
         BindFrame.BorderSizePixel = 0
         BindFrame.Parent = Content
+        addCorner(BindFrame, 6)
 
         local Stroke = Instance.new("UIStroke")
         Stroke.Color = Library.Theme.Stroke
@@ -4132,6 +4260,7 @@ function Library:CreateBlock(title, defaultPosition)
         KeyBtn.TextSize = 8.5
         KeyBtn.ZIndex = 10
         KeyBtn.Parent = BindFrame
+        addCorner(KeyBtn, 4)
 
         -- CLEAN HEADER-LESS MODE POPUP MENU (3 BUTTONS)
         local ModePopup = Instance.new("Frame")
@@ -4142,6 +4271,7 @@ function Library:CreateBlock(title, defaultPosition)
         ModePopup.Visible = false
         ModePopup.ZIndex = 150
         ModePopup.Parent = Container
+        addCorner(ModePopup, 6)
 
         local PopupStroke = Instance.new("UIStroke")
         PopupStroke.Color = Library.Theme.StrokeActive
@@ -4311,7 +4441,7 @@ function Library:CreateBlock(title, defaultPosition)
             end
         end))
     end
-    function Block:AddSection(sectionTitle)
+    function Block:AddSection(sectionTitle, subTab)
         local SectionFrame = Instance.new("Frame")
         SectionFrame.Name = sectionTitle .. "_Section"
         SectionFrame.Size = UDim2.new(1, 0, 0, 22)
@@ -4343,8 +4473,23 @@ function Library:CreateBlock(title, defaultPosition)
         TitleLbl.TextSize = 8.5
         TitleLbl.Parent = TitleBg
 
+        local sTab = subTab or Block.CurrentSubTab
+        if sTab then sTab = string.upper(sTab) end
+        table.insert(Block.Elements, { Frame = SectionFrame, SubTab = sTab })
+        if Block.ActiveSubTab and sTab and sTab ~= Block.ActiveSubTab then
+            SectionFrame.Visible = false
+        end
+
         updateHeight()
         return SectionFrame
+    end
+
+    function Block:SetCurrentSubTab(subName)
+        if subName then
+            Block.CurrentSubTab = string.upper(subName)
+        else
+            Block.CurrentSubTab = nil
+        end
     end
 
     function Block:AddSubTabs(tabList, callback)
@@ -4352,38 +4497,57 @@ function Library:CreateBlock(title, defaultPosition)
         TabRow.Name = "SubTabRow"
         TabRow.Size = UDim2.new(1, 0, 0, 24)
         TabRow.BackgroundColor3 = Library.Theme.Header
+        TabRow.BackgroundTransparency = 0.10
         TabRow.BorderSizePixel = 0
         TabRow.Parent = Content
+        addCorner(TabRow, 5)
 
-        local activeTab = tabList[1]
+        local activeTab = string.upper(tabList[1])
+        Block.ActiveSubTab = activeTab
+        Block.CurrentSubTab = activeTab
         local buttons = {}
 
+        local function refreshSubTabVisibility()
+            for _, elem in ipairs(Block.Elements) do
+                if elem.SubTab then
+                    elem.Frame.Visible = (string.upper(elem.SubTab) == activeTab)
+                end
+            end
+            task.defer(updateHeight)
+        end
+
         for idx, tabName in ipairs(tabList) do
+            local upperName = string.upper(tabName)
             local TabBtn = Instance.new("TextButton")
             TabBtn.Size = UDim2.new(1 / #tabList, -2, 1, -4)
             TabBtn.Position = UDim2.new((idx - 1) / #tabList, 1, 0, 2)
-            TabBtn.BackgroundColor3 = (tabName == activeTab) and Library.Theme.Block or Library.Theme.Header
+            TabBtn.BackgroundColor3 = (upperName == activeTab) and Library.Theme.Block or Library.Theme.Header
             TabBtn.BorderSizePixel = 0
             TabBtn.Font = Library.Fonts.Badge
-            TabBtn.Text = string.upper(tabName)
-            TabBtn.TextColor3 = (tabName == activeTab) and Library.Theme.Accent or Library.Theme.TextDim
+            TabBtn.Text = upperName
+            TabBtn.TextColor3 = (upperName == activeTab) and Library.Theme.Accent or Library.Theme.TextDim
             TabBtn.TextSize = 9
             TabBtn.Parent = TabRow
+            addCorner(TabBtn, 4)
             table.insert(buttons, TabBtn)
 
             TabBtn.MouseButton1Click:Connect(function()
-                activeTab = tabName
+                activeTab = upperName
+                Block.ActiveSubTab = upperName
+                Block.CurrentSubTab = upperName
                 for _, btn in ipairs(buttons) do
-                    local sel = (btn == TabBtn)
+                    local sel = (btn.Text == activeTab)
                     smoothTween(btn, DUR_FAST, {
                         BackgroundColor3 = sel and Library.Theme.Block or Library.Theme.Header,
                         TextColor3 = sel and Library.Theme.Accent or Library.Theme.TextDim
                     })
                 end
+                refreshSubTabVisibility()
                 if callback then callback(tabName) end
             end)
         end
 
+        refreshSubTabVisibility()
         updateHeight()
         return TabRow
     end
