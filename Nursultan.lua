@@ -411,7 +411,7 @@ end))
 local TopWatermark = Instance.new("Frame")
 TopWatermark.Name = "StarTopWatermark"
 TopWatermark.Size = UDim2.new(0, 420, 0, 32)
-TopWatermark.Position = UDim2.new(0.5, -210, 0, 16)
+TopWatermark.Position = UDim2.new(0.5, -210, 0, 10)
 TopWatermark.BackgroundColor3 = Library.Theme.Block
 TopWatermark.BackgroundTransparency = 0.06
 TopWatermark.BorderSizePixel = 0
@@ -676,7 +676,7 @@ makeDraggable(TopWatermark, TopWatermark)
 local KeybindHUDFrame = Instance.new("Frame")
 KeybindHUDFrame.Name = "KeybindHUDOverlay"
 KeybindHUDFrame.Size = UDim2.new(0, 230, 0, 32)
-KeybindHUDFrame.Position = UDim2.new(1, -210, 0.35, 0)
+KeybindHUDFrame.Position = UDim2.new(1, -225, 0.35, 0)
 KeybindHUDFrame.BackgroundColor3 = Library.Theme.Block
 KeybindHUDFrame.BackgroundTransparency = 0.06
 KeybindHUDFrame.BorderSizePixel = 0
