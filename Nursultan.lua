@@ -241,11 +241,13 @@ local function formatAssetId(raw)
     if str:sub(1, 7) == "http://" or str:sub(1, 8) == "https://" then
         if writefile and getcustomasset then
             local tempFileName = "star_radio_stream.mp3"
+
+            -- First try direct download
             local success, content = pcall(function()
                 return game:HttpGet(str, true)
             end)
 
-            if success and content and #content > 500 then
+            if success and content and #content > 1000 then
                 -- Check if response is SoundCloud HTML page
                 if content:find("<!DOCTYPE") or content:find("<html") or content:find("soundcloud") then
                     -- Extract direct media stream URL from SoundCloud metadata
@@ -258,16 +260,17 @@ local function formatAssetId(raw)
                         local streamOk, streamData = pcall(function()
                             return game:HttpGet(streamUrl, true)
                         end)
-                        if streamOk and streamData and #streamData > 500 then
+                        if streamOk and streamData and #streamData > 1000 then
                             content = streamData
                         end
                     end
                 end
 
+                -- Write downloaded audio bytes to file
                 pcall(function() writefile(tempFileName, content) end)
                 if isfile and isfile(tempFileName) then
                     local okAsset, customAsset = pcall(function() return getcustomasset(tempFileName) end)
-                    if okAsset and customAsset then
+                    if okAsset and customAsset and customAsset ~= "" then
                         return customAsset
                     end
                 end
@@ -1161,13 +1164,30 @@ for i, spData in ipairs(speeds) do
 end
 
 local function triggerPlaySound(rawId)
-    local soundAsset = formatAssetId(rawId)
-    if soundAsset ~= "" then
-        RadioSound.SoundId = soundAsset
-        RadioSound:Play()
-        RadioTrackLabel.Text = "Track: " .. soundAsset
-        HUDPlayBtn.Text = "PAUSE"
-    end
+    if not rawId or rawId == "" then return end
+
+    RadioTrackLabel.Text = "Status: Downloading..."
+    HUDPlayBtn.Text = "LOADING..."
+    if PlaySoundBtn then PlaySoundBtn.Text = "DOWNLOADING..." end
+
+    task.spawn(function()
+        local soundAsset = formatAssetId(rawId)
+        if soundAsset and soundAsset ~= "" then
+            pcall(function() RadioSound:Stop() end)
+            RadioSound.SoundId = soundAsset
+            task.wait(0.15)
+            RadioSound:Play()
+            
+            local cleanName = tostring(rawId):match("([^/]+)$") or rawId
+            RadioTrackLabel.Text = "Track: " .. string.sub(cleanName, 1, 28)
+            HUDPlayBtn.Text = "PAUSE"
+            if PlaySoundBtn then PlaySoundBtn.Text = "  PAUSE RADIO" end
+        else
+            RadioTrackLabel.Text = "Error loading song URL"
+            HUDPlayBtn.Text = "PLAY"
+            if PlaySoundBtn then PlaySoundBtn.Text = "  PLAY RADIO" end
+        end
+    end)
 end
 
 HUDSoundInput.FocusLost:Connect(function(enterPressed)
