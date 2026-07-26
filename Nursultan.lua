@@ -225,14 +225,45 @@ end
 
 local function formatAssetId(raw)
     if not raw or raw == "" then return "" end
-    raw = tostring(raw):gsub("%s+", "")
-    if tonumber(raw) then
-        return "rbxassetid://" .. raw
-    elseif not raw:find("rbxassetid://") then
-        local match = raw:match("%d+")
-        if match then return "rbxassetid://" .. match end
+    local str = tostring(raw):match("^%s*(.-)%s*$") -- Trim whitespace
+
+    -- 1. Already formatted rbxassetid
+    if str:sub(1, 13) == "rbxassetid://" then
+        return str
     end
-    return raw
+
+    -- 2. HTTP / HTTPS external URL (SoundCloud / Direct Audio Stream / Web Link)
+    if str:sub(1, 7) == "http://" or str:sub(1, 8) == "https://" then
+        -- Check if executor supports writing & converting web assets locally
+        if writefile and getcustomasset then
+            local tempFileName = "star_radio_stream.mp3"
+            local success, audioBytes = pcall(function()
+                return game:HttpGet(str, true)
+            end)
+            if success and audioBytes and #audioBytes > 500 then
+                pcall(function() writefile(tempFileName, audioBytes) end)
+                if isfile and isfile(tempFileName) then
+                    local customAsset = pcall(function() return getcustomasset(tempFileName) end)
+                    if customAsset then return customAsset end
+                end
+            end
+        end
+
+        -- Fallback: Extract numeric ID if URL contains numbers
+        local numericMatch = str:match("(%d%d%d%d%d+)")
+        if numericMatch then
+            return "rbxassetid://" .. numericMatch
+        end
+        return str
+    end
+
+    -- 3. Pure Roblox Numeric Asset ID
+    local cleanDigits = str:gsub("%D", "")
+    if cleanDigits ~= "" then
+        return "rbxassetid://" .. cleanDigits
+    end
+
+    return str
 end
 
 local function formatTime(seconds)
@@ -936,7 +967,7 @@ HUDSoundInput.Size = UDim2.new(1, -10, 1, 0)
 HUDSoundInput.Position = UDim2.new(0, 5, 0, 0)
 HUDSoundInput.BackgroundTransparency = 1
 HUDSoundInput.Font = Library.Fonts.Badge
-HUDSoundInput.PlaceholderText = "Paste Sound ID (e.g. 1837843912)..."
+HUDSoundInput.PlaceholderText = "Paste Roblox ID or SoundCloud / Web Link..."
 HUDSoundInput.PlaceholderColor3 = Library.Theme.TextDim
 HUDSoundInput.Text = ""
 HUDSoundInput.TextColor3 = Library.Theme.Accent
@@ -2422,7 +2453,7 @@ do
     TabSoundInput.Position = UDim2.new(0, 5, 0, 0)
     TabSoundInput.BackgroundTransparency = 1
     TabSoundInput.Font = Library.Fonts.Badge
-    TabSoundInput.PlaceholderText = "Paste Sound ID (e.g. 1837843912)..."
+    TabSoundInput.PlaceholderText = "Paste Roblox ID or SoundCloud / Web Link..."
     TabSoundInput.PlaceholderColor3 = Library.Theme.TextDim
     TabSoundInput.Text = ""
     TabSoundInput.TextColor3 = Library.Theme.Accent
