@@ -167,7 +167,12 @@ pcall(function()
 end)
 
 local ParentContainer = nil
-pcall(function() ParentContainer = CoreGui end)
+if gethui then
+    pcall(function() ParentContainer = gethui() end)
+end
+if not ParentContainer then
+    pcall(function() ParentContainer = CoreGui end)
+end
 if not ParentContainer or not pcall(function() return ParentContainer.Name end) then
     ParentContainer = Players.LocalPlayer:WaitForChild("PlayerGui")
 end
@@ -200,6 +205,7 @@ ScreenGui.Name = "NursultanGUI"
 ScreenGui.ResetOnSpawn = false
 ScreenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
 ScreenGui.IgnoreGuiInset = true
+ScreenGui.DisplayOrder = 999999999
 ScreenGui.Parent = ParentContainer
 
 local ParticleGuiContainer = Instance.new("Frame")
@@ -310,42 +316,155 @@ trackConnection(RunService.RenderStepped:Connect(function(dt)
     end
 end))
 
-local Watermark = Instance.new("Frame")
-Watermark.Name = "Watermark"
-Watermark.Size = UDim2.new(0, 270, 0, 32)
-Watermark.Position = UDim2.new(0, 15, 0, 15)
-Watermark.BackgroundColor3 = Library.Theme.Block
-Watermark.BorderSizePixel = 0
-Watermark.Parent = Container
+local TopWatermark = Instance.new("Frame")
+TopWatermark.Name = "StarTopWatermark"
+TopWatermark.Size = UDim2.new(0, 440, 0, 30)
+TopWatermark.Position = UDim2.new(0.5, -220, 0, 10)
+TopWatermark.BackgroundColor3 = Library.Theme.Block
+TopWatermark.BorderSizePixel = 0
+TopWatermark.Parent = ScreenGui
 
-local WMarkStroke = Instance.new("UIStroke")
-WMarkStroke.Color = Library.Theme.Stroke
-WMarkStroke.Thickness = 1.2
-WMarkStroke.Parent = Watermark
+local TopWMarkStroke = Instance.new("UIStroke")
+TopWMarkStroke.Color = Library.Theme.StrokeActive
+TopWMarkStroke.Thickness = 1.2
+TopWMarkStroke.Parent = TopWatermark
 
-local WMarkIcon = Instance.new("ImageLabel")
-WMarkIcon.Name = "WMarkIcon"
-WMarkIcon.Size = UDim2.new(0, 18, 0, 18)
-WMarkIcon.Position = UDim2.new(0, 8, 0.5, -9)
-WMarkIcon.BackgroundTransparency = 1
-WMarkIcon.Image = "rbxassetid://93992148478224"
-WMarkIcon.ImageColor3 = Library.Theme.Accent
-WMarkIcon.Parent = Watermark
+local TopWMarkLayout = Instance.new("UIListLayout")
+TopWMarkLayout.FillDirection = Enum.FillDirection.Horizontal
+TopWMarkLayout.HorizontalAlignment = Enum.HorizontalAlignment.Center
+TopWMarkLayout.VerticalAlignment = Enum.VerticalAlignment.Center
+TopWMarkLayout.Padding = UDim.new(0, 7)
+TopWMarkLayout.Parent = TopWatermark
 
-local WMarkLabel = Instance.new("TextLabel")
-WMarkLabel.Size = UDim2.new(1, -35, 1, 0)
-WMarkLabel.Position = UDim2.new(0, 32, 0, 0)
-WMarkLabel.BackgroundTransparency = 1
-WMarkLabel.Font = Library.Fonts.Header
-WMarkLabel.Text = "STAR.UI  |  [RIGHT SHIFT]"
-WMarkLabel.TextColor3 = Library.Theme.Text
-WMarkLabel.TextSize = 11
-WMarkLabel.TextXAlignment = Enum.TextXAlignment.Left
-WMarkLabel.Parent = Watermark
-UI.Watermark = Watermark
-UI.WMarkStroke = WMarkStroke
-UI.WMarkIcon = WMarkIcon
-UI.WMarkLabel = WMarkLabel
+local TopWMarkIcon = Instance.new("ImageLabel")
+TopWMarkIcon.Name = "TopWMarkIcon"
+TopWMarkIcon.Size = UDim2.new(0, 16, 0, 16)
+TopWMarkIcon.BackgroundTransparency = 1
+TopWMarkIcon.Image = "rbxassetid://93992148478224"
+TopWMarkIcon.ImageColor3 = Library.Theme.Accent
+TopWMarkIcon.Parent = TopWatermark
+
+local TopWMarkTitle = Instance.new("TextLabel")
+TopWMarkTitle.Name = "TopWMarkTitle"
+TopWMarkTitle.AutomaticSize = Enum.AutomaticSize.X
+TopWMarkTitle.Size = UDim2.new(0, 0, 1, 0)
+TopWMarkTitle.BackgroundTransparency = 1
+TopWMarkTitle.Font = Library.Fonts.Header
+TopWMarkTitle.Text = "STAR.UI"
+TopWMarkTitle.TextColor3 = Library.Theme.Accent
+TopWMarkTitle.TextSize = 11
+TopWMarkTitle.Parent = TopWatermark
+
+local function addWMarkSep()
+    local Sep = Instance.new("TextLabel")
+    Sep.AutomaticSize = Enum.AutomaticSize.X
+    Sep.Size = UDim2.new(0, 0, 1, 0)
+    Sep.BackgroundTransparency = 1
+    Sep.Font = Library.Fonts.Label
+    Sep.Text = "|"
+    Sep.TextColor3 = Library.Theme.TextDim
+    Sep.TextSize = 10
+    Sep.Parent = TopWatermark
+    return Sep
+end
+
+addWMarkSep()
+
+local LocalPlayer = Players.LocalPlayer
+local PlayerHeadshot = Instance.new("ImageLabel")
+PlayerHeadshot.Name = "PlayerHeadshot"
+PlayerHeadshot.Size = UDim2.new(0, 18, 0, 18)
+PlayerHeadshot.BackgroundTransparency = 1
+PlayerHeadshot.Image = "rbxthumb://type=AvatarHeadShot&id=" .. (LocalPlayer and LocalPlayer.UserId or 1) .. "&w=48&h=48"
+PlayerHeadshot.Parent = TopWatermark
+
+local PlayerNameLabel = Instance.new("TextLabel")
+PlayerNameLabel.Name = "PlayerNameLabel"
+PlayerNameLabel.AutomaticSize = Enum.AutomaticSize.X
+PlayerNameLabel.Size = UDim2.new(0, 0, 1, 0)
+PlayerNameLabel.BackgroundTransparency = 1
+PlayerNameLabel.Font = Library.Fonts.Label
+PlayerNameLabel.Text = LocalPlayer and LocalPlayer.DisplayName or "User"
+PlayerNameLabel.TextColor3 = Library.Theme.Text
+PlayerNameLabel.TextSize = 10.5
+PlayerNameLabel.Parent = TopWatermark
+
+addWMarkSep()
+
+local WMarkFpsLabel = Instance.new("TextLabel")
+WMarkFpsLabel.Name = "WMarkFpsLabel"
+WMarkFpsLabel.AutomaticSize = Enum.AutomaticSize.X
+WMarkFpsLabel.Size = UDim2.new(0, 0, 1, 0)
+WMarkFpsLabel.BackgroundTransparency = 1
+WMarkFpsLabel.Font = Library.Fonts.Badge
+WMarkFpsLabel.Text = "60 FPS"
+WMarkFpsLabel.TextColor3 = Library.Theme.Accent
+WMarkFpsLabel.TextSize = 10
+WMarkFpsLabel.Parent = TopWatermark
+
+addWMarkSep()
+
+local WMarkPingLabel = Instance.new("TextLabel")
+WMarkPingLabel.Name = "WMarkPingLabel"
+WMarkPingLabel.AutomaticSize = Enum.AutomaticSize.X
+WMarkPingLabel.Size = UDim2.new(0, 0, 1, 0)
+WMarkPingLabel.BackgroundTransparency = 1
+WMarkPingLabel.Font = Library.Fonts.Badge
+WMarkPingLabel.Text = "0 ms"
+WMarkPingLabel.TextColor3 = Library.Theme.Accent
+WMarkPingLabel.TextSize = 10
+WMarkPingLabel.Parent = TopWatermark
+
+addWMarkSep()
+
+local WMarkTimeLabel = Instance.new("TextLabel")
+WMarkTimeLabel.Name = "WMarkTimeLabel"
+WMarkTimeLabel.AutomaticSize = Enum.AutomaticSize.X
+WMarkTimeLabel.Size = UDim2.new(0, 0, 1, 0)
+WMarkTimeLabel.BackgroundTransparency = 1
+WMarkTimeLabel.Font = Library.Fonts.Badge
+WMarkTimeLabel.Text = "00:00:00"
+WMarkTimeLabel.TextColor3 = Library.Theme.Text
+WMarkTimeLabel.TextSize = 10
+WMarkTimeLabel.Parent = TopWatermark
+
+UI.Watermark = TopWatermark
+UI.WMarkStroke = TopWMarkStroke
+UI.WMarkIcon = TopWMarkIcon
+UI.WMarkTitle = TopWMarkTitle
+UI.PlayerNameLabel = PlayerNameLabel
+UI.WMarkFpsLabel = WMarkFpsLabel
+UI.WMarkPingLabel = WMarkPingLabel
+UI.WMarkTimeLabel = WMarkTimeLabel
+
+local fpsFrameCount = 0
+local lastFpsCheck = tick()
+
+trackConnection(RunService.RenderStepped:Connect(function(dt)
+    fpsFrameCount = fpsFrameCount + 1
+    local now = tick()
+    if now - lastFpsCheck >= 1 then
+        local currentFps = fpsFrameCount
+        fpsFrameCount = 0
+        lastFpsCheck = now
+
+        local pingMs = 0
+        pcall(function()
+            local stats = game:GetService("Stats")
+            local dataPing = stats.Network.ServerStatsItem:FindFirstChild("Data Ping")
+            if dataPing then
+                pingMs = math.floor(dataPing:GetValue())
+            elseif LocalPlayer then
+                pingMs = math.floor(LocalPlayer:GetNetworkPing() * 1000)
+            end
+        end)
+
+        local timeNow = os.date("%H:%M:%S")
+        if WMarkFpsLabel then WMarkFpsLabel.Text = currentFps .. " FPS" end
+        if WMarkPingLabel then WMarkPingLabel.Text = pingMs .. " ms" end
+        if WMarkTimeLabel then WMarkTimeLabel.Text = timeNow end
+    end
+end))
 
 local GearBtnFrame = Instance.new("Frame")
 GearBtnFrame.Name = "GearButtonFrame"
@@ -455,11 +574,11 @@ end
 
 local KeybindHUDFrame = Instance.new("Frame")
 KeybindHUDFrame.Name = "KeybindHUDOverlay"
-KeybindHUDFrame.Size = UDim2.new(0, 220, 0, 32)
-KeybindHUDFrame.Position = UDim2.new(1, -510, 1, -180)
+KeybindHUDFrame.Size = UDim2.new(0, 260, 0, 32)
+KeybindHUDFrame.Position = UDim2.new(1, -275, 1, -370)
 KeybindHUDFrame.BackgroundColor3 = Library.Theme.Block
 KeybindHUDFrame.BorderSizePixel = 0
-KeybindHUDFrame.Parent = Container
+KeybindHUDFrame.Parent = ScreenGui
 UI.KeybindHUDFrame = KeybindHUDFrame
 
 local KeybindHUDStroke = Instance.new("UIStroke")
@@ -560,7 +679,7 @@ function Library:RefreshKeybindHUD()
 
     local listHeight = HUDListLayout.AbsoluteContentSize.Y
     HUDListHolder.Size = UDim2.new(1, -12, 0, listHeight)
-    smoothTween(KeybindHUDFrame, DUR_NORMAL, { Size = UDim2.new(0, 220, 0, 34 + listHeight) })
+    smoothTween(KeybindHUDFrame, DUR_NORMAL, { Size = UDim2.new(0, 260, 0, 34 + listHeight) })
 end
 
 local RadioHUDFrame = Instance.new("Frame")
@@ -569,7 +688,7 @@ RadioHUDFrame.Size = UDim2.new(0, 260, 0, 165)
 RadioHUDFrame.Position = UDim2.new(1, -275, 1, -180)
 RadioHUDFrame.BackgroundColor3 = Library.Theme.Block
 RadioHUDFrame.BorderSizePixel = 0
-RadioHUDFrame.Parent = Container
+RadioHUDFrame.Parent = ScreenGui
 UI.RadioHUDFrame = RadioHUDFrame
 
 local RadioHUDUIScale = Instance.new("UIScale")
@@ -839,7 +958,7 @@ end)
 
 -- FULL TRANSPARENCY & PERFECT PROPORTIONAL SCALING (ROBLOX UISCALE)
 local function updateRadioHUDProperties()
-    RadioHUDFrame.Visible = Library.RadioHUDVisible and Library.Enabled
+    RadioHUDFrame.Visible = Library.RadioHUDVisible
     local transparencyVal = (Library.RadioHUDTransparency or 0) / 100
 
     RadioHUDFrame.BackgroundTransparency = transparencyVal
@@ -3088,7 +3207,8 @@ end
 
 function Library:SetVisible(visible)
     Library.Enabled = visible
-    ScreenGui.Enabled = visible
+    ScreenGui.Enabled = true
+    Container.Visible = visible
 
     if visible then
         if Library.BlurEnabled then
@@ -3096,14 +3216,7 @@ function Library:SetVisible(visible)
             smoothTween(MenuBlur, DUR_NORMAL, { Size = Library.BlurSize })
         end
         SnowFolder.Visible = Library.SnowEnabled
-
-        Watermark.BackgroundTransparency = 0
-        WMarkStroke.Transparency = 0
-        WMarkLabel.TextTransparency = 0
-        GearBtnFrame.BackgroundTransparency = 0
-        KeybindHUDFrame.BackgroundTransparency = 0
-        KeybindHUDStroke.Transparency = 0
-        updateRadioHUDProperties()
+        MenuBgImage.Visible = (formatAssetId(Library.MenuBgImage or "") ~= "")
 
         for i, blockData in ipairs(Library.Blocks) do
             local f = blockData.Frame
@@ -3116,10 +3229,14 @@ function Library:SetVisible(visible)
         MenuBlur.Size = 0
         MenuBlur.Enabled = false
         SnowFolder.Visible = false
+        MenuBgImage.Visible = false
         SettingsModal.Visible = false
         ConfigDropList.Visible = false
         configDropOpen = false
     end
+
+    if Library.RefreshKeybindHUD then Library:RefreshKeybindHUD() end
+    updateRadioHUDProperties()
 end
 
 function Library:Toggle()
@@ -3212,13 +3329,18 @@ function Library:CreateBlock(title, defaultPosition)
     CollapseBtn.TextSize = 15
     CollapseBtn.Parent = Header
 
-    local Content = Instance.new("Frame")
+    local Content = Instance.new("ScrollingFrame")
     Content.Name = "Content"
     Content.Size = UDim2.new(1, 0, 0, 0)
     Content.Position = UDim2.new(0, 0, 0, 38)
     Content.BackgroundTransparency = 1
     Content.ClipsDescendants = true
     Content.Visible = true
+    Content.BorderSizePixel = 0
+    Content.ScrollBarThickness = 3
+    Content.ScrollBarImageColor3 = Library.Theme.Accent
+    Content.CanvasSize = UDim2.new(0, 0, 0, 0)
+    Content.AutomaticCanvasSize = Enum.AutomaticSize.Y
     Content.Parent = Frame
     Block.Content = Content
 
@@ -3236,12 +3358,16 @@ function Library:CreateBlock(title, defaultPosition)
 
     makeDraggable(Frame, Header)
 
+    local MAX_CONTENT_HEIGHT = 420
     local function updateHeight()
-        local targetContentHeight = UIListLayout.AbsoluteContentSize.Y + 14
+        local totalContentHeight = UIListLayout.AbsoluteContentSize.Y + 14
+        Content.CanvasSize = UDim2.new(0, 0, 0, totalContentHeight)
+        local displayContentHeight = math.min(totalContentHeight, MAX_CONTENT_HEIGHT)
+
         if Block.Expanded then
             Content.Visible = true
-            smoothTween(Content, DUR_NORMAL, { Size = UDim2.new(1, 0, 0, targetContentHeight) })
-            smoothTween(Frame, DUR_NORMAL, { Size = UDim2.new(0, 240, 0, 38 + targetContentHeight) })
+            smoothTween(Content, DUR_NORMAL, { Size = UDim2.new(1, 0, 0, displayContentHeight) })
+            smoothTween(Frame, DUR_NORMAL, { Size = UDim2.new(0, 240, 0, 38 + displayContentHeight) })
         else
             smoothTween(Content, DUR_NORMAL, { Size = UDim2.new(1, 0, 0, 0) })
             local anim = smoothTween(Frame, DUR_NORMAL, { Size = UDim2.new(0, 240, 0, 38) })
@@ -4117,6 +4243,81 @@ function Library:CreateBlock(title, defaultPosition)
                 end
             end
         end))
+    function Block:AddSection(sectionTitle)
+        local SectionFrame = Instance.new("Frame")
+        SectionFrame.Name = sectionTitle .. "_Section"
+        SectionFrame.Size = UDim2.new(1, 0, 0, 22)
+        SectionFrame.BackgroundTransparency = 1
+        SectionFrame.Parent = Content
+
+        local Line = Instance.new("Frame")
+        Line.Size = UDim2.new(1, -16, 0, 1)
+        Line.Position = UDim2.new(0, 8, 0.5, 0)
+        Line.BackgroundColor3 = Library.Theme.Stroke
+        Line.BorderSizePixel = 0
+        Line.Parent = SectionFrame
+
+        local TitleBg = Instance.new("Frame")
+        TitleBg.AutomaticSize = Enum.AutomaticSize.X
+        TitleBg.Size = UDim2.new(0, 0, 0, 14)
+        TitleBg.Position = UDim2.new(0, 14, 0.5, -7)
+        TitleBg.BackgroundColor3 = Library.Theme.Block
+        TitleBg.BorderSizePixel = 0
+        TitleBg.Parent = SectionFrame
+
+        local TitleLbl = Instance.new("TextLabel")
+        TitleLbl.AutomaticSize = Enum.AutomaticSize.X
+        TitleLbl.Size = UDim2.new(0, 0, 1, 0)
+        TitleLbl.BackgroundTransparency = 1
+        TitleLbl.Font = Library.Fonts.Badge
+        TitleLbl.Text = " " .. string.upper(sectionTitle) .. " "
+        TitleLbl.TextColor3 = Library.Theme.Accent
+        TitleLbl.TextSize = 8.5
+        TitleLbl.Parent = TitleBg
+
+        updateHeight()
+        return SectionFrame
+    end
+
+    function Block:AddSubTabs(tabList, callback)
+        local TabRow = Instance.new("Frame")
+        TabRow.Name = "SubTabRow"
+        TabRow.Size = UDim2.new(1, 0, 0, 24)
+        TabRow.BackgroundColor3 = Library.Theme.Header
+        TabRow.BorderSizePixel = 0
+        TabRow.Parent = Content
+
+        local activeTab = tabList[1]
+        local buttons = {}
+
+        for idx, tabName in ipairs(tabList) do
+            local TabBtn = Instance.new("TextButton")
+            TabBtn.Size = UDim2.new(1 / #tabList, -2, 1, -4)
+            TabBtn.Position = UDim2.new((idx - 1) / #tabList, 1, 0, 2)
+            TabBtn.BackgroundColor3 = (tabName == activeTab) and Library.Theme.Block or Library.Theme.Header
+            TabBtn.BorderSizePixel = 0
+            TabBtn.Font = Library.Fonts.Badge
+            TabBtn.Text = string.upper(tabName)
+            TabBtn.TextColor3 = (tabName == activeTab) and Library.Theme.Accent or Library.Theme.TextDim
+            TabBtn.TextSize = 9
+            TabBtn.Parent = TabRow
+            table.insert(buttons, TabBtn)
+
+            TabBtn.MouseButton1Click:Connect(function()
+                activeTab = tabName
+                for _, btn in ipairs(buttons) do
+                    local sel = (btn == TabBtn)
+                    smoothTween(btn, DUR_FAST, {
+                        BackgroundColor3 = sel and Library.Theme.Block or Library.Theme.Header,
+                        TextColor3 = sel and Library.Theme.Accent or Library.Theme.TextDim
+                    })
+                end
+                if callback then callback(tabName) end
+            end)
+        end
+
+        updateHeight()
+        return TabRow
     end
 
     table.insert(Library.Blocks, Block)
