@@ -406,6 +406,7 @@ trackConnection(RunService.RenderStepped:Connect(function(dt)
             f.Instance.Position = UDim2.new(f.X, 0, f.Y, 0)
         end
     end
+end)
 
 
 local TopWatermark = Instance.new("Frame")
