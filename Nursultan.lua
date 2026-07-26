@@ -3131,7 +3131,7 @@ function Library:CreateBlock(title, defaultPosition)
         Elements = {}
     }
 
-    defaultPosition = defaultPosition or UDim2.new(0.04 + (#Library.Blocks * 0.17), 0, 0.12, 0)
+    defaultPosition = defaultPosition or UDim2.new(0.02 + (#Library.Blocks * 0.14), 0, 0.06, 0)
     Block.DefaultPos = defaultPosition
 
     local Frame = Instance.new("Frame")
