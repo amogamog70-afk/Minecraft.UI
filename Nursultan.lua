@@ -116,6 +116,7 @@ local DIR_OUT     = Enum.EasingDirection.Out
 local DIR_IN      = Enum.EasingDirection.In
 
 local ActiveTweens = {}
+local UI = {}
 
 local function smoothTween(object, duration, properties, easingStyle, easingDirection)
     easingStyle = easingStyle or EASE_SMOOTH
@@ -338,6 +339,10 @@ WMarkLabel.TextColor3 = Library.Theme.Text
 WMarkLabel.TextSize = 11
 WMarkLabel.TextXAlignment = Enum.TextXAlignment.Left
 WMarkLabel.Parent = Watermark
+UI.Watermark = Watermark
+UI.WMarkStroke = WMarkStroke
+UI.WMarkAccent = WMarkAccent
+UI.WMarkLabel = WMarkLabel
 
 local GearBtnFrame = Instance.new("Frame")
 GearBtnFrame.Name = "GearButtonFrame"
@@ -346,11 +351,13 @@ GearBtnFrame.Position = UDim2.new(1, -53, 0, 15)
 GearBtnFrame.BackgroundColor3 = Library.Theme.Block
 GearBtnFrame.BorderSizePixel = 0
 GearBtnFrame.Parent = Container
+UI.GearBtnFrame = GearBtnFrame
 
 local GearStroke = Instance.new("UIStroke")
 GearStroke.Color = Library.Theme.Accent
 GearStroke.Thickness = 1.5
 GearStroke.Parent = GearBtnFrame
+UI.GearStroke = GearStroke
 
 local GearIcon = Instance.new("ImageButton")
 GearIcon.Name = "GearIcon"
@@ -360,6 +367,32 @@ GearIcon.BackgroundTransparency = 1
 GearIcon.Image = "rbxassetid://7059346373"
 GearIcon.ImageColor3 = Library.Theme.Accent
 GearIcon.Parent = GearBtnFrame
+UI.GearIcon = GearIcon
+
+local isDraggingGear = false
+local dragGearStart = nil
+local startGearPos = nil
+
+GearIcon.InputBegan:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+        isDraggingGear = true
+        dragGearStart = input.Position
+        startGearPos = GearBtnFrame.Position
+    end
+end)
+
+trackConnection(UserInputService.InputEnded:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+        isDraggingGear = false
+    end
+end))
+
+trackConnection(UserInputService.InputChanged:Connect(function(input)
+    if isDraggingGear and (input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch) then
+        local delta = input.Position - dragGearStart
+        GearBtnFrame.Position = UDim2.new(startGearPos.X.Scale, startGearPos.X.Offset + delta.X, startGearPos.Y.Scale, startGearPos.Y.Offset + delta.Y)
+    end
+end))
 
 local SettingsModal
 
@@ -424,17 +457,20 @@ KeybindHUDFrame.Position = UDim2.new(1, -510, 1, -180)
 KeybindHUDFrame.BackgroundColor3 = Library.Theme.Block
 KeybindHUDFrame.BorderSizePixel = 0
 KeybindHUDFrame.Parent = Container
+UI.KeybindHUDFrame = KeybindHUDFrame
 
 local KeybindHUDStroke = Instance.new("UIStroke")
 KeybindHUDStroke.Color = Library.Theme.Stroke
 KeybindHUDStroke.Thickness = 1.2
 KeybindHUDStroke.Parent = KeybindHUDFrame
+UI.KeybindHUDStroke = KeybindHUDStroke
 
 local KeybindHUDHeader = Instance.new("Frame")
 KeybindHUDHeader.Size = UDim2.new(1, 0, 0, 28)
 KeybindHUDHeader.BackgroundColor3 = Library.Theme.Header
 KeybindHUDHeader.BorderSizePixel = 0
 KeybindHUDHeader.Parent = KeybindHUDFrame
+UI.KeybindHUDHeader = KeybindHUDHeader
 
 local HUDDot = Instance.new("Frame")
 HUDDot.Size = UDim2.new(0, 5, 0, 5)
@@ -442,6 +478,7 @@ HUDDot.Position = UDim2.new(0, 10, 0.5, -2.5)
 HUDDot.BackgroundColor3 = Library.Theme.Accent
 HUDDot.BorderSizePixel = 0
 HUDDot.Parent = KeybindHUDHeader
+UI.HUDDot = HUDDot
 
 local HUDTitle = Instance.new("TextLabel")
 HUDTitle.Size = UDim2.new(1, -25, 1, 0)
@@ -453,6 +490,7 @@ HUDTitle.TextColor3 = Library.Theme.Text
 HUDTitle.TextSize = 11
 HUDTitle.TextXAlignment = Enum.TextXAlignment.Left
 HUDTitle.Parent = KeybindHUDHeader
+UI.HUDTitle = HUDTitle
 
 local HUDListHolder = Instance.new("Frame")
 HUDListHolder.Size = UDim2.new(1, -12, 0, 0)
@@ -529,6 +567,7 @@ RadioHUDFrame.Position = UDim2.new(1, -275, 1, -180)
 RadioHUDFrame.BackgroundColor3 = Library.Theme.Block
 RadioHUDFrame.BorderSizePixel = 0
 RadioHUDFrame.Parent = Container
+UI.RadioHUDFrame = RadioHUDFrame
 
 local RadioHUDUIScale = Instance.new("UIScale")
 RadioHUDUIScale.Name = "RadioHUDUIScale"
@@ -539,12 +578,14 @@ local RadioHUDStroke = Instance.new("UIStroke")
 RadioHUDStroke.Color = Library.Theme.Stroke
 RadioHUDStroke.Thickness = 1.2
 RadioHUDStroke.Parent = RadioHUDFrame
+UI.RadioHUDStroke = RadioHUDStroke
 
 local RadioHeader = Instance.new("Frame")
 RadioHeader.Size = UDim2.new(1, 0, 0, 28)
 RadioHeader.BackgroundColor3 = Library.Theme.Header
 RadioHeader.BorderSizePixel = 0
 RadioHeader.Parent = RadioHUDFrame
+UI.RadioHeader = RadioHeader
 
 local MusicIcon = Instance.new("ImageLabel")
 MusicIcon.Name = "MusicIcon"
@@ -554,6 +595,7 @@ MusicIcon.BackgroundTransparency = 1
 MusicIcon.Image = "rbxassetid://17387359605"
 MusicIcon.ImageColor3 = Library.Theme.Accent
 MusicIcon.Parent = RadioHeader
+UI.MusicIcon = MusicIcon
 
 local RHTitle = Instance.new("TextLabel")
 RHTitle.Size = UDim2.new(1, -85, 1, 0)
@@ -565,6 +607,7 @@ RHTitle.TextColor3 = Library.Theme.Text
 RHTitle.TextSize = 11
 RHTitle.TextXAlignment = Enum.TextXAlignment.Left
 RHTitle.Parent = RadioHeader
+UI.RHTitle = RHTitle
 
 local HUDPlayBtn = Instance.new("TextButton")
 HUDPlayBtn.Size = UDim2.new(0, 55, 0, 20)
@@ -576,6 +619,7 @@ HUDPlayBtn.Text = "PLAY"
 HUDPlayBtn.TextColor3 = Library.Theme.Accent
 HUDPlayBtn.TextSize = 9
 HUDPlayBtn.Parent = RadioHeader
+UI.HUDPlayBtn = HUDPlayBtn
 
 makeDraggable(RadioHUDFrame, RadioHeader)
 
@@ -585,6 +629,7 @@ HUDSoundInputBg.Position = UDim2.new(0, 8, 0, 32)
 HUDSoundInputBg.BackgroundColor3 = Library.Theme.Header
 HUDSoundInputBg.BorderSizePixel = 0
 HUDSoundInputBg.Parent = RadioHUDFrame
+UI.HUDSoundInputBg = HUDSoundInputBg
 
 local HUDSoundInput = Instance.new("TextBox")
 HUDSoundInput.Size = UDim2.new(1, -10, 1, 0)
@@ -602,6 +647,7 @@ HUDSoundInput.Selectable = true
 HUDSoundInput.ClearTextOnFocus = false
 HUDSoundInput.ZIndex = 15
 HUDSoundInput.Parent = HUDSoundInputBg
+UI.HUDSoundInput = HUDSoundInput
 
 local RadioTrackLabel = Instance.new("TextLabel")
 RadioTrackLabel.Size = UDim2.new(1, -16, 0, 14)
@@ -630,6 +676,7 @@ SeekTimeLabel.TextColor3 = Library.Theme.Accent
 SeekTimeLabel.TextSize = 9
 SeekTimeLabel.TextXAlignment = Enum.TextXAlignment.Right
 SeekTimeLabel.Parent = SeekRow
+UI.SeekTimeLabel = SeekTimeLabel
 
 local SeekTrackBg = Instance.new("TextButton")
 SeekTrackBg.Size = UDim2.new(1, 0, 0, 8)
@@ -639,12 +686,14 @@ SeekTrackBg.BorderSizePixel = 0
 SeekTrackBg.AutoButtonColor = false
 SeekTrackBg.Text = ""
 SeekTrackBg.Parent = SeekRow
+UI.SeekTrackBg = SeekTrackBg
 
 local SeekFill = Instance.new("Frame")
 SeekFill.Size = UDim2.new(0, 0, 1, 0)
 SeekFill.BackgroundColor3 = Library.Theme.Accent
 SeekFill.BorderSizePixel = 0
 SeekFill.Parent = SeekTrackBg
+UI.SeekFill = SeekFill
 
 local SeekHandle = Instance.new("Frame")
 SeekHandle.Size = UDim2.new(0, 10, 0, 12)
@@ -652,6 +701,7 @@ SeekHandle.Position = UDim2.new(0, -5, 0.5, -6)
 SeekHandle.BackgroundColor3 = Library.Theme.Accent
 SeekHandle.BorderSizePixel = 0
 SeekHandle.Parent = SeekTrackBg
+UI.SeekHandle = SeekHandle
 
 local isSeeking = false
 trackConnection(SeekTrackBg.InputBegan:Connect(function(input)
@@ -819,11 +869,13 @@ SettingsModal.BorderSizePixel = 0
 SettingsModal.Visible = false
 SettingsModal.ZIndex = 20
 SettingsModal.Parent = Container
+UI.SettingsModal = SettingsModal
 
 local ModalStroke = Instance.new("UIStroke")
 ModalStroke.Color = Library.Theme.StrokeActive
 ModalStroke.Thickness = 1.5
 ModalStroke.Parent = SettingsModal
+UI.ModalStroke = ModalStroke
 
 local ModalHeader = Instance.new("Frame")
 ModalHeader.Name = "ModalHeader"
@@ -832,6 +884,7 @@ ModalHeader.BackgroundColor3 = Library.Theme.Header
 ModalHeader.BorderSizePixel = 0
 ModalHeader.ZIndex = 21
 ModalHeader.Parent = SettingsModal
+UI.ModalHeader = ModalHeader
 
 local ModalTitle = Instance.new("TextLabel")
 ModalTitle.Size = UDim2.new(1, -50, 1, 0)
@@ -844,6 +897,7 @@ ModalTitle.TextSize = 11
 ModalTitle.TextXAlignment = Enum.TextXAlignment.Left
 ModalTitle.ZIndex = 22
 ModalTitle.Parent = ModalHeader
+UI.ModalTitle = ModalTitle
 
 local CloseModalBtn = Instance.new("TextButton")
 CloseModalBtn.Size = UDim2.new(0, 26, 0, 26)
@@ -867,6 +921,7 @@ ModalSidebar.BackgroundColor3 = Library.Theme.Header
 ModalSidebar.BorderSizePixel = 0
 ModalSidebar.ZIndex = 21
 ModalSidebar.Parent = SettingsModal
+UI.ModalSidebar = ModalSidebar
 
 local SidebarLayout = Instance.new("UIListLayout")
 SidebarLayout.SortOrder = Enum.SortOrder.LayoutOrder
@@ -996,18 +1051,20 @@ ModalTabs["Configs"].Btn.BackgroundColor3 = Library.Theme.Block
 ModalTabs["Configs"].Btn.TextColor3 = Library.Theme.Accent
 
 -- 1. CONFIGS TAB PAGE
-local ConfigCard = Instance.new("Frame")
-ConfigCard.Size = UDim2.new(1, 0, 0, 160)
-ConfigCard.BackgroundColor3 = Library.Theme.Card
-ConfigCard.BorderSizePixel = 0
-ConfigCard.ZIndex = 22
-ConfigCard.Parent = ConfigsPage
+do
+    local ConfigCard = Instance.new("Frame")
+    ConfigCard.Size = UDim2.new(1, 0, 0, 160)
+    ConfigCard.BackgroundColor3 = Library.Theme.Card
+    ConfigCard.BorderSizePixel = 0
+    ConfigCard.ZIndex = 22
+    ConfigCard.Parent = ConfigsPage
+    UI.ConfigCard = ConfigCard
 
-local ConfigNameBg = Instance.new("Frame")
-ConfigNameBg.Size = UDim2.new(1, -145, 0, 30)
-ConfigNameBg.Position = UDim2.new(0, 10, 0, 12)
-ConfigNameBg.BackgroundColor3 = Library.Theme.Header
-ConfigNameBg.BorderSizePixel = 0
+    local ConfigNameBg = Instance.new("Frame")
+    ConfigNameBg.Size = UDim2.new(1, -145, 0, 30)
+    ConfigNameBg.Position = UDim2.new(0, 10, 0, 12)
+    ConfigNameBg.BackgroundColor3 = Library.Theme.Header
+    ConfigNameBg.BorderSizePixel = 0
 ConfigNameBg.ZIndex = 23
 ConfigNameBg.Parent = ConfigCard
 
@@ -1387,922 +1444,982 @@ trackConnection(UserInputService.InputBegan:Connect(function(input)
         end
     end
 end))
+end
 
 -- 2. THEMES TAB PAGE
-local ThemeCard = Instance.new("Frame")
-ThemeCard.Size = UDim2.new(1, 0, 0, 160)
-ThemeCard.BackgroundColor3 = Library.Theme.Card
-ThemeCard.BorderSizePixel = 0
-ThemeCard.ZIndex = 22
-ThemeCard.Parent = ThemesPage
+do
+    local ThemeCard = Instance.new("Frame")
+    ThemeCard.Size = UDim2.new(1, 0, 0, 160)
+    ThemeCard.BackgroundColor3 = Library.Theme.Card
+    ThemeCard.BorderSizePixel = 0
+    ThemeCard.ZIndex = 22
+    ThemeCard.Parent = ThemesPage
+    UI.ThemeCard = ThemeCard
 
-local TCLabel = Instance.new("TextLabel")
-TCLabel.Size = UDim2.new(1, -20, 0, 24)
-TCLabel.Position = UDim2.new(0, 10, 0, 8)
-TCLabel.BackgroundTransparency = 1
-TCLabel.Font = Library.Fonts.Header
-TCLabel.Text = "SELECT COLOR PALETTE"
-TCLabel.TextColor3 = Library.Theme.Accent
-TCLabel.TextSize = 11
-TCLabel.TextXAlignment = Enum.TextXAlignment.Left
-TCLabel.ZIndex = 23
-TCLabel.Parent = ThemeCard
+    local TCLabel = Instance.new("TextLabel")
+    TCLabel.Size = UDim2.new(1, -20, 0, 24)
+    TCLabel.Position = UDim2.new(0, 10, 0, 8)
+    TCLabel.BackgroundTransparency = 1
+    TCLabel.Font = Library.Fonts.Header
+    TCLabel.Text = "SELECT COLOR PALETTE"
+    TCLabel.TextColor3 = Library.Theme.Accent
+    TCLabel.TextSize = 11
+    TCLabel.TextXAlignment = Enum.TextXAlignment.Left
+    TCLabel.ZIndex = 23
+    TCLabel.Parent = ThemeCard
+    UI.TCLabel = TCLabel
 
-local themeNames = {"Monochrome Dark", "Midnight Purple", "Emerald Cyan", "Ruby Red"}
-for idx, thName in ipairs(themeNames) do
-    local ThBtn = Instance.new("TextButton")
-    ThBtn.Size = UDim2.new(1, -20, 0, 26)
-    ThBtn.Position = UDim2.new(0, 10, 0, 36 + ((idx - 1) * 30))
-    ThBtn.BackgroundColor3 = (thName == Library.CurrentThemeName) and Library.Theme.Header or Library.Theme.Block
-    ThBtn.BorderSizePixel = 0
-    ThBtn.Font = Library.Fonts.Badge
-    ThBtn.Text = "  " .. thName
-    ThBtn.TextColor3 = (thName == Library.CurrentThemeName) and Library.Theme.Accent or Library.Theme.TextDim
-    ThBtn.TextSize = 10
-    ThBtn.TextXAlignment = Enum.TextXAlignment.Left
-    ThBtn.ZIndex = 24
-    ThBtn.Parent = ThemeCard
+    local themeNames = {"Monochrome Dark", "Midnight Purple", "Emerald Cyan", "Ruby Red"}
+    for idx, thName in ipairs(themeNames) do
+        local ThBtn = Instance.new("TextButton")
+        ThBtn.Size = UDim2.new(1, -20, 0, 26)
+        ThBtn.Position = UDim2.new(0, 10, 0, 36 + ((idx - 1) * 30))
+        ThBtn.BackgroundColor3 = (thName == Library.CurrentThemeName) and Library.Theme.Header or Library.Theme.Block
+        ThBtn.BorderSizePixel = 0
+        ThBtn.Font = Library.Fonts.Badge
+        ThBtn.Text = "  " .. thName
+        ThBtn.TextColor3 = (thName == Library.CurrentThemeName) and Library.Theme.Accent or Library.Theme.TextDim
+        ThBtn.TextSize = 10
+        ThBtn.TextXAlignment = Enum.TextXAlignment.Left
+        ThBtn.ZIndex = 24
+        ThBtn.Parent = ThemeCard
 
-    ThBtn.MouseButton1Click:Connect(function()
-        Library:SetTheme(thName)
-    end)
-end
-
--- 3. SKYBOX TAB PAGE (10 PRESET SKYBOXES + CUSTOM MANUAL INPUTS)
-local SkyPresetCard = Instance.new("Frame")
-SkyPresetCard.Size = UDim2.new(1, 0, 0, 195)
-SkyPresetCard.BackgroundColor3 = Library.Theme.Card
-SkyPresetCard.BorderSizePixel = 0
-SkyPresetCard.ZIndex = 22
-SkyPresetCard.Parent = SkyboxPage
-
-local PresetTitle = Instance.new("TextLabel")
-PresetTitle.Size = UDim2.new(1, -20, 0, 20)
-PresetTitle.Position = UDim2.new(0, 10, 0, 8)
-PresetTitle.BackgroundTransparency = 1
-PresetTitle.Font = Library.Fonts.Header
-PresetTitle.Text = "READY-TO-USE PRESET SKYBOXES (10 PRESETS)"
-PresetTitle.TextColor3 = Library.Theme.Accent
-PresetTitle.TextSize = 11
-PresetTitle.TextXAlignment = Enum.TextXAlignment.Left
-PresetTitle.ZIndex = 23
-PresetTitle.Parent = SkyPresetCard
-
-local SkyboxPresets = {
-    {
-        Name = "Purple Nebula",
-        Ft = "rbxassetid://159454299", Bk = "rbxassetid://159454296",
-        Lf = "rbxassetid://159454293", Rt = "rbxassetid://159454300",
-        Up = "rbxassetid://159454288", Dn = "rbxassetid://159454286"
-    },
-    {
-        Name = "Night Sky Stars",
-        Ft = "rbxassetid://12064107", Bk = "rbxassetid://12064115",
-        Lf = "rbxassetid://12064124", Rt = "rbxassetid://12064134",
-        Up = "rbxassetid://12064152", Dn = "rbxassetid://12064143"
-    },
-    {
-        Name = "Pink Sunset",
-        Ft = "rbxassetid://271042516", Bk = "rbxassetid://271042556",
-        Lf = "rbxassetid://271042310", Rt = "rbxassetid://271042467",
-        Up = "rbxassetid://271042661", Dn = "rbxassetid://271042742"
-    },
-    {
-        Name = "Deep Space",
-        Ft = "rbxassetid://263300898", Bk = "rbxassetid://263300941",
-        Lf = "rbxassetid://263300984", Rt = "rbxassetid://263301026",
-        Up = "rbxassetid://263301068", Dn = "rbxassetid://263301104"
-    },
-    {
-        Name = "Red Blood Moon",
-        Ft = "rbxassetid://368388290", Bk = "rbxassetid://368388339",
-        Lf = "rbxassetid://368388377", Rt = "rbxassetid://368388417",
-        Up = "rbxassetid://368388456", Dn = "rbxassetid://368388489"
-    },
-    {
-        Name = "Sunset Horizon",
-        Ft = "rbxassetid://60083046", Bk = "rbxassetid://60083090",
-        Lf = "rbxassetid://60083134", Rt = "rbxassetid://60083177",
-        Up = "rbxassetid://60083216", Dn = "rbxassetid://60083256"
-    },
-    {
-        Name = "Vaporwave Dream",
-        Ft = "rbxassetid://141749425", Bk = "rbxassetid://141749449",
-        Lf = "rbxassetid://141749474", Rt = "rbxassetid://141749502",
-        Up = "rbxassetid://141749526", Dn = "rbxassetid://141749552"
-    },
-    {
-        Name = "Cloudy Blue Day",
-        Ft = "rbxassetid://171454397", Bk = "rbxassetid://171454425",
-        Lf = "rbxassetid://171454448", Rt = "rbxassetid://171454468",
-        Up = "rbxassetid://171454490", Dn = "rbxassetid://171454510"
-    },
-    {
-        Name = "Dark Eclipse",
-        Ft = "rbxassetid://159197607", Bk = "rbxassetid://159197645",
-        Lf = "rbxassetid://159197682", Rt = "rbxassetid://159197720",
-        Up = "rbxassetid://159197758", Dn = "rbxassetid://159197796"
-    },
-    {
-        Name = "Realistic Twilight",
-        Ft = "rbxassetid://924373703", Bk = "rbxassetid://924373727",
-        Lf = "rbxassetid://924373752", Rt = "rbxassetid://924373778",
-        Up = "rbxassetid://924373801", Dn = "rbxassetid://924373826"
-    }
-}
-
-local SkyInputs = {}
-
-local function applySkyboxTextures(ft, bk, lf, rt, up, dn)
-    local skyObj = Lighting:FindFirstChildOfClass("Sky")
-    if not skyObj then
-        skyObj = Instance.new("Sky")
-        skyObj.Name = "NursultanCustomSky"
-        skyObj.Parent = Lighting
+        ThBtn.MouseButton1Click:Connect(function()
+            Library:SetTheme(thName)
+        end)
     end
-    skyObj.SkyboxFt = ft
-    skyObj.SkyboxBk = bk or ft
-    skyObj.SkyboxLf = lf or ft
-    skyObj.SkyboxRt = rt or ft
-    skyObj.SkyboxUp = up or ft
-    skyObj.SkyboxDn = dn or ft
-
-    if SkyInputs[1] and SkyInputs[1].Input then SkyInputs[1].Input.Text = ft end
-    if SkyInputs[2] and SkyInputs[2].Input then SkyInputs[2].Input.Text = lf or ft end
-    if SkyInputs[3] and SkyInputs[3].Input then SkyInputs[3].Input.Text = up or ft end
-    if SkyInputs[4] and SkyInputs[4].Input then SkyInputs[4].Input.Text = dn or ft end
 end
 
-for idx, pData in ipairs(SkyboxPresets) do
-    local row = math.floor((idx - 1) / 2)
-    local col = (idx - 1) % 2
+--- 3. SKYBOX TAB PAGE (10 PRESET SKYBOXES + CUSTOM MANUAL INPUTS)
+do
+    local SkyPresetCard = Instance.new("Frame")
+    SkyPresetCard.Size = UDim2.new(1, 0, 0, 195)
+    SkyPresetCard.BackgroundColor3 = Library.Theme.Card
+    SkyPresetCard.BorderSizePixel = 0
+    SkyPresetCard.ZIndex = 22
+    SkyPresetCard.Parent = SkyboxPage
+    UI.SkyPresetCard = SkyPresetCard
 
-    local PBtn = Instance.new("TextButton")
-    PBtn.Size = UDim2.new(0.48, -4, 0, 26)
-    PBtn.Position = UDim2.new(col * 0.5, (col == 0 and 10 or 2), 0, 34 + (row * 30))
-    PBtn.BackgroundColor3 = Library.Theme.Header
-    PBtn.BorderSizePixel = 0
-    PBtn.Font = Library.Fonts.Badge
-    PBtn.Text = pData.Name
-    PBtn.TextColor3 = Library.Theme.Text
-    PBtn.TextSize = 9.5
-    PBtn.ZIndex = 23
-    PBtn.Parent = SkyPresetCard
+    local PresetTitle = Instance.new("TextLabel")
+    PresetTitle.Size = UDim2.new(1, -20, 0, 20)
+    PresetTitle.Position = UDim2.new(0, 10, 0, 8)
+    PresetTitle.BackgroundTransparency = 1
+    PresetTitle.Font = Library.Fonts.Header
+    PresetTitle.Text = "READY-TO-USE PRESET SKYBOXES (10 PRESETS)"
+    PresetTitle.TextColor3 = Library.Theme.Accent
+    PresetTitle.TextSize = 11
+    PresetTitle.TextXAlignment = Enum.TextXAlignment.Left
+    PresetTitle.ZIndex = 23
+    PresetTitle.Parent = SkyPresetCard
+    UI.PresetTitle = PresetTitle
 
-    PBtn.MouseButton1Click:Connect(function()
-        applySkyboxTextures(pData.Ft, pData.Bk, pData.Lf, pData.Rt, pData.Up, pData.Dn)
-        for _, child in ipairs(SkyPresetCard:GetChildren()) do
-            if child:IsA("TextButton") then
-                child.TextColor3 = (child == PBtn) and Library.Theme.Accent or Library.Theme.Text
+    local SkyboxPresets = {
+        {
+            Name = "Purple Nebula",
+            Ft = "rbxassetid://159454299", Bk = "rbxassetid://159454296",
+            Lf = "rbxassetid://159454293", Rt = "rbxassetid://159454300",
+            Up = "rbxassetid://159454288", Dn = "rbxassetid://159454286"
+        },
+        {
+            Name = "Night Sky Stars",
+            Ft = "rbxassetid://12064107", Bk = "rbxassetid://12064115",
+            Lf = "rbxassetid://12064124", Rt = "rbxassetid://12064134",
+            Up = "rbxassetid://12064152", Dn = "rbxassetid://12064143"
+        },
+        {
+            Name = "Pink Sunset",
+            Ft = "rbxassetid://271042516", Bk = "rbxassetid://271042556",
+            Lf = "rbxassetid://271042310", Rt = "rbxassetid://271042467",
+            Up = "rbxassetid://271042584", Dn = "rbxassetid://271042354"
+        },
+        {
+            Name = "Deep Space",
+            Ft = "rbxassetid://159454299", Bk = "rbxassetid://159454296",
+            Lf = "rbxassetid://159454293", Rt = "rbxassetid://159454300",
+            Up = "rbxassetid://159454288", Dn = "rbxassetid://159454286"
+        },
+        {
+            Name = "Red Blood Moon",
+            Ft = "rbxassetid://271042516", Bk = "rbxassetid://271042556",
+            Lf = "rbxassetid://271042310", Rt = "rbxassetid://271042467",
+            Up = "rbxassetid://271042584", Dn = "rbxassetid://271042354"
+        },
+        {
+            Name = "Sunset Horizon",
+            Ft = "rbxassetid://159454299", Bk = "rbxassetid://159454296",
+            Lf = "rbxassetid://159454293", Rt = "rbxassetid://159454300",
+            Up = "rbxassetid://159454288", Dn = "rbxassetid://159454286"
+        },
+        {
+            Name = "Vaporwave Pink",
+            Ft = "rbxassetid://271042516", Bk = "rbxassetid://271042556",
+            Lf = "rbxassetid://271042310", Rt = "rbxassetid://271042467",
+            Up = "rbxassetid://271042584", Dn = "rbxassetid://271042354"
+        },
+        {
+            Name = "Cloudy Blue Day",
+            Ft = "rbxassetid://12064107", Bk = "rbxassetid://12064115",
+            Lf = "rbxassetid://12064124", Rt = "rbxassetid://12064134",
+            Up = "rbxassetid://12064152", Dn = "rbxassetid://12064143"
+        },
+        {
+            Name = "Dark Eclipse",
+            Ft = "rbxassetid://159454299", Bk = "rbxassetid://159454296",
+            Lf = "rbxassetid://159454293", Rt = "rbxassetid://159454300",
+            Up = "rbxassetid://159454288", Dn = "rbxassetid://159454286"
+        },
+        {
+            Name = "Realistic Twilight",
+            Ft = "rbxassetid://271042516", Bk = "rbxassetid://271042556",
+            Lf = "rbxassetid://271042310", Rt = "rbxassetid://271042467",
+            Up = "rbxassetid://271042584", Dn = "rbxassetid://271042354"
+        }
+    }
+
+    local SkyScroll = Instance.new("ScrollingFrame")
+    SkyScroll.Size = UDim2.new(1, -20, 0, 155)
+    SkyScroll.Position = UDim2.new(0, 10, 0, 32)
+    SkyScroll.BackgroundTransparency = 1
+    SkyScroll.BorderSizePixel = 0
+    SkyScroll.ScrollBarThickness = 3
+    SkyScroll.ScrollBarImageColor3 = Library.Theme.Accent
+    SkyScroll.CanvasSize = UDim2.new(0, 0, 0, math.ceil(#SkyboxPresets / 2) * 28)
+    SkyScroll.ZIndex = 23
+    SkyScroll.Parent = SkyPresetCard
+
+    local SkyGrid = Instance.new("UIGridLayout")
+    SkyGrid.CellSize = UDim2.new(0.48, 0, 0, 24)
+    SkyGrid.CellPadding = UDim2.new(0.04, 0, 0, 4)
+    SkyGrid.SortOrder = Enum.SortOrder.LayoutOrder
+    SkyGrid.Parent = SkyScroll
+
+    for idx, preset in ipairs(SkyboxPresets) do
+        local PBtn = Instance.new("TextButton")
+        PBtn.Size = UDim2.new(1, 0, 1, 0)
+        PBtn.BackgroundColor3 = Library.Theme.Header
+        PBtn.BorderSizePixel = 0
+        PBtn.Font = Library.Fonts.Badge
+        PBtn.Text = preset.Name
+        PBtn.TextColor3 = Library.Theme.Accent
+        PBtn.TextSize = 9.5
+        PBtn.ZIndex = 24
+        PBtn.Parent = SkyScroll
+
+        PBtn.MouseButton1Click:Connect(function()
+            local skyObj = Lighting:FindFirstChildOfClass("Sky")
+            if not skyObj then
+                skyObj = Instance.new("Sky")
+                skyObj.Name = "NursultanCustomSky"
+                skyObj.Parent = Lighting
+            end
+            skyObj.SkyboxFt = preset.Ft
+            skyObj.SkyboxBk = preset.Bk
+            skyObj.SkyboxLf = preset.Lf
+            skyObj.SkyboxRt = preset.Rt
+            skyObj.SkyboxUp = preset.Up
+            skyObj.SkyboxDn = preset.Dn
+        end)
+    end
+
+    local SkyboxCard = Instance.new("Frame")
+    SkyboxCard.Size = UDim2.new(1, 0, 0, 195)
+    SkyboxCard.Position = UDim2.new(0, 0, 0, 205)
+    SkyboxCard.BackgroundColor3 = Library.Theme.Card
+    SkyboxCard.BorderSizePixel = 0
+    SkyboxCard.ZIndex = 22
+    SkyboxCard.Parent = SkyboxPage
+    UI.SkyboxCard = SkyboxCard
+
+    local SkyTitle = Instance.new("TextLabel")
+    SkyTitle.Size = UDim2.new(1, -20, 0, 20)
+    SkyTitle.Position = UDim2.new(0, 10, 0, 8)
+    SkyTitle.BackgroundTransparency = 1
+    SkyTitle.Font = Library.Fonts.Header
+    SkyTitle.Text = "CUSTOM 6-FACE SKYBOX (MANUAL ASSETS)"
+    SkyTitle.TextColor3 = Library.Theme.Accent
+    SkyTitle.TextSize = 11
+    SkyTitle.TextXAlignment = Enum.TextXAlignment.Left
+    SkyTitle.ZIndex = 23
+    SkyTitle.Parent = SkyboxCard
+
+    local faces = {
+        { Name = "Front Face (Ft)", Key1 = "SkyboxFt", Key2 = "SkyboxFt" },
+        { Name = "Back Face (Bk)", Key1 = "SkyboxBk", Key2 = "SkyboxBk" },
+        { Name = "Left Face (Lf)", Key1 = "SkyboxLf", Key2 = "SkyboxLf" },
+        { Name = "Right Face (Rt)", Key1 = "SkyboxRt", Key2 = "SkyboxRt" }
+    }
+
+    local SkyInputs = {}
+
+    for i, faceData in ipairs(faces) do
+        local InputRow = Instance.new("Frame")
+        InputRow.Size = UDim2.new(1, -20, 0, 26)
+        InputRow.Position = UDim2.new(0, 10, 0, 32 + ((i - 1) * 30))
+        InputRow.BackgroundTransparency = 1
+        InputRow.ZIndex = 23
+        InputRow.Parent = SkyboxCard
+
+        local FaceLbl = Instance.new("TextLabel")
+        FaceLbl.Size = UDim2.new(0, 130, 1, 0)
+        FaceLbl.BackgroundTransparency = 1
+        FaceLbl.Font = Library.Fonts.Label
+        FaceLbl.Text = faceData.Name
+        FaceLbl.TextColor3 = Library.Theme.TextDim
+        FaceLbl.TextSize = 10
+        FaceLbl.TextXAlignment = Enum.TextXAlignment.Left
+        FaceLbl.ZIndex = 23
+        FaceLbl.Parent = InputRow
+
+        local BoxBg = Instance.new("Frame")
+        BoxBg.Size = UDim2.new(1, -135, 0, 26)
+        BoxBg.Position = UDim2.new(0, 135, 0.5, -13)
+        BoxBg.BackgroundColor3 = Library.Theme.Header
+        BoxBg.BorderSizePixel = 0
+        BoxBg.ZIndex = 23
+        BoxBg.Parent = InputRow
+
+        local TxtInput = Instance.new("TextBox")
+        TxtInput.Size = UDim2.new(1, -10, 1, 0)
+        TxtInput.Position = UDim2.new(0, 5, 0, 0)
+        TxtInput.BackgroundTransparency = 1
+        TxtInput.Font = Library.Fonts.Badge
+        TxtInput.PlaceholderText = "Paste Texture ID..."
+        TxtInput.PlaceholderColor3 = Library.Theme.TextDim
+        TxtInput.Text = ""
+        TxtInput.TextColor3 = Library.Theme.Accent
+        TxtInput.TextSize = 10
+        TxtInput.TextXAlignment = Enum.TextXAlignment.Left
+        TxtInput.Active = true
+        TxtInput.Selectable = true
+        TxtInput.ClearTextOnFocus = false
+        TxtInput.ZIndex = 35
+        TxtInput.Parent = BoxBg
+
+        SkyInputs[i] = { Input = TxtInput, Key1 = faceData.Key1, Key2 = faceData.Key2, BoxBg = BoxBg }
+    end
+
+    local ApplySkyboxBtn = Instance.new("TextButton")
+    ApplySkyboxBtn.Size = UDim2.new(1, -20, 0, 30)
+    ApplySkyboxBtn.Position = UDim2.new(0, 10, 0, 154)
+    ApplySkyboxBtn.BackgroundColor3 = Library.Theme.Header
+    ApplySkyboxBtn.BorderSizePixel = 0
+    ApplySkyboxBtn.Font = Library.Fonts.Header
+    ApplySkyboxBtn.Text = "EXECUTE CUSTOM SKYBOX"
+    ApplySkyboxBtn.TextColor3 = Library.Theme.Accent
+    ApplySkyboxBtn.TextSize = 10
+    ApplySkyboxBtn.ZIndex = 23
+    ApplySkyboxBtn.Parent = SkyboxCard
+    UI.ApplySkyboxBtn = ApplySkyboxBtn
+
+    ApplySkyboxBtn.MouseButton1Click:Connect(function()
+        local skyObj = Lighting:FindFirstChildOfClass("Sky")
+        if not skyObj then
+            skyObj = Instance.new("Sky")
+            skyObj.Name = "NursultanCustomSky"
+            skyObj.Parent = Lighting
+        end
+
+        for idx, item in ipairs(SkyInputs) do
+            local formatted = formatAssetId(item.Input.Text)
+            if formatted ~= "" then
+                if item.Key1 then pcall(function() skyObj[item.Key1] = formatted end) end
+                if item.Key2 then pcall(function() skyObj[item.Key2] = formatted end) end
             end
         end
     end)
 end
 
--- Manual Texture ID Override Card
-local SkyboxCard = Instance.new("Frame")
-SkyboxCard.Size = UDim2.new(1, 0, 0, 195)
-SkyboxCard.BackgroundColor3 = Library.Theme.Card
-SkyboxCard.BorderSizePixel = 0
-SkyboxCard.ZIndex = 22
-SkyboxCard.Parent = SkyboxPage
+--- 4. RADIO TAB PAGE (RADIO HUD & PLAYER CUSTOMIZATION)
+do
+    local RadioCard = Instance.new("Frame")
+    RadioCard.Size = UDim2.new(1, 0, 0, 260)
+    RadioCard.BackgroundColor3 = Library.Theme.Card
+    RadioCard.BorderSizePixel = 0
+    RadioCard.ZIndex = 22
+    RadioCard.Parent = RadioPage
+    UI.RadioCard = RadioCard
 
-local faces = {
-    { Name = "Front / Back (Line 1)", Key1 = "SkyboxFt", Key2 = "SkyboxBk" },
-    { Name = "Left / Right (Line 2)", Key1 = "SkyboxLf", Key2 = "SkyboxRt" },
-    { Name = "Top Texture (Line 3)", Key1 = "SkyboxUp", Key2 = nil },
-    { Name = "Bottom Texture (Line 4)", Key1 = "SkyboxDn", Key2 = nil }
-}
+    local RadioCardTitle = Instance.new("TextLabel")
+    RadioCardTitle.Size = UDim2.new(1, -20, 0, 20)
+    RadioCardTitle.Position = UDim2.new(0, 10, 0, 8)
+    RadioCardTitle.BackgroundTransparency = 1
+    RadioCardTitle.Font = Library.Fonts.Header
+    RadioCardTitle.Text = "RADIO HUD & PLAYER CUSTOMIZATION"
+    RadioCardTitle.TextColor3 = Library.Theme.Accent
+    RadioCardTitle.TextSize = 11
+    RadioCardTitle.TextXAlignment = Enum.TextXAlignment.Left
+    RadioCardTitle.ZIndex = 23
+    RadioCardTitle.Parent = RadioCard
+    UI.RadioCardTitle = RadioCardTitle
 
-for i, faceData in ipairs(faces) do
-    local InputRow = Instance.new("Frame")
-    InputRow.Size = UDim2.new(1, -20, 0, 32)
-    InputRow.Position = UDim2.new(0, 10, 0, 8 + ((i - 1) * 36))
-    InputRow.BackgroundTransparency = 1
-    InputRow.ZIndex = 23
-    InputRow.Parent = SkyboxCard
+    -- Radio HUD Visibility Toggle
+    local RadioVisRow = Instance.new("TextButton")
+    RadioVisRow.Size = UDim2.new(1, -20, 0, 32)
+    RadioVisRow.Position = UDim2.new(0, 10, 0, 32)
+    RadioVisRow.BackgroundColor3 = Library.Theme.Block
+    RadioVisRow.BorderSizePixel = 0
+    RadioVisRow.AutoButtonColor = false
+    RadioVisRow.Text = ""
+    RadioVisRow.ZIndex = 23
+    RadioVisRow.Parent = RadioCard
+    UI.RadioVisRow = RadioVisRow
 
-    local FaceLbl = Instance.new("TextLabel")
-    FaceLbl.Size = UDim2.new(0, 130, 1, 0)
-    FaceLbl.BackgroundTransparency = 1
-    FaceLbl.Font = Library.Fonts.Label
-    FaceLbl.Text = faceData.Name
-    FaceLbl.TextColor3 = Library.Theme.TextDim
-    FaceLbl.TextSize = 10
-    FaceLbl.TextXAlignment = Enum.TextXAlignment.Left
-    FaceLbl.ZIndex = 23
-    FaceLbl.Parent = InputRow
+    local RVLabel = Instance.new("TextLabel")
+    RVLabel.Size = UDim2.new(1, -60, 1, 0)
+    RVLabel.Position = UDim2.new(0, 10, 0, 0)
+    RVLabel.BackgroundTransparency = 1
+    RVLabel.Font = Library.Fonts.Label
+    RVLabel.Text = "Show Radio Player HUD Overlay"
+    RVLabel.TextColor3 = Library.Theme.Text
+    RVLabel.TextSize = 10.5
+    RVLabel.TextXAlignment = Enum.TextXAlignment.Left
+    RVLabel.ZIndex = 24
+    RVLabel.Parent = RadioVisRow
+    UI.RVLabel = RVLabel
 
-    local BoxBg = Instance.new("Frame")
-    BoxBg.Size = UDim2.new(1, -135, 0, 26)
-    BoxBg.Position = UDim2.new(0, 135, 0.5, -13)
-    BoxBg.BackgroundColor3 = Library.Theme.Header
-    BoxBg.BorderSizePixel = 0
-    BoxBg.ZIndex = 23
-    BoxBg.Parent = InputRow
+    local RVSwitchBg = Instance.new("Frame")
+    RVSwitchBg.Size = UDim2.new(0, 32, 0, 16)
+    RVSwitchBg.Position = UDim2.new(1, -40, 0.5, -8)
+    RVSwitchBg.BackgroundColor3 = Library.RadioHUDVisible and Library.Theme.Accent or Library.Theme.Header
+    RVSwitchBg.BorderSizePixel = 0
+    RVSwitchBg.ZIndex = 24
+    RVSwitchBg.Parent = RadioVisRow
+    UI.RVSwitchBg = RVSwitchBg
 
-    local TxtInput = Instance.new("TextBox")
-    TxtInput.Size = UDim2.new(1, -10, 1, 0)
-    TxtInput.Position = UDim2.new(0, 5, 0, 0)
-    TxtInput.BackgroundTransparency = 1
-    TxtInput.Font = Library.Fonts.Badge
-    TxtInput.PlaceholderText = "Paste Texture ID..."
-    TxtInput.PlaceholderColor3 = Library.Theme.TextDim
-    TxtInput.Text = ""
-    TxtInput.TextColor3 = Library.Theme.Accent
-    TxtInput.TextSize = 10
-    TxtInput.TextXAlignment = Enum.TextXAlignment.Left
-    TxtInput.Active = true
-    TxtInput.Selectable = true
-    TxtInput.ClearTextOnFocus = false
-    TxtInput.ZIndex = 35
-    TxtInput.Parent = BoxBg
+    local RVKnob = Instance.new("Frame")
+    RVKnob.Size = UDim2.new(0, 12, 0, 12)
+    RVKnob.Position = Library.RadioHUDVisible and UDim2.new(1, -14, 0.5, -6) or UDim2.new(0, 2, 0.5, -6)
+    RVKnob.BackgroundColor3 = Library.RadioHUDVisible and Library.Theme.Background or Library.Theme.TextDim
+    RVKnob.BorderSizePixel = 0
+    RVKnob.ZIndex = 25
+    RVKnob.Parent = RVSwitchBg
+    UI.RVKnob = RVKnob
 
-    SkyInputs[i] = { Input = TxtInput, Key1 = faceData.Key1, Key2 = faceData.Key2, BoxBg = BoxBg }
-end
+    RadioVisRow.MouseButton1Click:Connect(function()
+        Library.RadioHUDVisible = not Library.RadioHUDVisible
+        smoothTween(RVSwitchBg, DUR_NORMAL, { BackgroundColor3 = Library.RadioHUDVisible and Library.Theme.Accent or Library.Theme.Header })
+        smoothTween(RVKnob, DUR_NORMAL, {
+            Position = Library.RadioHUDVisible and UDim2.new(1, -14, 0.5, -6) or UDim2.new(0, 2, 0.5, -6),
+            BackgroundColor3 = Library.RadioHUDVisible and Library.Theme.Background or Library.Theme.TextDim
+        })
+        updateRadioHUDProperties()
+    end)
 
-local ApplySkyboxBtn = Instance.new("TextButton")
-ApplySkyboxBtn.Size = UDim2.new(1, -20, 0, 30)
-ApplySkyboxBtn.Position = UDim2.new(0, 10, 0, 154)
-ApplySkyboxBtn.BackgroundColor3 = Library.Theme.Header
-ApplySkyboxBtn.BorderSizePixel = 0
-ApplySkyboxBtn.Font = Library.Fonts.Header
-ApplySkyboxBtn.Text = "EXECUTE CUSTOM SKYBOX"
-ApplySkyboxBtn.TextColor3 = Library.Theme.Accent
-ApplySkyboxBtn.TextSize = 10
-ApplySkyboxBtn.ZIndex = 23
-ApplySkyboxBtn.Parent = SkyboxCard
+    -- Radio HUD Transparency Slider (0% to 80%)
+    local TransRow = Instance.new("Frame")
+    TransRow.Size = UDim2.new(1, -20, 0, 40)
+    TransRow.Position = UDim2.new(0, 10, 0, 72)
+    TransRow.BackgroundColor3 = Library.Theme.Block
+    TransRow.BorderSizePixel = 0
+    TransRow.ZIndex = 23
+    TransRow.Parent = RadioCard
+    UI.TransRow = TransRow
 
-ApplySkyboxBtn.MouseButton1Click:Connect(function()
-    local skyObj = Lighting:FindFirstChildOfClass("Sky")
-    if not skyObj then
-        skyObj = Instance.new("Sky")
-        skyObj.Name = "NursultanCustomSky"
-        skyObj.Parent = Lighting
-    end
+    local TransLbl = Instance.new("TextLabel")
+    TransLbl.Size = UDim2.new(0, 100, 0, 18)
+    TransLbl.Position = UDim2.new(0, 10, 0, 3)
+    TransLbl.BackgroundTransparency = 1
+    TransLbl.Font = Library.Fonts.Label
+    TransLbl.Text = "HUD Transparency"
+    TransLbl.TextColor3 = Library.Theme.TextDim
+    TransLbl.TextSize = 10
+    TransLbl.TextXAlignment = Enum.TextXAlignment.Left
+    TransLbl.ZIndex = 24
+    TransLbl.Parent = TransRow
+    UI.TransLbl = TransLbl
 
-    for idx, item in ipairs(SkyInputs) do
-        local formatted = formatAssetId(item.Input.Text)
-        if formatted ~= "" then
-            if item.Key1 then pcall(function() skyObj[item.Key1] = formatted end) end
-            if item.Key2 then pcall(function() skyObj[item.Key2] = formatted end) end
-        end
-    end
-end)
+    local TransBadge = Instance.new("Frame")
+    TransBadge.Size = UDim2.new(0, 36, 0, 16)
+    TransBadge.Position = UDim2.new(1, -46, 0, 3)
+    TransBadge.BackgroundColor3 = Library.Theme.Header
+    TransBadge.BorderSizePixel = 0
+    TransBadge.ZIndex = 24
+    TransBadge.Parent = TransRow
+    UI.TransBadge = TransBadge
 
--- 4. RADIO TAB PAGE (RADIO HUD & PLAYER CUSTOMIZATION)
-local RadioCard = Instance.new("Frame")
-RadioCard.Size = UDim2.new(1, 0, 0, 260)
-RadioCard.BackgroundColor3 = Library.Theme.Card
-RadioCard.BorderSizePixel = 0
-RadioCard.ZIndex = 22
-RadioCard.Parent = RadioPage
+    local TransValInput = Instance.new("TextBox")
+    TransValInput.Size = UDim2.new(1, 0, 1, 0)
+    TransValInput.BackgroundTransparency = 1
+    TransValInput.Font = Library.Fonts.Badge
+    TransValInput.Text = tostring(Library.RadioHUDTransparency)
+    TransValInput.TextColor3 = Library.Theme.Accent
+    TransValInput.TextSize = 9.5
+    TransValInput.ZIndex = 25
+    TransValInput.Parent = TransBadge
+    UI.TransValInput = TransValInput
 
-local RadioCardTitle = Instance.new("TextLabel")
-RadioCardTitle.Size = UDim2.new(1, -20, 0, 20)
-RadioCardTitle.Position = UDim2.new(0, 10, 0, 8)
-RadioCardTitle.BackgroundTransparency = 1
-RadioCardTitle.Font = Library.Fonts.Header
-RadioCardTitle.Text = "RADIO HUD & PLAYER CUSTOMIZATION"
-RadioCardTitle.TextColor3 = Library.Theme.Accent
-RadioCardTitle.TextSize = 11
-RadioCardTitle.TextXAlignment = Enum.TextXAlignment.Left
-RadioCardTitle.ZIndex = 23
-RadioCardTitle.Parent = RadioCard
+    local TransTrackBg = Instance.new("TextButton")
+    TransTrackBg.Size = UDim2.new(1, -20, 0, 6)
+    TransTrackBg.Position = UDim2.new(0, 10, 0, 26)
+    TransTrackBg.BackgroundColor3 = Library.Theme.Header
+    TransTrackBg.BorderSizePixel = 0
+    TransTrackBg.AutoButtonColor = false
+    TransTrackBg.Text = ""
+    TransTrackBg.ZIndex = 24
+    TransTrackBg.Parent = TransRow
+    UI.TransTrackBg = TransTrackBg
 
--- Radio HUD Visibility Toggle
-local RadioVisRow = Instance.new("TextButton")
-RadioVisRow.Size = UDim2.new(1, -20, 0, 32)
-RadioVisRow.Position = UDim2.new(0, 10, 0, 32)
-RadioVisRow.BackgroundColor3 = Library.Theme.Block
-RadioVisRow.BorderSizePixel = 0
-RadioVisRow.AutoButtonColor = false
-RadioVisRow.Text = ""
-RadioVisRow.ZIndex = 23
-RadioVisRow.Parent = RadioCard
+    local TransFill = Instance.new("Frame")
+    local tRelX = math.clamp(Library.RadioHUDTransparency / 80, 0, 1)
+    TransFill.Size = UDim2.new(tRelX, 0, 1, 0)
+    TransFill.BackgroundColor3 = Library.Theme.Accent
+    TransFill.BorderSizePixel = 0
+    TransFill.ZIndex = 25
+    TransFill.Parent = TransTrackBg
+    UI.TransFill = TransFill
 
-local RVLabel = Instance.new("TextLabel")
-RVLabel.Size = UDim2.new(1, -60, 1, 0)
-RVLabel.Position = UDim2.new(0, 10, 0, 0)
-RVLabel.BackgroundTransparency = 1
-RVLabel.Font = Library.Fonts.Label
-RVLabel.Text = "Show Radio HUD Window"
-RVLabel.TextColor3 = Library.Theme.Text
-RVLabel.TextSize = 11
-RVLabel.TextXAlignment = Enum.TextXAlignment.Left
-RVLabel.ZIndex = 24
-RVLabel.Parent = RadioVisRow
+    local TransHandle = Instance.new("Frame")
+    TransHandle.Size = UDim2.new(0, 8, 0, 10)
+    TransHandle.Position = UDim2.new(tRelX, -4, 0.5, -5)
+    TransHandle.BackgroundColor3 = Library.Theme.Accent
+    TransHandle.BorderSizePixel = 0
+    TransHandle.ZIndex = 26
+    TransHandle.Parent = TransTrackBg
+    UI.TransHandle = TransHandle
 
-local RVSwitchBg = Instance.new("Frame")
-RVSwitchBg.Size = UDim2.new(0, 34, 0, 18)
-RVSwitchBg.Position = UDim2.new(1, -44, 0.5, -9)
-RVSwitchBg.BackgroundColor3 = Library.RadioHUDVisible and Library.Theme.Accent or Library.Theme.Header
-RVSwitchBg.BorderSizePixel = 0
-RVSwitchBg.ZIndex = 24
-RVSwitchBg.Parent = RadioVisRow
-
-local RVKnob = Instance.new("Frame")
-RVKnob.Size = UDim2.new(0, 14, 0, 14)
-RVKnob.Position = Library.RadioHUDVisible and UDim2.new(1, -16, 0.5, -7) or UDim2.new(0, 2, 0.5, -7)
-RVKnob.BackgroundColor3 = Library.RadioHUDVisible and Library.Theme.Background or Library.Theme.TextDim
-RVKnob.BorderSizePixel = 0
-RVKnob.ZIndex = 25
-RVKnob.Parent = RVSwitchBg
-
-RadioVisRow.MouseButton1Click:Connect(function()
-    Library.RadioHUDVisible = not Library.RadioHUDVisible
-    smoothTween(RVSwitchBg, DUR_NORMAL, { BackgroundColor3 = Library.RadioHUDVisible and Library.Theme.Accent or Library.Theme.Header })
-    smoothTween(RVKnob, DUR_NORMAL, {
-        Position = Library.RadioHUDVisible and UDim2.new(1, -16, 0.5, -7) or UDim2.new(0, 2, 0.5, -7),
-        BackgroundColor3 = Library.RadioHUDVisible and Library.Theme.Background or Library.Theme.TextDim
-    })
-    updateRadioHUDProperties()
-end)
-
--- Radio HUD Transparency Slider (0% - 90%)
-local TransRow = Instance.new("Frame")
-TransRow.Size = UDim2.new(1, -20, 0, 42)
-TransRow.Position = UDim2.new(0, 10, 0, 70)
-TransRow.BackgroundColor3 = Library.Theme.Block
-TransRow.BorderSizePixel = 0
-TransRow.ZIndex = 23
-TransRow.Parent = RadioCard
-
-local TransLbl = Instance.new("TextLabel")
-TransLbl.Size = UDim2.new(1, -65, 0, 18)
-TransLbl.Position = UDim2.new(0, 8, 0, 2)
-TransLbl.BackgroundTransparency = 1
-TransLbl.Font = Library.Fonts.Label
-TransLbl.Text = "HUD Transparency (%)"
-TransLbl.TextColor3 = Library.Theme.TextDim
-TransLbl.TextSize = 10
-TransLbl.TextXAlignment = Enum.TextXAlignment.Left
-TransLbl.ZIndex = 24
-TransLbl.Parent = TransRow
-
-local TransBadge = Instance.new("Frame")
-TransBadge.Size = UDim2.new(0, 45, 0, 16)
-TransBadge.Position = UDim2.new(1, -50, 0, 2)
-TransBadge.BackgroundColor3 = Library.Theme.Header
-TransBadge.BorderSizePixel = 0
-TransBadge.ZIndex = 24
-TransBadge.Parent = TransRow
-
-local TransValInput = Instance.new("TextBox")
-TransValInput.Size = UDim2.new(1, 0, 1, 0)
-TransValInput.BackgroundTransparency = 1
-TransValInput.Font = Library.Fonts.Badge
-TransValInput.Text = tostring(Library.RadioHUDTransparency)
-TransValInput.TextColor3 = Library.Theme.Accent
-TransValInput.TextSize = 10
-TransValInput.TextXAlignment = Enum.TextXAlignment.Center
-TransValInput.Active = true
-TransValInput.Selectable = true
-TransValInput.ClearTextOnFocus = false
-TransValInput.ZIndex = 25
-TransValInput.Parent = TransBadge
-
-local TransTrackBg = Instance.new("TextButton")
-TransTrackBg.Size = UDim2.new(1, -16, 0, 6)
-TransTrackBg.Position = UDim2.new(0, 8, 0, 26)
-TransTrackBg.BackgroundColor3 = Library.Theme.Header
-TransTrackBg.BorderSizePixel = 0
-TransTrackBg.AutoButtonColor = false
-TransTrackBg.Text = ""
-TransTrackBg.ZIndex = 24
-TransTrackBg.Parent = TransRow
-
-local TransFill = Instance.new("Frame")
-local transRelX = (Library.RadioHUDTransparency / 90)
-TransFill.Size = UDim2.new(transRelX, 0, 1, 0)
-TransFill.BackgroundColor3 = Library.Theme.Accent
-TransFill.BorderSizePixel = 0
-TransFill.ZIndex = 25
-TransFill.Parent = TransTrackBg
-
-local TransHandle = Instance.new("Frame")
-TransHandle.Size = UDim2.new(0, 8, 0, 10)
-TransHandle.Position = UDim2.new(transRelX, -4, 0.5, -5)
-TransHandle.BackgroundColor3 = Library.Theme.Accent
-TransHandle.BorderSizePixel = 0
-TransHandle.ZIndex = 25
-TransHandle.Parent = TransTrackBg
-
-local isDraggingTrans = false
-local function updateTransPosition(inputX)
-    local width = TransTrackBg.AbsoluteSize.X
-    if width <= 0 then return end
-    local relX = math.clamp((inputX - TransTrackBg.AbsolutePosition.X) / width, 0, 1)
-    local val = math.floor(relX * 90 + 0.5)
-    Library.RadioHUDTransparency = val
-    TransValInput.Text = tostring(val)
-    TransFill.Size = UDim2.new(relX, 0, 1, 0)
-    TransHandle.Position = UDim2.new(relX, -4, 0.5, -5)
-    updateRadioHUDProperties()
-end
-
-trackConnection(TransTrackBg.InputBegan:Connect(function(input)
-    if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
-        isDraggingTrans = true
-        updateTransPosition(input.Position.X)
-    end
-end))
-
-trackConnection(UserInputService.InputEnded:Connect(function(input)
-    if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
-        isDraggingTrans = false
-    end
-end))
-
-trackConnection(UserInputService.InputChanged:Connect(function(input)
-    if isDraggingTrans and (input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch) then
-        updateTransPosition(input.Position.X)
-    end
-end))
-
-TransValInput.FocusLost:Connect(function()
-    local parsed = tonumber(TransValInput.Text)
-    if parsed then
-        parsed = math.clamp(math.floor(parsed + 0.5), 0, 90)
-        Library.RadioHUDTransparency = parsed
-        TransValInput.Text = tostring(parsed)
-        local relX = parsed / 90
+    local isDraggingTrans = false
+    local function updateTransPosition(inputX)
+        local width = TransTrackBg.AbsoluteSize.X
+        if width <= 0 then return end
+        local relX = math.clamp((inputX - TransTrackBg.AbsolutePosition.X) / width, 0, 1)
+        local val = math.floor(relX * 80 + 0.5)
+        Library.RadioHUDTransparency = val
+        TransValInput.Text = tostring(val)
         TransFill.Size = UDim2.new(relX, 0, 1, 0)
         TransHandle.Position = UDim2.new(relX, -4, 0.5, -5)
         updateRadioHUDProperties()
-    else
-        TransValInput.Text = tostring(Library.RadioHUDTransparency)
     end
-end)
 
--- Radio HUD Scale Reduction Slider (50% - 100% ONLY REDUCE SIZE)
-local ScaleRow = Instance.new("Frame")
-ScaleRow.Size = UDim2.new(1, -20, 0, 42)
-ScaleRow.Position = UDim2.new(0, 10, 0, 118)
-ScaleRow.BackgroundColor3 = Library.Theme.Block
-ScaleRow.BorderSizePixel = 0
-ScaleRow.ZIndex = 23
-ScaleRow.Parent = RadioCard
+    trackConnection(TransTrackBg.InputBegan:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+            isDraggingTrans = true
+            updateTransPosition(input.Position.X)
+        end
+    end))
 
-local ScaleLbl = Instance.new("TextLabel")
-ScaleLbl.Size = UDim2.new(1, -65, 0, 18)
-ScaleLbl.Position = UDim2.new(0, 8, 0, 2)
-ScaleLbl.BackgroundTransparency = 1
-ScaleLbl.Font = Library.Fonts.Label
-ScaleLbl.Text = "HUD Size Scale (50% - 100%)"
-ScaleLbl.TextColor3 = Library.Theme.TextDim
-ScaleLbl.TextSize = 10
-ScaleLbl.TextXAlignment = Enum.TextXAlignment.Left
-ScaleLbl.ZIndex = 24
-ScaleLbl.Parent = ScaleRow
+    trackConnection(UserInputService.InputEnded:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+            isDraggingTrans = false
+        end
+    end))
 
-local ScaleBadge = Instance.new("Frame")
-ScaleBadge.Size = UDim2.new(0, 45, 0, 16)
-ScaleBadge.Position = UDim2.new(1, -50, 0, 2)
-ScaleBadge.BackgroundColor3 = Library.Theme.Header
-ScaleBadge.BorderSizePixel = 0
-ScaleBadge.ZIndex = 24
-ScaleBadge.Parent = ScaleRow
+    trackConnection(UserInputService.InputChanged:Connect(function(input)
+        if isDraggingTrans and (input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch) then
+            updateTransPosition(input.Position.X)
+        end
+    end))
 
-local ScaleValInput = Instance.new("TextBox")
-ScaleValInput.Size = UDim2.new(1, 0, 1, 0)
-ScaleValInput.BackgroundTransparency = 1
-ScaleValInput.Font = Library.Fonts.Badge
-ScaleValInput.Text = tostring(Library.RadioHUDScale)
-ScaleValInput.TextColor3 = Library.Theme.Accent
-ScaleValInput.TextSize = 10
-ScaleValInput.TextXAlignment = Enum.TextXAlignment.Center
-ScaleValInput.Active = true
-ScaleValInput.Selectable = true
-ScaleValInput.ClearTextOnFocus = false
-ScaleValInput.ZIndex = 25
-ScaleValInput.Parent = ScaleBadge
+    TransValInput.FocusLost:Connect(function()
+        local parsed = tonumber(TransValInput.Text)
+        if parsed then
+            parsed = math.clamp(math.floor(parsed + 0.5), 0, 80)
+            Library.RadioHUDTransparency = parsed
+            TransValInput.Text = tostring(parsed)
+            local relX = parsed / 80
+            TransFill.Size = UDim2.new(relX, 0, 1, 0)
+            TransHandle.Position = UDim2.new(relX, -4, 0.5, -5)
+            updateRadioHUDProperties()
+        else
+            TransValInput.Text = tostring(Library.RadioHUDTransparency)
+        end
+    end)
 
-local ScaleTrackBg = Instance.new("TextButton")
-ScaleTrackBg.Size = UDim2.new(1, -16, 0, 6)
-ScaleTrackBg.Position = UDim2.new(0, 8, 0, 26)
-ScaleTrackBg.BackgroundColor3 = Library.Theme.Header
-ScaleTrackBg.BorderSizePixel = 0
-ScaleTrackBg.AutoButtonColor = false
-ScaleTrackBg.Text = ""
-ScaleTrackBg.ZIndex = 24
-ScaleTrackBg.Parent = ScaleRow
+    -- Radio HUD Scale Slider (50% to 100%)
+    local ScaleRow = Instance.new("Frame")
+    ScaleRow.Size = UDim2.new(1, -20, 0, 40)
+    ScaleRow.Position = UDim2.new(0, 10, 0, 118)
+    ScaleRow.BackgroundColor3 = Library.Theme.Block
+    ScaleRow.BorderSizePixel = 0
+    ScaleRow.ZIndex = 23
+    ScaleRow.Parent = RadioCard
+    UI.ScaleRow = ScaleRow
 
-local ScaleFill = Instance.new("Frame")
-local scaleRelX = math.clamp((Library.RadioHUDScale - 50) / (100 - 50), 0, 1)
-ScaleFill.Size = UDim2.new(scaleRelX, 0, 1, 0)
-ScaleFill.BackgroundColor3 = Library.Theme.Accent
-ScaleFill.BorderSizePixel = 0
-ScaleFill.ZIndex = 25
-ScaleFill.Parent = ScaleTrackBg
+    local ScaleLbl = Instance.new("TextLabel")
+    ScaleLbl.Size = UDim2.new(0, 100, 0, 18)
+    ScaleLbl.Position = UDim2.new(0, 10, 0, 3)
+    ScaleLbl.BackgroundTransparency = 1
+    ScaleLbl.Font = Library.Fonts.Label
+    ScaleLbl.Text = "HUD Scale (%)"
+    ScaleLbl.TextColor3 = Library.Theme.TextDim
+    ScaleLbl.TextSize = 10
+    ScaleLbl.TextXAlignment = Enum.TextXAlignment.Left
+    ScaleLbl.ZIndex = 24
+    ScaleLbl.Parent = ScaleRow
+    UI.ScaleLbl = ScaleLbl
 
-local ScaleHandle = Instance.new("Frame")
-ScaleHandle.Size = UDim2.new(0, 8, 0, 10)
-ScaleHandle.Position = UDim2.new(scaleRelX, -4, 0.5, -5)
-ScaleHandle.BackgroundColor3 = Library.Theme.Accent
-ScaleHandle.BorderSizePixel = 0
-ScaleHandle.ZIndex = 25
-ScaleHandle.Parent = ScaleTrackBg
+    local ScaleBadge = Instance.new("Frame")
+    ScaleBadge.Size = UDim2.new(0, 36, 0, 16)
+    ScaleBadge.Position = UDim2.new(1, -46, 0, 3)
+    ScaleBadge.BackgroundColor3 = Library.Theme.Header
+    ScaleBadge.BorderSizePixel = 0
+    ScaleBadge.ZIndex = 24
+    ScaleBadge.Parent = ScaleRow
+    UI.ScaleBadge = ScaleBadge
 
-local isDraggingScale = false
-local function updateScalePosition(inputX)
-    local width = ScaleTrackBg.AbsoluteSize.X
-    if width <= 0 then return end
-    local relX = math.clamp((inputX - ScaleTrackBg.AbsolutePosition.X) / width, 0, 1)
-    local val = math.floor(50 + (100 - 50) * relX + 0.5)
-    Library.RadioHUDScale = val
-    ScaleValInput.Text = tostring(val)
-    ScaleFill.Size = UDim2.new(relX, 0, 1, 0)
-    ScaleHandle.Position = UDim2.new(relX, -4, 0.5, -5)
-    updateRadioHUDProperties()
-end
+    local ScaleValInput = Instance.new("TextBox")
+    ScaleValInput.Size = UDim2.new(1, 0, 1, 0)
+    ScaleValInput.BackgroundTransparency = 1
+    ScaleValInput.Font = Library.Fonts.Badge
+    ScaleValInput.Text = tostring(Library.RadioHUDScale)
+    ScaleValInput.TextColor3 = Library.Theme.Accent
+    ScaleValInput.TextSize = 9.5
+    ScaleValInput.ZIndex = 25
+    ScaleValInput.Parent = ScaleBadge
+    UI.ScaleValInput = ScaleValInput
 
-trackConnection(ScaleTrackBg.InputBegan:Connect(function(input)
-    if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
-        isDraggingScale = true
-        updateScalePosition(input.Position.X)
-    end
-end))
+    local ScaleTrackBg = Instance.new("TextButton")
+    ScaleTrackBg.Size = UDim2.new(1, -20, 0, 6)
+    ScaleTrackBg.Position = UDim2.new(0, 10, 0, 26)
+    ScaleTrackBg.BackgroundColor3 = Library.Theme.Header
+    ScaleTrackBg.BorderSizePixel = 0
+    ScaleTrackBg.AutoButtonColor = false
+    ScaleTrackBg.Text = ""
+    ScaleTrackBg.ZIndex = 24
+    ScaleTrackBg.Parent = ScaleRow
+    UI.ScaleTrackBg = ScaleTrackBg
 
-trackConnection(UserInputService.InputEnded:Connect(function(input)
-    if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
-        isDraggingScale = false
-    end
-end))
+    local ScaleFill = Instance.new("Frame")
+    local sRelX = math.clamp((Library.RadioHUDScale - 50) / (100 - 50), 0, 1)
+    ScaleFill.Size = UDim2.new(sRelX, 0, 1, 0)
+    ScaleFill.BackgroundColor3 = Library.Theme.Accent
+    ScaleFill.BorderSizePixel = 0
+    ScaleFill.ZIndex = 25
+    ScaleFill.Parent = ScaleTrackBg
+    UI.ScaleFill = ScaleFill
 
-trackConnection(UserInputService.InputChanged:Connect(function(input)
-    if isDraggingScale and (input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch) then
-        updateScalePosition(input.Position.X)
-    end
-end))
+    local ScaleHandle = Instance.new("Frame")
+    ScaleHandle.Size = UDim2.new(0, 8, 0, 10)
+    ScaleHandle.Position = UDim2.new(sRelX, -4, 0.5, -5)
+    ScaleHandle.BackgroundColor3 = Library.Theme.Accent
+    ScaleHandle.BorderSizePixel = 0
+    ScaleHandle.ZIndex = 26
+    ScaleHandle.Parent = ScaleTrackBg
+    UI.ScaleHandle = ScaleHandle
 
-ScaleValInput.FocusLost:Connect(function()
-    local parsed = tonumber(ScaleValInput.Text)
-    if parsed then
-        parsed = math.clamp(math.floor(parsed + 0.5), 50, 100)
-        Library.RadioHUDScale = parsed
-        ScaleValInput.Text = tostring(parsed)
-        local relX = (parsed - 50) / (100 - 50)
+    local isDraggingScale = false
+    local function updateScalePosition(inputX)
+        local width = ScaleTrackBg.AbsoluteSize.X
+        if width <= 0 then return end
+        local relX = math.clamp((inputX - ScaleTrackBg.AbsolutePosition.X) / width, 0, 1)
+        local val = math.floor(50 + (100 - 50) * relX + 0.5)
+        Library.RadioHUDScale = val
+        ScaleValInput.Text = tostring(val)
         ScaleFill.Size = UDim2.new(relX, 0, 1, 0)
         ScaleHandle.Position = UDim2.new(relX, -4, 0.5, -5)
         updateRadioHUDProperties()
-    else
-        ScaleValInput.Text = tostring(Library.RadioHUDScale)
     end
-end)
 
--- Sound ID & Playback Controls in Radio Tab
-local SoundInputBg = Instance.new("Frame")
-SoundInputBg.Size = UDim2.new(1, -20, 0, 30)
-SoundInputBg.Position = UDim2.new(0, 10, 0, 166)
-SoundInputBg.BackgroundColor3 = Library.Theme.Header
-SoundInputBg.BorderSizePixel = 0
-SoundInputBg.ZIndex = 23
-SoundInputBg.Parent = RadioCard
+    trackConnection(ScaleTrackBg.InputBegan:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+            isDraggingScale = true
+            updateScalePosition(input.Position.X)
+        end
+    end))
 
-local TabSoundInput = Instance.new("TextBox")
-TabSoundInput.Size = UDim2.new(1, -10, 1, 0)
-TabSoundInput.Position = UDim2.new(0, 5, 0, 0)
-TabSoundInput.BackgroundTransparency = 1
-TabSoundInput.Font = Library.Fonts.Badge
-TabSoundInput.PlaceholderText = "Paste Sound ID (e.g. 1837843912)..."
-TabSoundInput.PlaceholderColor3 = Library.Theme.TextDim
-TabSoundInput.Text = ""
-TabSoundInput.TextColor3 = Library.Theme.Accent
-TabSoundInput.TextSize = 10
-TabSoundInput.TextXAlignment = Enum.TextXAlignment.Left
-TabSoundInput.Active = true
-TabSoundInput.Selectable = true
-TabSoundInput.ClearTextOnFocus = false
-TabSoundInput.ZIndex = 35
-TabSoundInput.Parent = SoundInputBg
+    trackConnection(UserInputService.InputEnded:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+            isDraggingScale = false
+        end
+    end))
 
-local PlaySoundBtn = Instance.new("TextButton")
-PlaySoundBtn.Size = UDim2.new(1, -20, 0, 30)
-PlaySoundBtn.Position = UDim2.new(0, 10, 0, 204)
-PlaySoundBtn.BackgroundColor3 = Library.Theme.Header
-PlaySoundBtn.BorderSizePixel = 0
-PlaySoundBtn.Font = Library.Fonts.Header
-PlaySoundBtn.Text = "PLAY / PAUSE TRACK"
-PlaySoundBtn.TextColor3 = Library.Theme.Accent
-PlaySoundBtn.TextSize = 10
-PlaySoundBtn.ZIndex = 23
-PlaySoundBtn.Parent = RadioCard
+    trackConnection(UserInputService.InputChanged:Connect(function(input)
+        if isDraggingScale and (input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch) then
+            updateScalePosition(input.Position.X)
+        end
+    end))
 
-PlaySoundBtn.MouseButton1Click:Connect(function()
-    if TabSoundInput.Text ~= "" then
-        triggerPlaySound(TabSoundInput.Text)
-    elseif RadioSound.IsPlaying then
-        RadioSound:Pause()
-    elseif RadioSound.SoundId ~= "" then
-        RadioSound:Play()
-    end
-end)
+    ScaleValInput.FocusLost:Connect(function()
+        local parsed = tonumber(ScaleValInput.Text)
+        if parsed then
+            parsed = math.clamp(math.floor(parsed + 0.5), 50, 100)
+            Library.RadioHUDScale = parsed
+            ScaleValInput.Text = tostring(parsed)
+            local relX = (parsed - 50) / (100 - 50)
+            ScaleFill.Size = UDim2.new(relX, 0, 1, 0)
+            ScaleHandle.Position = UDim2.new(relX, -4, 0.5, -5)
+            updateRadioHUDProperties()
+        else
+            ScaleValInput.Text = tostring(Library.RadioHUDScale)
+        end
+    end)
+
+    -- Sound ID & Playback Controls in Radio Tab
+    local SoundInputBg = Instance.new("Frame")
+    SoundInputBg.Size = UDim2.new(1, -20, 0, 30)
+    SoundInputBg.Position = UDim2.new(0, 10, 0, 166)
+    SoundInputBg.BackgroundColor3 = Library.Theme.Header
+    SoundInputBg.BorderSizePixel = 0
+    SoundInputBg.ZIndex = 23
+    SoundInputBg.Parent = RadioCard
+    UI.SoundInputBg = SoundInputBg
+
+    local TabSoundInput = Instance.new("TextBox")
+    TabSoundInput.Size = UDim2.new(1, -10, 1, 0)
+    TabSoundInput.Position = UDim2.new(0, 5, 0, 0)
+    TabSoundInput.BackgroundTransparency = 1
+    TabSoundInput.Font = Library.Fonts.Badge
+    TabSoundInput.PlaceholderText = "Paste Sound ID (e.g. 1837843912)..."
+    TabSoundInput.PlaceholderColor3 = Library.Theme.TextDim
+    TabSoundInput.Text = ""
+    TabSoundInput.TextColor3 = Library.Theme.Accent
+    TabSoundInput.TextSize = 10
+    TabSoundInput.TextXAlignment = Enum.TextXAlignment.Left
+    TabSoundInput.Active = true
+    TabSoundInput.Selectable = true
+    TabSoundInput.ClearTextOnFocus = false
+    TabSoundInput.ZIndex = 35
+    TabSoundInput.Parent = SoundInputBg
+    UI.TabSoundInput = TabSoundInput
+
+    local PlaySoundBtn = Instance.new("TextButton")
+    PlaySoundBtn.Size = UDim2.new(1, -20, 0, 30)
+    PlaySoundBtn.Position = UDim2.new(0, 10, 0, 204)
+    PlaySoundBtn.BackgroundColor3 = Library.Theme.Header
+    PlaySoundBtn.BorderSizePixel = 0
+    PlaySoundBtn.Font = Library.Fonts.Header
+    PlaySoundBtn.Text = "PLAY / PAUSE TRACK"
+    PlaySoundBtn.TextColor3 = Library.Theme.Accent
+    PlaySoundBtn.TextSize = 10
+    PlaySoundBtn.ZIndex = 23
+    PlaySoundBtn.Parent = RadioCard
+    UI.PlaySoundBtn = PlaySoundBtn
+
+    PlaySoundBtn.MouseButton1Click:Connect(function()
+        if TabSoundInput.Text ~= "" then
+            triggerPlaySound(TabSoundInput.Text)
+        elseif RadioSound.IsPlaying then
+            RadioSound:Pause()
+        elseif RadioSound.SoundId ~= "" then
+            RadioSound:Play()
+        end
+    end)
+end
 
 -- 5. VISUALS TAB PAGE (ADVANCED BLUR & WALLPAPER IMAGE CONTROL)
-local BlurCard = Instance.new("Frame")
-BlurCard.Size = UDim2.new(1, 0, 0, 195)
-BlurCard.BackgroundColor3 = Library.Theme.Card
-BlurCard.BorderSizePixel = 0
-BlurCard.ZIndex = 22
-BlurCard.Parent = VisualsPage
+do
+    local BlurCard = Instance.new("Frame")
+    BlurCard.Size = UDim2.new(1, 0, 0, 195)
+    BlurCard.BackgroundColor3 = Library.Theme.Card
+    BlurCard.BorderSizePixel = 0
+    BlurCard.ZIndex = 22
+    BlurCard.Parent = VisualsPage
+    UI.BlurCard = BlurCard
 
-local BlurCardTitle = Instance.new("TextLabel")
-BlurCardTitle.Size = UDim2.new(1, -20, 0, 18)
-BlurCardTitle.Position = UDim2.new(0, 10, 0, 6)
-BlurCardTitle.BackgroundTransparency = 1
-BlurCardTitle.Font = Library.Fonts.Header
-BlurCardTitle.Text = "BACKGROUND BLUR & WALLPAPER IMAGE"
-BlurCardTitle.TextColor3 = Library.Theme.Accent
-BlurCardTitle.TextSize = 10.5
-BlurCardTitle.TextXAlignment = Enum.TextXAlignment.Left
-BlurCardTitle.ZIndex = 23
-BlurCardTitle.Parent = BlurCard
+    local BlurCardTitle = Instance.new("TextLabel")
+    BlurCardTitle.Size = UDim2.new(1, -20, 0, 18)
+    BlurCardTitle.Position = UDim2.new(0, 10, 0, 6)
+    BlurCardTitle.BackgroundTransparency = 1
+    BlurCardTitle.Font = Library.Fonts.Header
+    BlurCardTitle.Text = "BACKGROUND BLUR & WALLPAPER IMAGE"
+    BlurCardTitle.TextColor3 = Library.Theme.Accent
+    BlurCardTitle.TextSize = 10.5
+    BlurCardTitle.TextXAlignment = Enum.TextXAlignment.Left
+    BlurCardTitle.ZIndex = 23
+    BlurCardTitle.Parent = BlurCard
+    UI.BlurCardTitle = BlurCardTitle
 
-local BlurToggleBlock = Instance.new("TextButton")
-BlurToggleBlock.Size = UDim2.new(1, -20, 0, 26)
-BlurToggleBlock.Position = UDim2.new(0, 10, 0, 26)
-BlurToggleBlock.BackgroundColor3 = Library.Theme.Block
-BlurToggleBlock.BorderSizePixel = 0
-BlurToggleBlock.AutoButtonColor = false
-BlurToggleBlock.Text = ""
-BlurToggleBlock.ZIndex = 23
-BlurToggleBlock.Parent = BlurCard
+    local BlurToggleBlock = Instance.new("TextButton")
+    BlurToggleBlock.Size = UDim2.new(1, -20, 0, 26)
+    BlurToggleBlock.Position = UDim2.new(0, 10, 0, 26)
+    BlurToggleBlock.BackgroundColor3 = Library.Theme.Block
+    BlurToggleBlock.BorderSizePixel = 0
+    BlurToggleBlock.AutoButtonColor = false
+    BlurToggleBlock.Text = ""
+    BlurToggleBlock.ZIndex = 23
+    BlurToggleBlock.Parent = BlurCard
+    UI.BlurToggleBlock = BlurToggleBlock
 
-local BTLabel = Instance.new("TextLabel")
-BTLabel.Size = UDim2.new(1, -60, 1, 0)
-BTLabel.Position = UDim2.new(0, 8, 0, 0)
-BTLabel.BackgroundTransparency = 1
-BTLabel.Font = Library.Fonts.Label
-BTLabel.Text = "Enable Blur Effect"
-BTLabel.TextColor3 = Library.Theme.Text
-BTLabel.TextSize = 10.5
-BTLabel.TextXAlignment = Enum.TextXAlignment.Left
-BTLabel.ZIndex = 24
-BTLabel.Parent = BlurToggleBlock
+    local BTLabel = Instance.new("TextLabel")
+    BTLabel.Size = UDim2.new(1, -60, 1, 0)
+    BTLabel.Position = UDim2.new(0, 8, 0, 0)
+    BTLabel.BackgroundTransparency = 1
+    BTLabel.Font = Library.Fonts.Label
+    BTLabel.Text = "Enable Blur Effect"
+    BTLabel.TextColor3 = Library.Theme.Text
+    BTLabel.TextSize = 10.5
+    BTLabel.TextXAlignment = Enum.TextXAlignment.Left
+    BTLabel.ZIndex = 24
+    BTLabel.Parent = BlurToggleBlock
+    UI.BTLabel = BTLabel
 
-local BTSwitchBg = Instance.new("Frame")
-BTSwitchBg.Size = UDim2.new(0, 32, 0, 16)
-BTSwitchBg.Position = UDim2.new(1, -40, 0.5, -8)
-BTSwitchBg.BackgroundColor3 = Library.BlurEnabled and Library.Theme.Accent or Library.Theme.Header
-BTSwitchBg.BorderSizePixel = 0
-BTSwitchBg.ZIndex = 24
-BTSwitchBg.Parent = BlurToggleBlock
+    local BTSwitchBg = Instance.new("Frame")
+    BTSwitchBg.Size = UDim2.new(0, 32, 0, 16)
+    BTSwitchBg.Position = UDim2.new(1, -40, 0.5, -8)
+    BTSwitchBg.BackgroundColor3 = Library.BlurEnabled and Library.Theme.Accent or Library.Theme.Header
+    BTSwitchBg.BorderSizePixel = 0
+    BTSwitchBg.ZIndex = 24
+    BTSwitchBg.Parent = BlurToggleBlock
+    UI.BTSwitchBg = BTSwitchBg
 
-local BTKnob = Instance.new("Frame")
-BTKnob.Size = UDim2.new(0, 12, 0, 12)
-BTKnob.Position = Library.BlurEnabled and UDim2.new(1, -14, 0.5, -6) or UDim2.new(0, 2, 0.5, -6)
-BTKnob.BackgroundColor3 = Library.BlurEnabled and Library.Theme.Background or Library.Theme.TextDim
-BTKnob.BorderSizePixel = 0
-BTKnob.ZIndex = 25
-BTKnob.Parent = BTSwitchBg
+    local BTKnob = Instance.new("Frame")
+    BTKnob.Size = UDim2.new(0, 12, 0, 12)
+    BTKnob.Position = Library.BlurEnabled and UDim2.new(1, -14, 0.5, -6) or UDim2.new(0, 2, 0.5, -6)
+    BTKnob.BackgroundColor3 = Library.BlurEnabled and Library.Theme.Background or Library.Theme.TextDim
+    BTKnob.BorderSizePixel = 0
+    BTKnob.ZIndex = 25
+    BTKnob.Parent = BTSwitchBg
+    UI.BTKnob = BTKnob
 
-BlurToggleBlock.MouseButton1Click:Connect(function()
-    Library.BlurEnabled = not Library.BlurEnabled
-    smoothTween(BTSwitchBg, DUR_NORMAL, { BackgroundColor3 = Library.BlurEnabled and Library.Theme.Accent or Library.Theme.Header })
-    smoothTween(BTKnob, DUR_NORMAL, {
-        Position = Library.BlurEnabled and UDim2.new(1, -14, 0.5, -6) or UDim2.new(0, 2, 0.5, -6),
-        BackgroundColor3 = Library.BlurEnabled and Library.Theme.Background or Library.Theme.TextDim
-    })
-    MenuBlur.Enabled = Library.BlurEnabled and Library.Enabled
-end)
+    BlurToggleBlock.MouseButton1Click:Connect(function()
+        Library.BlurEnabled = not Library.BlurEnabled
+        smoothTween(BTSwitchBg, DUR_NORMAL, { BackgroundColor3 = Library.BlurEnabled and Library.Theme.Accent or Library.Theme.Header })
+        smoothTween(BTKnob, DUR_NORMAL, {
+            Position = Library.BlurEnabled and UDim2.new(1, -14, 0.5, -6) or UDim2.new(0, 2, 0.5, -6),
+            BackgroundColor3 = Library.BlurEnabled and Library.Theme.Background or Library.Theme.TextDim
+        })
+        MenuBlur.Enabled = Library.BlurEnabled and Library.Enabled
+    end)
 
--- Blur Size Slider (0 - 50)
-local BlurSizeRow = Instance.new("Frame")
-BlurSizeRow.Size = UDim2.new(1, -20, 0, 26)
-BlurSizeRow.Position = UDim2.new(0, 10, 0, 54)
-BlurSizeRow.BackgroundTransparency = 1
-BlurSizeRow.ZIndex = 23
-BlurSizeRow.Parent = BlurCard
+    -- Blur Size Slider (0 - 50)
+    local BlurSizeRow = Instance.new("Frame")
+    BlurSizeRow.Size = UDim2.new(1, -20, 0, 26)
+    BlurSizeRow.Position = UDim2.new(0, 10, 0, 54)
+    BlurSizeRow.BackgroundTransparency = 1
+    BlurSizeRow.ZIndex = 23
+    BlurSizeRow.Parent = BlurCard
 
-local BlurSizeLbl = Instance.new("TextLabel")
-BlurSizeLbl.Size = UDim2.new(0, 70, 1, 0)
-BlurSizeLbl.BackgroundTransparency = 1
-BlurSizeLbl.Font = Library.Fonts.Label
-BlurSizeLbl.Text = "Blur Size:"
-BlurSizeLbl.TextColor3 = Library.Theme.TextDim
-BlurSizeLbl.TextSize = 10
-BlurSizeLbl.TextXAlignment = Enum.TextXAlignment.Left
-BlurSizeLbl.ZIndex = 24
-BlurSizeLbl.Parent = BlurSizeRow
+    local BlurSizeLbl = Instance.new("TextLabel")
+    BlurSizeLbl.Size = UDim2.new(0, 70, 1, 0)
+    BlurSizeLbl.BackgroundTransparency = 1
+    BlurSizeLbl.Font = Library.Fonts.Label
+    BlurSizeLbl.Text = "Blur Size:"
+    BlurSizeLbl.TextColor3 = Library.Theme.TextDim
+    BlurSizeLbl.TextSize = 10
+    BlurSizeLbl.TextXAlignment = Enum.TextXAlignment.Left
+    BlurSizeLbl.ZIndex = 24
+    BlurSizeLbl.Parent = BlurSizeRow
+    UI.BlurSizeLbl = BlurSizeLbl
 
-local BlurValInput = Instance.new("TextBox")
-BlurValInput.Size = UDim2.new(0, 36, 0, 18)
-BlurValInput.Position = UDim2.new(1, -38, 0.5, -9)
-BlurValInput.BackgroundColor3 = Library.Theme.Header
-BlurValInput.BorderSizePixel = 0
-BlurValInput.Font = Library.Fonts.Badge
-BlurValInput.Text = tostring(Library.BlurSize)
-BlurValInput.TextColor3 = Library.Theme.Accent
-BlurValInput.TextSize = 9.5
-BlurValInput.ZIndex = 24
-BlurValInput.Parent = BlurSizeRow
+    local BlurValInput = Instance.new("TextBox")
+    BlurValInput.Size = UDim2.new(0, 36, 0, 18)
+    BlurValInput.Position = UDim2.new(1, -38, 0.5, -9)
+    BlurValInput.BackgroundColor3 = Library.Theme.Header
+    BlurValInput.BorderSizePixel = 0
+    BlurValInput.Font = Library.Fonts.Badge
+    BlurValInput.Text = tostring(Library.BlurSize)
+    BlurValInput.TextColor3 = Library.Theme.Accent
+    BlurValInput.TextSize = 9.5
+    BlurValInput.ZIndex = 24
+    BlurValInput.Parent = BlurSizeRow
+    UI.BlurValInput = BlurValInput
 
-local BlurTrackBg = Instance.new("TextButton")
-BlurTrackBg.Size = UDim2.new(1, -125, 0, 6)
-BlurTrackBg.Position = UDim2.new(0, 72, 0.5, -3)
-BlurTrackBg.BackgroundColor3 = Library.Theme.Header
-BlurTrackBg.BorderSizePixel = 0
-BlurTrackBg.AutoButtonColor = false
-BlurTrackBg.Text = ""
-BlurTrackBg.ZIndex = 24
-BlurTrackBg.Parent = BlurSizeRow
+    local BlurTrackBg = Instance.new("TextButton")
+    BlurTrackBg.Size = UDim2.new(1, -125, 0, 6)
+    BlurTrackBg.Position = UDim2.new(0, 72, 0.5, -3)
+    BlurTrackBg.BackgroundColor3 = Library.Theme.Header
+    BlurTrackBg.BorderSizePixel = 0
+    BlurTrackBg.AutoButtonColor = false
+    BlurTrackBg.Text = ""
+    BlurTrackBg.ZIndex = 24
+    BlurTrackBg.Parent = BlurSizeRow
+    UI.BlurTrackBg = BlurTrackBg
 
-local BlurFill = Instance.new("Frame")
-local blurRelX = math.clamp(Library.BlurSize / 50, 0, 1)
-BlurFill.Size = UDim2.new(blurRelX, 0, 1, 0)
-BlurFill.BackgroundColor3 = Library.Theme.Accent
-BlurFill.BorderSizePixel = 0
-BlurFill.ZIndex = 25
-BlurFill.Parent = BlurTrackBg
+    local BlurFill = Instance.new("Frame")
+    local blurRelX = math.clamp(Library.BlurSize / 50, 0, 1)
+    BlurFill.Size = UDim2.new(blurRelX, 0, 1, 0)
+    BlurFill.BackgroundColor3 = Library.Theme.Accent
+    BlurFill.BorderSizePixel = 0
+    BlurFill.ZIndex = 25
+    BlurFill.Parent = BlurTrackBg
+    UI.BlurFill = BlurFill
 
-local isDraggingBlur = false
-local function updateBlurPosition(inputX)
-    local width = BlurTrackBg.AbsoluteSize.X
-    if width <= 0 then return end
-    local relX = math.clamp((inputX - BlurTrackBg.AbsolutePosition.X) / width, 0, 1)
-    local val = math.floor(relX * 50 + 0.5)
-    Library.BlurSize = val
-    BlurValInput.Text = tostring(val)
-    BlurFill.Size = UDim2.new(relX, 0, 1, 0)
-    MenuBlur.Size = val
-end
-
-trackConnection(BlurTrackBg.InputBegan:Connect(function(input)
-    if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
-        isDraggingBlur = true
-        updateBlurPosition(input.Position.X)
+    local isDraggingBlur = false
+    local function updateBlurPosition(inputX)
+        local width = BlurTrackBg.AbsoluteSize.X
+        if width <= 0 then return end
+        local relX = math.clamp((inputX - BlurTrackBg.AbsolutePosition.X) / width, 0, 1)
+        local val = math.floor(relX * 50 + 0.5)
+        Library.BlurSize = val
+        BlurValInput.Text = tostring(val)
+        BlurFill.Size = UDim2.new(relX, 0, 1, 0)
+        MenuBlur.Size = val
     end
-end))
 
-trackConnection(UserInputService.InputEnded:Connect(function(input)
-    if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
-        isDraggingBlur = false
-    end
-end))
+    trackConnection(BlurTrackBg.InputBegan:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+            isDraggingBlur = true
+            updateBlurPosition(input.Position.X)
+        end
+    end))
 
-trackConnection(UserInputService.InputChanged:Connect(function(input)
-    if isDraggingBlur and (input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch) then
-        updateBlurPosition(input.Position.X)
-    end
-end))
+    trackConnection(UserInputService.InputEnded:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+            isDraggingBlur = false
+        end
+    end))
 
-BlurValInput.FocusLost:Connect(function()
-    local parsed = tonumber(BlurValInput.Text)
-    if parsed then
-        parsed = math.clamp(math.floor(parsed + 0.5), 0, 50)
-        Library.BlurSize = parsed
-        BlurValInput.Text = tostring(parsed)
-        BlurFill.Size = UDim2.new(parsed / 50, 0, 1, 0)
-        MenuBlur.Size = parsed
-    else
-        BlurValInput.Text = tostring(Library.BlurSize)
-    end
-end)
+    trackConnection(UserInputService.InputChanged:Connect(function(input)
+        if isDraggingBlur and (input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch) then
+            updateBlurPosition(input.Position.X)
+        end
+    end))
 
--- Wallpaper Background Texture ID Input + Apply Button
-local WallpaperBg = Instance.new("Frame")
-WallpaperBg.Size = UDim2.new(1, -20, 0, 26)
-WallpaperBg.Position = UDim2.new(0, 10, 0, 86)
-WallpaperBg.BackgroundColor3 = Library.Theme.Header
-WallpaperBg.BorderSizePixel = 0
-WallpaperBg.ZIndex = 23
-WallpaperBg.Parent = BlurCard
+    BlurValInput.FocusLost:Connect(function()
+        local parsed = tonumber(BlurValInput.Text)
+        if parsed then
+            parsed = math.clamp(math.floor(parsed + 0.5), 0, 50)
+            Library.BlurSize = parsed
+            BlurValInput.Text = tostring(parsed)
+            BlurFill.Size = UDim2.new(parsed / 50, 0, 1, 0)
+            MenuBlur.Size = parsed
+        else
+            BlurValInput.Text = tostring(Library.BlurSize)
+        end
+    end)
 
-local WallpaperInput = Instance.new("TextBox")
-WallpaperInput.Size = UDim2.new(1, -10, 1, 0)
-WallpaperInput.Position = UDim2.new(0, 5, 0, 0)
-WallpaperInput.BackgroundTransparency = 1
-WallpaperInput.Font = Library.Fonts.Badge
-WallpaperInput.PlaceholderText = "Paste Wallpaper Image Texture ID..."
-WallpaperInput.PlaceholderColor3 = Library.Theme.TextDim
-WallpaperInput.Text = Library.MenuBgImage
-WallpaperInput.TextColor3 = Library.Theme.Accent
-WallpaperInput.TextSize = 9.5
-WallpaperInput.TextXAlignment = Enum.TextXAlignment.Left
-WallpaperInput.Active = true
-WallpaperInput.Selectable = true
-WallpaperInput.ClearTextOnFocus = false
-WallpaperInput.ZIndex = 24
-WallpaperInput.Parent = WallpaperBg
+    -- Wallpaper Background Texture ID Input + Apply Button
+    local WallpaperBg = Instance.new("Frame")
+    WallpaperBg.Size = UDim2.new(1, -20, 0, 26)
+    WallpaperBg.Position = UDim2.new(0, 10, 0, 86)
+    WallpaperBg.BackgroundColor3 = Library.Theme.Header
+    WallpaperBg.BorderSizePixel = 0
+    WallpaperBg.ZIndex = 23
+    WallpaperBg.Parent = BlurCard
+    UI.WallpaperBg = WallpaperBg
 
-local ApplyWallpaperBtn = Instance.new("TextButton")
-ApplyWallpaperBtn.Size = UDim2.new(1, -20, 0, 26)
-ApplyWallpaperBtn.Position = UDim2.new(0, 10, 0, 118)
-ApplyWallpaperBtn.BackgroundColor3 = Library.Theme.Header
-ApplyWallpaperBtn.BorderSizePixel = 0
-ApplyWallpaperBtn.Font = Library.Fonts.Header
-ApplyWallpaperBtn.Text = "APPLY BACKGROUND WALLPAPER"
-ApplyWallpaperBtn.TextColor3 = Library.Theme.Accent
-ApplyWallpaperBtn.TextSize = 9.5
-ApplyWallpaperBtn.ZIndex = 23
-ApplyWallpaperBtn.Parent = BlurCard
+    local WallpaperInput = Instance.new("TextBox")
+    WallpaperInput.Size = UDim2.new(1, -10, 1, 0)
+    WallpaperInput.Position = UDim2.new(0, 5, 0, 0)
+    WallpaperInput.BackgroundTransparency = 1
+    WallpaperInput.Font = Library.Fonts.Badge
+    WallpaperInput.PlaceholderText = "Paste Wallpaper Image Texture ID..."
+    WallpaperInput.PlaceholderColor3 = Library.Theme.TextDim
+    WallpaperInput.Text = Library.MenuBgImage
+    WallpaperInput.TextColor3 = Library.Theme.Accent
+    WallpaperInput.TextSize = 9.5
+    WallpaperInput.TextXAlignment = Enum.TextXAlignment.Left
+    WallpaperInput.Active = true
+    WallpaperInput.Selectable = true
+    WallpaperInput.ClearTextOnFocus = false
+    WallpaperInput.ZIndex = 24
+    WallpaperInput.Parent = WallpaperBg
+    UI.WallpaperInput = WallpaperInput
 
-ApplyWallpaperBtn.MouseButton1Click:Connect(function()
-    Library.MenuBgImage = WallpaperInput.Text
-    updateMenuBgImage()
-end)
+    local ApplyWallpaperBtn = Instance.new("TextButton")
+    ApplyWallpaperBtn.Size = UDim2.new(1, -20, 0, 26)
+    ApplyWallpaperBtn.Position = UDim2.new(0, 10, 0, 118)
+    ApplyWallpaperBtn.BackgroundColor3 = Library.Theme.Header
+    ApplyWallpaperBtn.BorderSizePixel = 0
+    ApplyWallpaperBtn.Font = Library.Fonts.Header
+    ApplyWallpaperBtn.Text = "APPLY BACKGROUND WALLPAPER"
+    ApplyWallpaperBtn.TextColor3 = Library.Theme.Accent
+    ApplyWallpaperBtn.TextSize = 9.5
+    ApplyWallpaperBtn.ZIndex = 23
+    ApplyWallpaperBtn.Parent = BlurCard
+    UI.ApplyWallpaperBtn = ApplyWallpaperBtn
 
--- Wallpaper Transparency Slider (0% - 90%)
-local WallTransRow = Instance.new("Frame")
-WallTransRow.Size = UDim2.new(1, -20, 0, 26)
-WallTransRow.Position = UDim2.new(0, 10, 0, 154)
-WallTransRow.BackgroundTransparency = 1
-WallTransRow.ZIndex = 23
-WallTransRow.Parent = BlurCard
-
-local WallTransLbl = Instance.new("TextLabel")
-WallTransLbl.Size = UDim2.new(0, 85, 1, 0)
-WallTransLbl.BackgroundTransparency = 1
-WallTransLbl.Font = Library.Fonts.Label
-WallTransLbl.Text = "Wallpaper Trans (%):"
-WallTransLbl.TextColor3 = Library.Theme.TextDim
-WallTransLbl.TextSize = 9.5
-WallTransLbl.TextXAlignment = Enum.TextXAlignment.Left
-WallTransLbl.ZIndex = 24
-WallTransLbl.Parent = WallTransRow
-
-local WallTransInput = Instance.new("TextBox")
-WallTransInput.Size = UDim2.new(0, 36, 0, 18)
-WallTransInput.Position = UDim2.new(1, -38, 0.5, -9)
-WallTransInput.BackgroundColor3 = Library.Theme.Header
-WallTransInput.BorderSizePixel = 0
-WallTransInput.Font = Library.Fonts.Badge
-WallTransInput.Text = tostring(Library.MenuBgTransparency)
-WallTransInput.TextColor3 = Library.Theme.Accent
-WallTransInput.TextSize = 9.5
-WallTransInput.ZIndex = 24
-WallTransInput.Parent = WallTransRow
-
-local WallTransTrackBg = Instance.new("TextButton")
-WallTransTrackBg.Size = UDim2.new(1, -140, 0, 6)
-WallTransTrackBg.Position = UDim2.new(0, 90, 0.5, -3)
-WallTransTrackBg.BackgroundColor3 = Library.Theme.Header
-WallTransTrackBg.BorderSizePixel = 0
-WallTransTrackBg.AutoButtonColor = false
-WallTransTrackBg.Text = ""
-WallTransTrackBg.ZIndex = 24
-WallTransTrackBg.Parent = WallTransRow
-
-local WallTransFill = Instance.new("Frame")
-local wallTransRelX = math.clamp(Library.MenuBgTransparency / 90, 0, 1)
-WallTransFill.Size = UDim2.new(wallTransRelX, 0, 1, 0)
-WallTransFill.BackgroundColor3 = Library.Theme.Accent
-WallTransFill.BorderSizePixel = 0
-WallTransFill.ZIndex = 25
-WallTransFill.Parent = WallTransTrackBg
-
-local isDraggingWallTrans = false
-local function updateWallTransPosition(inputX)
-    local width = WallTransTrackBg.AbsoluteSize.X
-    if width <= 0 then return end
-    local relX = math.clamp((inputX - WallTransTrackBg.AbsolutePosition.X) / width, 0, 1)
-    local val = math.floor(relX * 90 + 0.5)
-    Library.MenuBgTransparency = val
-    WallTransInput.Text = tostring(val)
-    WallTransFill.Size = UDim2.new(relX, 0, 1, 0)
-    updateMenuBgImage()
-end
-
-trackConnection(WallTransTrackBg.InputBegan:Connect(function(input)
-    if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
-        isDraggingWallTrans = true
-        updateWallTransPosition(input.Position.X)
-    end
-end))
-
-trackConnection(UserInputService.InputEnded:Connect(function(input)
-    if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
-        isDraggingWallTrans = false
-    end
-end))
-
-trackConnection(UserInputService.InputChanged:Connect(function(input)
-    if isDraggingWallTrans and (input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch) then
-        updateWallTransPosition(input.Position.X)
-    end
-end))
-
-WallTransInput.FocusLost:Connect(function()
-    local parsed = tonumber(WallTransInput.Text)
-    if parsed then
-        parsed = math.clamp(math.floor(parsed + 0.5), 0, 90)
-        Library.MenuBgTransparency = parsed
-        WallTransInput.Text = tostring(parsed)
-        WallTransFill.Size = UDim2.new(parsed / 90, 0, 1, 0)
+    ApplyWallpaperBtn.MouseButton1Click:Connect(function()
+        Library.MenuBgImage = WallpaperInput.Text
         updateMenuBgImage()
-    else
-        WallTransInput.Text = tostring(Library.MenuBgTransparency)
+    end)
+
+    -- Wallpaper Transparency Slider (0% - 90%)
+    local WallTransRow = Instance.new("Frame")
+    WallTransRow.Size = UDim2.new(1, -20, 0, 26)
+    WallTransRow.Position = UDim2.new(0, 10, 0, 154)
+    WallTransRow.BackgroundTransparency = 1
+    WallTransRow.ZIndex = 23
+    WallTransRow.Parent = BlurCard
+
+    local WallTransLbl = Instance.new("TextLabel")
+    WallTransLbl.Size = UDim2.new(0, 85, 1, 0)
+    WallTransLbl.BackgroundTransparency = 1
+    WallTransLbl.Font = Library.Fonts.Label
+    WallTransLbl.Text = "Wallpaper Trans (%):"
+    WallTransLbl.TextColor3 = Library.Theme.TextDim
+    WallTransLbl.TextSize = 9.5
+    WallTransLbl.TextXAlignment = Enum.TextXAlignment.Left
+    WallTransLbl.ZIndex = 24
+    WallTransLbl.Parent = WallTransRow
+    UI.WallTransLbl = WallTransLbl
+
+    local WallTransInput = Instance.new("TextBox")
+    WallTransInput.Size = UDim2.new(0, 36, 0, 18)
+    WallTransInput.Position = UDim2.new(1, -38, 0.5, -9)
+    WallTransInput.BackgroundColor3 = Library.Theme.Header
+    WallTransInput.BorderSizePixel = 0
+    WallTransInput.Font = Library.Fonts.Badge
+    WallTransInput.Text = tostring(Library.MenuBgTransparency)
+    WallTransInput.TextColor3 = Library.Theme.Accent
+    WallTransInput.TextSize = 9.5
+    WallTransInput.ZIndex = 24
+    WallTransInput.Parent = WallTransRow
+    UI.WallTransInput = WallTransInput
+
+    local WallTransTrackBg = Instance.new("TextButton")
+    WallTransTrackBg.Size = UDim2.new(1, -140, 0, 6)
+    WallTransTrackBg.Position = UDim2.new(0, 90, 0.5, -3)
+    WallTransTrackBg.BackgroundColor3 = Library.Theme.Header
+    WallTransTrackBg.BorderSizePixel = 0
+    WallTransTrackBg.AutoButtonColor = false
+    WallTransTrackBg.Text = ""
+    WallTransTrackBg.ZIndex = 24
+    WallTransTrackBg.Parent = WallTransRow
+    UI.WallTransTrackBg = WallTransTrackBg
+
+    local WallTransFill = Instance.new("Frame")
+    local wallTransRelX = math.clamp(Library.MenuBgTransparency / 90, 0, 1)
+    WallTransFill.Size = UDim2.new(wallTransRelX, 0, 1, 0)
+    WallTransFill.BackgroundColor3 = Library.Theme.Accent
+    WallTransFill.BorderSizePixel = 0
+    WallTransFill.ZIndex = 25
+    WallTransFill.Parent = WallTransTrackBg
+    UI.WallTransFill = WallTransFill
+
+    local isDraggingWallTrans = false
+    local function updateWallTransPosition(inputX)
+        local width = WallTransTrackBg.AbsoluteSize.X
+        if width <= 0 then return end
+        local relX = math.clamp((inputX - WallTransTrackBg.AbsolutePosition.X) / width, 0, 1)
+        local val = math.floor(relX * 90 + 0.5)
+        Library.MenuBgTransparency = val
+        WallTransInput.Text = tostring(val)
+        WallTransFill.Size = UDim2.new(relX, 0, 1, 0)
+        updateMenuBgImage()
     end
-end)
+
+    trackConnection(WallTransTrackBg.InputBegan:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+            isDraggingWallTrans = true
+            updateWallTransPosition(input.Position.X)
+        end
+    end))
+
+    trackConnection(UserInputService.InputEnded:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+            isDraggingWallTrans = false
+        end
+    end))
+
+    trackConnection(UserInputService.InputChanged:Connect(function(input)
+        if isDraggingWallTrans and (input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch) then
+            updateWallTransPosition(input.Position.X)
+        end
+    end))
+
+    WallTransInput.FocusLost:Connect(function()
+        local parsed = tonumber(WallTransInput.Text)
+        if parsed then
+            parsed = math.clamp(math.floor(parsed + 0.5), 0, 90)
+            Library.MenuBgTransparency = parsed
+            WallTransInput.Text = tostring(parsed)
+            WallTransFill.Size = UDim2.new(parsed / 90, 0, 1, 0)
+            updateMenuBgImage()
+        else
+            WallTransInput.Text = tostring(Library.MenuBgTransparency)
+        end
+    end)
+end
 
 -- Card 2: Falling Particles & Custom Texture Manager
-local ParticleCard = Instance.new("Frame")
-ParticleCard.Size = UDim2.new(1, 0, 0, 248)
-ParticleCard.BackgroundColor3 = Library.Theme.Card
-ParticleCard.BorderSizePixel = 0
-ParticleCard.ZIndex = 22
-ParticleCard.Parent = VisualsPage
+do
+    local ParticleCard = Instance.new("Frame")
+    ParticleCard.Size = UDim2.new(1, 0, 0, 248)
+    ParticleCard.BackgroundColor3 = Library.Theme.Card
+    ParticleCard.BorderSizePixel = 0
+    ParticleCard.ZIndex = 22
+    ParticleCard.Parent = VisualsPage
+    UI.ParticleCard = ParticleCard
 
 local ParticleCardTitle = Instance.new("TextLabel")
 ParticleCardTitle.Size = UDim2.new(1, -20, 0, 18)
@@ -2723,6 +2840,7 @@ for idx, pTexData in ipairs(partPresets) do
         rebuildParticles()
     end)
 end
+end
 
 local function toggleSettingsModal(visible)
     if visible == nil then visible = not SettingsModal.Visible end
@@ -2756,147 +2874,153 @@ function Library:SetTheme(themeName)
     Library.Theme = t
     Library.CurrentThemeName = themeName
 
-    smoothTween(Watermark, DUR_NORMAL, { BackgroundColor3 = t.Block })
-    smoothTween(WMarkStroke, DUR_NORMAL, { Color = t.Stroke })
-    smoothTween(WMarkAccent, DUR_NORMAL, { BackgroundColor3 = t.Accent })
-    smoothTween(WMarkLabel, DUR_NORMAL, { TextColor3 = t.Text })
+    local function st(elem, props)
+        if elem then smoothTween(elem, DUR_NORMAL, props) end
+    end
 
-    smoothTween(GearBtnFrame, DUR_NORMAL, { BackgroundColor3 = t.Block })
-    smoothTween(GearStroke, DUR_NORMAL, { Color = t.Accent })
-    smoothTween(GearIcon, DUR_NORMAL, { ImageColor3 = t.Accent })
+    st(UI.Watermark, { BackgroundColor3 = t.Block })
+    st(UI.WMarkStroke, { Color = t.Stroke })
+    st(UI.WMarkAccent, { BackgroundColor3 = t.Accent })
+    st(UI.WMarkLabel, { TextColor3 = t.Text })
 
-    smoothTween(KeybindHUDFrame, DUR_NORMAL, { BackgroundColor3 = t.Block })
-    smoothTween(KeybindHUDHeader, DUR_NORMAL, { BackgroundColor3 = t.Header })
-    smoothTween(KeybindHUDStroke, DUR_NORMAL, { Color = t.Stroke })
-    smoothTween(HUDDot, DUR_NORMAL, { BackgroundColor3 = t.Accent })
-    smoothTween(HUDTitle, DUR_NORMAL, { TextColor3 = t.Text })
+    st(UI.GearBtnFrame, { BackgroundColor3 = t.Block })
+    st(UI.GearStroke, { Color = t.Accent })
+    st(UI.GearIcon, { ImageColor3 = t.Accent })
 
-    smoothTween(RadioHUDFrame, DUR_NORMAL, { BackgroundColor3 = t.Block })
-    smoothTween(RadioHeader, DUR_NORMAL, { BackgroundColor3 = t.Header })
-    smoothTween(RadioHUDStroke, DUR_NORMAL, { Color = t.Stroke })
-    smoothTween(RHTitle, DUR_NORMAL, { TextColor3 = t.Text })
-    smoothTween(MusicIcon, DUR_NORMAL, { ImageColor3 = t.Accent })
-    smoothTween(HUDPlayBtn, DUR_NORMAL, { BackgroundColor3 = t.Card, TextColor3 = t.Accent })
-    smoothTween(HUDSoundInputBg, DUR_NORMAL, { BackgroundColor3 = t.Header })
-    smoothTween(HUDSoundInput, DUR_NORMAL, { TextColor3 = t.Accent })
-    smoothTween(SeekTimeLabel, DUR_NORMAL, { TextColor3 = t.Accent })
-    smoothTween(SeekTrackBg, DUR_NORMAL, { BackgroundColor3 = t.Header })
-    smoothTween(SeekFill, DUR_NORMAL, { BackgroundColor3 = t.Accent })
-    smoothTween(SeekHandle, DUR_NORMAL, { BackgroundColor3 = t.Accent })
+    st(UI.KeybindHUDFrame, { BackgroundColor3 = t.Block })
+    st(UI.KeybindHUDHeader, { BackgroundColor3 = t.Header })
+    st(UI.KeybindHUDStroke, { Color = t.Stroke })
+    st(UI.HUDDot, { BackgroundColor3 = t.Accent })
+    st(UI.HUDTitle, { TextColor3 = t.Text })
 
-    smoothTween(SettingsModal, DUR_NORMAL, { BackgroundColor3 = t.Block })
-    smoothTween(ModalHeader, DUR_NORMAL, { BackgroundColor3 = t.Header })
-    smoothTween(ModalSidebar, DUR_NORMAL, { BackgroundColor3 = t.Header })
-    smoothTween(ModalTitle, DUR_NORMAL, { TextColor3 = t.Text })
-    smoothTween(ModalStroke, DUR_NORMAL, { Color = t.StrokeActive })
+    st(UI.RadioHUDFrame, { BackgroundColor3 = t.Block })
+    st(UI.RadioHeader, { BackgroundColor3 = t.Header })
+    st(UI.RadioHUDStroke, { Color = t.Stroke })
+    st(UI.RHTitle, { TextColor3 = t.Text })
+    st(UI.MusicIcon, { ImageColor3 = t.Accent })
+    st(UI.HUDPlayBtn, { BackgroundColor3 = t.Card, TextColor3 = t.Accent })
+    st(UI.HUDSoundInputBg, { BackgroundColor3 = t.Header })
+    st(UI.HUDSoundInput, { TextColor3 = t.Accent })
+    st(UI.SeekTimeLabel, { TextColor3 = t.Accent })
+    st(UI.SeekTrackBg, { BackgroundColor3 = t.Header })
+    st(UI.SeekFill, { BackgroundColor3 = t.Accent })
+    st(UI.SeekHandle, { BackgroundColor3 = t.Accent })
+
+    st(UI.SettingsModal, { BackgroundColor3 = t.Block })
+    st(UI.ModalHeader, { BackgroundColor3 = t.Header })
+    st(UI.ModalSidebar, { BackgroundColor3 = t.Header })
+    st(UI.ModalTitle, { TextColor3 = t.Text })
+    st(UI.ModalStroke, { Color = t.StrokeActive })
 
     for name, data in pairs(ModalTabs) do
         local isSel = (name == Library.CurrentThemeName or data.Page.Visible)
-        smoothTween(data.Btn, DUR_NORMAL, {
+        st(data.Btn, {
             BackgroundColor3 = isSel and t.Block or t.Card,
             TextColor3 = isSel and t.Accent or t.TextDim
         })
-        smoothTween(data.Indicator, DUR_NORMAL, { BackgroundColor3 = t.Accent })
+        st(data.Indicator, { BackgroundColor3 = t.Accent })
     end
 
-    smoothTween(ConfigCard, DUR_NORMAL, { BackgroundColor3 = t.Card })
-    smoothTween(ConfigNameBg, DUR_NORMAL, { BackgroundColor3 = t.Header })
-    smoothTween(ConfigNameInput, DUR_NORMAL, { TextColor3 = t.Accent })
-    smoothTween(SaveCreateBtn, DUR_NORMAL, { BackgroundColor3 = t.Header, TextColor3 = t.Accent })
-    smoothTween(SaveIcon, DUR_NORMAL, { ImageColor3 = t.Accent })
-    smoothTween(ConfigSelectBg, DUR_NORMAL, { BackgroundColor3 = t.Header })
-    smoothTween(ConfigSelectLbl, DUR_NORMAL, { TextColor3 = t.TextDim })
-    smoothTween(ConfigDropdownBtn, DUR_NORMAL, { BackgroundColor3 = t.Card, TextColor3 = t.Accent })
-    smoothTween(ConfigDropList, DUR_NORMAL, { BackgroundColor3 = t.Block })
-    smoothTween(ConfigDropStroke, DUR_NORMAL, { Color = t.StrokeActive })
-    smoothTween(LoadConfigBtn, DUR_NORMAL, { BackgroundColor3 = t.Header, TextColor3 = t.Text })
-    smoothTween(LoadIcon, DUR_NORMAL, { ImageColor3 = t.Text })
-    smoothTween(DeleteConfigBtn, DUR_NORMAL, { BackgroundColor3 = t.Header })
+    st(UI.ConfigCard, { BackgroundColor3 = t.Card })
+    st(UI.ConfigNameBg, { BackgroundColor3 = t.Header })
+    st(UI.ConfigNameInput, { TextColor3 = t.Accent })
+    st(UI.SaveCreateBtn, { BackgroundColor3 = t.Header, TextColor3 = t.Accent })
+    st(UI.SaveIcon, { ImageColor3 = t.Accent })
+    st(UI.ConfigSelectBg, { BackgroundColor3 = t.Header })
+    st(UI.ConfigSelectLbl, { TextColor3 = t.TextDim })
+    st(UI.ConfigDropdownBtn, { BackgroundColor3 = t.Card, TextColor3 = t.Accent })
+    st(UI.ConfigDropList, { BackgroundColor3 = t.Block })
+    st(UI.ConfigDropStroke, { Color = t.StrokeActive })
+    st(UI.LoadConfigBtn, { BackgroundColor3 = t.Header, TextColor3 = t.Text })
+    st(UI.LoadIcon, { ImageColor3 = t.Text })
+    st(UI.DeleteConfigBtn, { BackgroundColor3 = t.Header })
 
-    smoothTween(ThemeCard, DUR_NORMAL, { BackgroundColor3 = t.Card })
-    smoothTween(TCLabel, DUR_NORMAL, { TextColor3 = t.Accent })
-    for _, child in ipairs(ThemeCard:GetChildren()) do
-        if child:IsA("TextButton") then
-            local isMatch = (child.Text:find(themeName))
-            smoothTween(child, DUR_NORMAL, {
-                BackgroundColor3 = isMatch and t.Header or t.Block,
-                TextColor3 = isMatch and t.Accent or t.TextDim
-            })
+    if UI.ThemeCard then
+        st(UI.ThemeCard, { BackgroundColor3 = t.Card })
+        st(UI.TCLabel, { TextColor3 = t.Accent })
+        for _, child in ipairs(UI.ThemeCard:GetChildren()) do
+            if child:IsA("TextButton") then
+                local isMatch = (child.Text:find(themeName))
+                st(child, {
+                    BackgroundColor3 = isMatch and t.Header or t.Block,
+                    TextColor3 = isMatch and t.Accent or t.TextDim
+                })
+            end
         end
     end
 
-    smoothTween(SkyPresetCard, DUR_NORMAL, { BackgroundColor3 = t.Card })
-    smoothTween(PresetTitle, DUR_NORMAL, { TextColor3 = t.Accent })
-    smoothTween(SkyboxCard, DUR_NORMAL, { BackgroundColor3 = t.Card })
-    smoothTween(ApplySkyboxBtn, DUR_NORMAL, { BackgroundColor3 = t.Header, TextColor3 = t.Accent })
+    st(UI.SkyPresetCard, { BackgroundColor3 = t.Card })
+    st(UI.PresetTitle, { TextColor3 = t.Accent })
+    st(UI.SkyboxCard, { BackgroundColor3 = t.Card })
+    st(UI.ApplySkyboxBtn, { BackgroundColor3 = t.Header, TextColor3 = t.Accent })
     for _, item in ipairs(SkyInputs) do
-        if item.BoxBg then smoothTween(item.BoxBg, DUR_NORMAL, { BackgroundColor3 = t.Header }) end
-        if item.Input then smoothTween(item.Input, DUR_NORMAL, { TextColor3 = t.Accent }) end
+        if item.BoxBg then st(item.BoxBg, { BackgroundColor3 = t.Header }) end
+        if item.Input then st(item.Input, { TextColor3 = t.Accent }) end
     end
 
-    smoothTween(RadioCard, DUR_NORMAL, { BackgroundColor3 = t.Card })
-    smoothTween(RadioCardTitle, DUR_NORMAL, { TextColor3 = t.Accent })
-    smoothTween(RadioVisRow, DUR_NORMAL, { BackgroundColor3 = t.Block })
-    smoothTween(RVLabel, DUR_NORMAL, { TextColor3 = t.Text })
-    smoothTween(RVSwitchBg, DUR_NORMAL, { BackgroundColor3 = Library.RadioHUDVisible and t.Accent or t.Header })
-    smoothTween(RVKnob, DUR_NORMAL, { BackgroundColor3 = Library.RadioHUDVisible and t.Background or t.TextDim })
-    smoothTween(TransRow, DUR_NORMAL, { BackgroundColor3 = t.Block })
-    smoothTween(TransLbl, DUR_NORMAL, { TextColor3 = t.TextDim })
-    smoothTween(TransBadge, DUR_NORMAL, { BackgroundColor3 = t.Header })
-    smoothTween(TransValInput, DUR_NORMAL, { TextColor3 = t.Accent })
-    smoothTween(TransTrackBg, DUR_NORMAL, { BackgroundColor3 = t.Header })
-    smoothTween(TransFill, DUR_NORMAL, { BackgroundColor3 = t.Accent })
-    smoothTween(TransHandle, DUR_NORMAL, { BackgroundColor3 = t.Accent })
-    smoothTween(ScaleRow, DUR_NORMAL, { BackgroundColor3 = t.Block })
-    smoothTween(ScaleLbl, DUR_NORMAL, { TextColor3 = t.TextDim })
-    smoothTween(ScaleBadge, DUR_NORMAL, { BackgroundColor3 = t.Header })
-    smoothTween(ScaleValInput, DUR_NORMAL, { TextColor3 = t.Accent })
-    smoothTween(ScaleTrackBg, DUR_NORMAL, { BackgroundColor3 = t.Header })
-    smoothTween(ScaleFill, DUR_NORMAL, { BackgroundColor3 = t.Accent })
-    smoothTween(ScaleHandle, DUR_NORMAL, { BackgroundColor3 = t.Accent })
-    smoothTween(SoundInputBg, DUR_NORMAL, { BackgroundColor3 = t.Header })
-    smoothTween(TabSoundInput, DUR_NORMAL, { TextColor3 = t.Accent })
-    smoothTween(PlaySoundBtn, DUR_NORMAL, { BackgroundColor3 = t.Header, TextColor3 = t.Accent })
+    st(UI.RadioCard, { BackgroundColor3 = t.Card })
+    st(UI.RadioCardTitle, { TextColor3 = t.Accent })
+    st(UI.RadioVisRow, { BackgroundColor3 = t.Block })
+    st(UI.RVLabel, { TextColor3 = t.Text })
+    st(UI.RVSwitchBg, { BackgroundColor3 = Library.RadioHUDVisible and t.Accent or t.Header })
+    st(UI.RVKnob, { BackgroundColor3 = Library.RadioHUDVisible and t.Background or t.TextDim })
+    st(UI.TransRow, { BackgroundColor3 = t.Block })
+    st(UI.TransLbl, { TextColor3 = t.TextDim })
+    st(UI.TransBadge, { BackgroundColor3 = t.Header })
+    st(UI.TransValInput, { TextColor3 = t.Accent })
+    st(UI.TransTrackBg, { BackgroundColor3 = t.Header })
+    st(UI.TransFill, { BackgroundColor3 = t.Accent })
+    st(UI.TransHandle, { BackgroundColor3 = t.Accent })
+    st(UI.ScaleRow, { BackgroundColor3 = t.Block })
+    st(UI.ScaleLbl, { TextColor3 = t.TextDim })
+    st(UI.ScaleBadge, { BackgroundColor3 = t.Header })
+    st(UI.ScaleValInput, { TextColor3 = t.Accent })
+    st(UI.ScaleTrackBg, { BackgroundColor3 = t.Header })
+    st(UI.ScaleFill, { BackgroundColor3 = t.Accent })
+    st(UI.ScaleHandle, { BackgroundColor3 = t.Accent })
+    st(UI.SoundInputBg, { BackgroundColor3 = t.Header })
+    st(UI.TabSoundInput, { TextColor3 = t.Accent })
+    st(UI.PlaySoundBtn, { BackgroundColor3 = t.Header, TextColor3 = t.Accent })
 
-    smoothTween(BlurCard, DUR_NORMAL, { BackgroundColor3 = t.Card })
-    smoothTween(BlurCardTitle, DUR_NORMAL, { TextColor3 = t.Accent })
-    smoothTween(BlurToggleBlock, DUR_NORMAL, { BackgroundColor3 = t.Block })
-    smoothTween(BTLabel, DUR_NORMAL, { TextColor3 = t.Text })
-    smoothTween(BTSwitchBg, DUR_NORMAL, { BackgroundColor3 = Library.BlurEnabled and t.Accent or t.Header })
-    smoothTween(BTKnob, DUR_NORMAL, { BackgroundColor3 = Library.BlurEnabled and t.Background or t.TextDim })
-    smoothTween(BlurSizeLbl, DUR_NORMAL, { TextColor3 = t.TextDim })
-    smoothTween(BlurValInput, DUR_NORMAL, { BackgroundColor3 = t.Header, TextColor3 = t.Accent })
-    smoothTween(BlurTrackBg, DUR_NORMAL, { BackgroundColor3 = t.Header })
-    smoothTween(BlurFill, DUR_NORMAL, { BackgroundColor3 = t.Accent })
-    smoothTween(WallpaperBg, DUR_NORMAL, { BackgroundColor3 = t.Header })
-    smoothTween(WallpaperInput, DUR_NORMAL, { TextColor3 = t.Accent })
-    smoothTween(ApplyWallpaperBtn, DUR_NORMAL, { BackgroundColor3 = t.Header, TextColor3 = t.Accent })
-    smoothTween(WallTransLbl, DUR_NORMAL, { TextColor3 = t.TextDim })
-    smoothTween(WallTransInput, DUR_NORMAL, { BackgroundColor3 = t.Header, TextColor3 = t.Accent })
-    smoothTween(WallTransTrackBg, DUR_NORMAL, { BackgroundColor3 = t.Header })
-    smoothTween(WallTransFill, DUR_NORMAL, { BackgroundColor3 = t.Accent })
+    st(UI.BlurCard, { BackgroundColor3 = t.Card })
+    st(UI.BlurCardTitle, { TextColor3 = t.Accent })
+    st(UI.BlurToggleBlock, { BackgroundColor3 = t.Block })
+    st(UI.BTLabel, { TextColor3 = t.Text })
+    st(UI.BTSwitchBg, { BackgroundColor3 = Library.BlurEnabled and t.Accent or t.Header })
+    st(UI.BTKnob, { BackgroundColor3 = Library.BlurEnabled and t.Background or t.TextDim })
+    st(UI.BlurSizeLbl, { TextColor3 = t.TextDim })
+    st(UI.BlurValInput, { BackgroundColor3 = t.Header, TextColor3 = t.Accent })
+    st(UI.BlurTrackBg, { BackgroundColor3 = t.Header })
+    st(UI.BlurFill, { BackgroundColor3 = t.Accent })
+    st(UI.WallpaperBg, { BackgroundColor3 = t.Header })
+    st(UI.WallpaperInput, { TextColor3 = t.Accent })
+    st(UI.ApplyWallpaperBtn, { BackgroundColor3 = t.Header, TextColor3 = t.Accent })
+    st(UI.WallTransLbl, { TextColor3 = t.TextDim })
+    st(UI.WallTransInput, { BackgroundColor3 = t.Header, TextColor3 = t.Accent })
+    st(UI.WallTransTrackBg, { BackgroundColor3 = t.Header })
+    st(UI.WallTransFill, { BackgroundColor3 = t.Accent })
 
-    smoothTween(ParticleCard, DUR_NORMAL, { BackgroundColor3 = t.Card })
-    smoothTween(ParticleCardTitle, DUR_NORMAL, { TextColor3 = t.Accent })
-    smoothTween(SnowToggleBlock, DUR_NORMAL, { BackgroundColor3 = t.Block })
-    smoothTween(STLabel, DUR_NORMAL, { TextColor3 = t.Text })
-    smoothTween(STSwitchBg, DUR_NORMAL, { BackgroundColor3 = Library.SnowEnabled and t.Accent or t.Header })
-    smoothTween(STKnob, DUR_NORMAL, { BackgroundColor3 = Library.SnowEnabled and t.Background or t.TextDim })
-    smoothTween(CountLbl, DUR_NORMAL, { TextColor3 = t.TextDim })
-    smoothTween(CountInput, DUR_NORMAL, { BackgroundColor3 = t.Header, TextColor3 = t.Accent })
-    smoothTween(CountTrackBg, DUR_NORMAL, { BackgroundColor3 = t.Header })
-    smoothTween(CountFill, DUR_NORMAL, { BackgroundColor3 = t.Accent })
-    smoothTween(SpdPartLbl, DUR_NORMAL, { TextColor3 = t.TextDim })
-    smoothTween(SpdPartInput, DUR_NORMAL, { BackgroundColor3 = t.Header, TextColor3 = t.Accent })
-    smoothTween(SpdPartTrackBg, DUR_NORMAL, { BackgroundColor3 = t.Header })
-    smoothTween(SpdPartFill, DUR_NORMAL, { BackgroundColor3 = t.Accent })
-    smoothTween(PSizeLbl, DUR_NORMAL, { TextColor3 = t.TextDim })
-    smoothTween(PSizeInput, DUR_NORMAL, { BackgroundColor3 = t.Header, TextColor3 = t.Accent })
-    smoothTween(PSizeTrackBg, DUR_NORMAL, { BackgroundColor3 = t.Header })
-    smoothTween(PSizeFill, DUR_NORMAL, { BackgroundColor3 = t.Accent })
-    smoothTween(PartTexBg, DUR_NORMAL, { BackgroundColor3 = t.Header })
-    smoothTween(PartTexInput, DUR_NORMAL, { TextColor3 = t.Accent })
-    smoothTween(ApplyPartTexBtn, DUR_NORMAL, { BackgroundColor3 = t.Header, TextColor3 = t.Accent })
+    st(UI.ParticleCard, { BackgroundColor3 = t.Card })
+    st(UI.ParticleCardTitle, { TextColor3 = t.Accent })
+    st(UI.SnowToggleBlock, { BackgroundColor3 = t.Block })
+    st(UI.STLabel, { TextColor3 = t.Text })
+    st(UI.STSwitchBg, { BackgroundColor3 = Library.SnowEnabled and t.Accent or t.Header })
+    st(UI.STKnob, { BackgroundColor3 = Library.SnowEnabled and t.Background or t.TextDim })
+    st(UI.CountLbl, { TextColor3 = t.TextDim })
+    st(UI.CountInput, { BackgroundColor3 = t.Header, TextColor3 = t.Accent })
+    st(UI.CountTrackBg, { BackgroundColor3 = t.Header })
+    st(UI.CountFill, { BackgroundColor3 = t.Accent })
+    st(UI.SpdPartLbl, { TextColor3 = t.TextDim })
+    st(UI.SpdPartInput, { BackgroundColor3 = t.Header, TextColor3 = t.Accent })
+    st(UI.SpdPartTrackBg, { BackgroundColor3 = t.Header })
+    st(UI.SpdPartFill, { BackgroundColor3 = t.Accent })
+    st(UI.PSizeLbl, { TextColor3 = t.TextDim })
+    st(UI.PSizeInput, { BackgroundColor3 = t.Header, TextColor3 = t.Accent })
+    st(UI.PSizeTrackBg, { BackgroundColor3 = t.Header })
+    st(UI.PSizeFill, { BackgroundColor3 = t.Accent })
+    st(UI.PartTexBg, { BackgroundColor3 = t.Header })
+    st(UI.PartTexInput, { TextColor3 = t.Accent })
+    st(UI.ApplyPartTexBtn, { BackgroundColor3 = t.Header, TextColor3 = t.Accent })
 
     for _, block in ipairs(Library.Blocks) do
         if block.Frame then smoothTween(block.Frame, DUR_NORMAL, { BackgroundColor3 = t.Block }) end
