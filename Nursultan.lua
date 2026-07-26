@@ -393,7 +393,7 @@ local function trackConnection(conn)
     return conn
 end
 
-trackConnection(RunService.RenderStepped:Connect(function(dt)
+local snowConn = RunService.RenderStepped:Connect(function(dt)
     if Library.Enabled and ScreenGui.Enabled and Library.SnowEnabled then
         local spdMult = Library.ParticleSpeed or 1.0
         for _, f in ipairs(Flakes) do
@@ -407,6 +407,7 @@ trackConnection(RunService.RenderStepped:Connect(function(dt)
         end
     end
 end)
+trackConnection(snowConn)
 
 
 local TopWatermark = Instance.new("Frame")
