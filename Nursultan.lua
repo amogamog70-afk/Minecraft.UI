@@ -232,24 +232,49 @@ local function formatAssetId(raw)
         return str
     end
 
-    -- 2. HTTP / HTTPS external URL (SoundCloud / Direct Audio Stream / Web Link)
+    -- 2. Pure numeric Roblox ID
+    if tonumber(str) then
+        return "rbxassetid://" .. str
+    end
+
+    -- 3. HTTP / HTTPS external URL (SoundCloud / Direct Audio Stream / Web Link)
     if str:sub(1, 7) == "http://" or str:sub(1, 8) == "https://" then
-        -- Check if executor supports writing & converting web assets locally
         if writefile and getcustomasset then
             local tempFileName = "star_radio_stream.mp3"
-            local success, audioBytes = pcall(function()
+            local success, content = pcall(function()
                 return game:HttpGet(str, true)
             end)
-            if success and audioBytes and #audioBytes > 500 then
-                pcall(function() writefile(tempFileName, audioBytes) end)
+
+            if success and content and #content > 500 then
+                -- Check if response is SoundCloud HTML page
+                if content:find("<!DOCTYPE") or content:find("<html") or content:find("soundcloud") then
+                    -- Extract direct media stream URL from SoundCloud metadata
+                    local streamUrl = content:match('"(https?://api%-v2%.soundcloud%.com/media/[^"]+)"')
+                        or content:match('"(https?://cf%-media%.soundcloud%.com/[^"]+)"')
+                        or content:match('"(https?://[^"]+%.mp3[^"]*)"')
+
+                    if streamUrl then
+                        streamUrl = streamUrl:gsub('\\"', '"'):gsub('"', '')
+                        local streamOk, streamData = pcall(function()
+                            return game:HttpGet(streamUrl, true)
+                        end)
+                        if streamOk and streamData and #streamData > 500 then
+                            content = streamData
+                        end
+                    end
+                end
+
+                pcall(function() writefile(tempFileName, content) end)
                 if isfile and isfile(tempFileName) then
-                    local customAsset = pcall(function() return getcustomasset(tempFileName) end)
-                    if customAsset then return customAsset end
+                    local okAsset, customAsset = pcall(function() return getcustomasset(tempFileName) end)
+                    if okAsset and customAsset then
+                        return customAsset
+                    end
                 end
             end
         end
 
-        -- Fallback: Extract numeric ID if URL contains numbers
+        -- Fallback: Extract numeric ID if URL contains digits
         local numericMatch = str:match("(%d%d%d%d%d+)")
         if numericMatch then
             return "rbxassetid://" .. numericMatch
@@ -257,7 +282,7 @@ local function formatAssetId(raw)
         return str
     end
 
-    -- 3. Pure Roblox Numeric Asset ID
+    -- 4. Clean digits fallback
     local cleanDigits = str:gsub("%D", "")
     if cleanDigits ~= "" then
         return "rbxassetid://" .. cleanDigits
@@ -1284,9 +1309,12 @@ ModalSidebar.Size = UDim2.new(0, 130, 1, -40)
 ModalSidebar.Position = UDim2.new(0, 0, 0, 40)
 ModalSidebar.BackgroundColor3 = Library.Theme.Header
 ModalSidebar.BorderSizePixel = 0
+ModalSidebar.ClipsDescendants = true
 ModalSidebar.ZIndex = 21
 ModalSidebar.Parent = SettingsModal
 UI.ModalSidebar = ModalSidebar
+
+addCorner(ModalSidebar, 14)
 
 local SidebarLayout = Instance.new("UIListLayout")
 SidebarLayout.SortOrder = Enum.SortOrder.LayoutOrder
