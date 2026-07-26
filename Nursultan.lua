@@ -180,8 +180,6 @@ local Library = {
     RadioHUDVisible = true,
     RadioHUDTransparency = 0,
     RadioHUDScale = 100,
-    CustomCursorEnabled = true,
-    CustomCursorIcon = "rbxassetid://113598517899874",
     ConfigFolder = "NursultanClient",
     Fonts = {
         Header = Enum.Font.GothamBold,
@@ -408,38 +406,7 @@ trackConnection(RunService.RenderStepped:Connect(function(dt)
             f.Instance.Position = UDim2.new(f.X, 0, f.Y, 0)
         end
     end
-end))
 
-local CustomCursorIcon = Instance.new("ImageLabel")
-CustomCursorIcon.Name = "StarCustomCursor"
-CustomCursorIcon.Size = UDim2.new(0, 24, 0, 24)
-CustomCursorIcon.BackgroundTransparency = 1
-CustomCursorIcon.Image = Library.CustomCursorIcon
-CustomCursorIcon.ZIndex = 999999
-CustomCursorIcon.Visible = false
-CustomCursorIcon.Parent = ScreenGui
-UI.CustomCursorIcon = CustomCursorIcon
-
-trackConnection(RunService.RenderStepped:Connect(function()
-    if Library.Enabled and ScreenGui and ScreenGui.Enabled then
-        pcall(function()
-            UserInputService.MouseBehavior = Enum.MouseBehavior.Default
-        end)
-        if Library.CustomCursorEnabled then
-            local mousePos = UserInputService:GetMouseLocation()
-            CustomCursorIcon.Position = UDim2.new(0, mousePos.X - 4, 0, mousePos.Y - 36)
-            CustomCursorIcon.Image = Library.CustomCursorIcon
-            CustomCursorIcon.Visible = true
-            UserInputService.MouseIconEnabled = false
-        else
-            CustomCursorIcon.Visible = false
-            UserInputService.MouseIconEnabled = true
-        end
-    else
-        CustomCursorIcon.Visible = false
-        pcall(function() UserInputService.MouseIconEnabled = true end)
-    end
-end))
 
 local TopWatermark = Instance.new("Frame")
 TopWatermark.Name = "StarTopWatermark"
@@ -3209,168 +3176,9 @@ ApplyPartTexBtn.MouseButton1Click:Connect(function()
     Library.ParticleTexture = formatted
     rebuildParticles()
 end)
-
--- 4. CURSOR CUSTOMIZATION CARD (5 PRESETS + MANUAL INPUT)
-local CursorCard = Instance.new("Frame")
-CursorCard.Size = UDim2.new(1, 0, 0, 175)
-CursorCard.BackgroundColor3 = Library.Theme.Card
-CursorCard.BorderSizePixel = 0
-CursorCard.ZIndex = 22
-CursorCard.Parent = VisualsPage
-UI.CursorCard = CursorCard
-addCorner(CursorCard, 8)
-
-local CursorCardTitle = Instance.new("TextLabel")
-CursorCardTitle.Size = UDim2.new(1, -20, 0, 18)
-CursorCardTitle.Position = UDim2.new(0, 10, 0, 6)
-CursorCardTitle.BackgroundTransparency = 1
-CursorCardTitle.Font = Library.Fonts.Header
-CursorCardTitle.Text = "CUSTOM CURSOR SETTINGS"
-CursorCardTitle.TextColor3 = Library.Theme.Accent
-CursorCardTitle.TextSize = 10.5
-CursorCardTitle.TextXAlignment = Enum.TextXAlignment.Left
-CursorCardTitle.ZIndex = 23
-CursorCardTitle.Parent = CursorCard
-
-local CursorToggleBlock = Instance.new("TextButton")
-CursorToggleBlock.Size = UDim2.new(1, -20, 0, 26)
-CursorToggleBlock.Position = UDim2.new(0, 10, 0, 26)
-CursorToggleBlock.BackgroundColor3 = Library.Theme.Block
-CursorToggleBlock.BorderSizePixel = 0
-CursorToggleBlock.AutoButtonColor = false
-CursorToggleBlock.Text = ""
-CursorToggleBlock.ZIndex = 23
-CursorToggleBlock.Parent = CursorCard
-addCorner(CursorToggleBlock, 5)
-
-local CTLabel = Instance.new("TextLabel")
-CTLabel.Size = UDim2.new(1, -60, 1, 0)
-CTLabel.Position = UDim2.new(0, 8, 0, 0)
-CTLabel.BackgroundTransparency = 1
-CTLabel.Font = Library.Fonts.Label
-CTLabel.Text = "Enable Custom Cursor"
-CTLabel.TextColor3 = Library.Theme.Text
-CTLabel.TextSize = 10.5
-CTLabel.TextXAlignment = Enum.TextXAlignment.Left
-CTLabel.ZIndex = 24
-CTLabel.Parent = CursorToggleBlock
-
-local CTSwitchBg = Instance.new("Frame")
-CTSwitchBg.Size = UDim2.new(0, 32, 0, 16)
-CTSwitchBg.Position = UDim2.new(1, -40, 0.5, -8)
-CTSwitchBg.BackgroundColor3 = Library.CustomCursorEnabled and Library.Theme.Accent or Library.Theme.Header
-CTSwitchBg.BorderSizePixel = 0
-CTSwitchBg.ZIndex = 24
-CTSwitchBg.Parent = CursorToggleBlock
-addCorner(CTSwitchBg, 9)
-
-local CTKnob = Instance.new("Frame")
-CTKnob.Size = UDim2.new(0, 12, 0, 12)
-CTKnob.Position = Library.CustomCursorEnabled and UDim2.new(1, -14, 0.5, -6) or UDim2.new(0, 2, 0.5, -6)
-CTKnob.BackgroundColor3 = Library.CustomCursorEnabled and Library.Theme.Background or Library.Theme.TextDim
-CTKnob.BorderSizePixel = 0
-CTKnob.ZIndex = 25
-CTKnob.Parent = CTSwitchBg
-addCorner(CTKnob, 7)
-
-CursorToggleBlock.MouseButton1Click:Connect(function()
-    Library.CustomCursorEnabled = not Library.CustomCursorEnabled
-    smoothTween(CTSwitchBg, DUR_NORMAL, { BackgroundColor3 = Library.CustomCursorEnabled and Library.Theme.Accent or Library.Theme.Header })
-    smoothTween(CTKnob, DUR_NORMAL, {
-        Position = Library.CustomCursorEnabled and UDim2.new(1, -14, 0.5, -6) or UDim2.new(0, 2, 0.5, -6),
-        BackgroundColor3 = Library.CustomCursorEnabled and Library.Theme.Background or Library.Theme.TextDim
-    })
-end)
-
-local cursorPresets = {
-    { Name = "Star 1", Id = "113598517899874" },
-    { Name = "Star 2", Id = "5946093983" },
-    { Name = "Hello Kitty", Id = "12014037690" },
-    { Name = "Telegram", Id = "12715836993" },
-    { Name = "Spawn", Id = "12787168857" }
-}
-
-local CursorPresetScroll = Instance.new("Frame")
-CursorPresetScroll.Size = UDim2.new(1, -20, 0, 58)
-CursorPresetScroll.Position = UDim2.new(0, 10, 0, 56)
-CursorPresetScroll.BackgroundTransparency = 1
-CursorPresetScroll.ZIndex = 23
-CursorPresetScroll.Parent = CursorCard
-
-local CursorGrid = Instance.new("UIGridLayout")
-CursorGrid.CellSize = UDim2.new(0.31, 0, 0, 24)
-CursorGrid.CellPadding = UDim2.new(0.03, 0, 0, 4)
-CursorGrid.SortOrder = Enum.SortOrder.LayoutOrder
-CursorGrid.Parent = CursorPresetScroll
-
-for _, preset in ipairs(cursorPresets) do
-    local CBtn = Instance.new("TextButton")
-    CBtn.Size = UDim2.new(1, 0, 1, 0)
-    CBtn.BackgroundColor3 = Library.Theme.Header
-    CBtn.BorderSizePixel = 0
-    CBtn.Font = Library.Fonts.Badge
-    CBtn.Text = preset.Name
-    CBtn.TextColor3 = Library.Theme.Accent
-    CBtn.TextSize = 9.5
-    CBtn.ZIndex = 24
-    CBtn.Parent = CursorPresetScroll
-    addCorner(CBtn, 5)
-
-    CBtn.MouseButton1Click:Connect(function()
-        local assetUrl = "rbxassetid://" .. preset.Id
-        Library.CustomCursorIcon = assetUrl
-        CustomCursorIcon.Image = assetUrl
-    end)
 end
 
-local CursorInputBg = Instance.new("Frame")
-CursorInputBg.Size = UDim2.new(1, -115, 0, 26)
-CursorInputBg.Position = UDim2.new(0, 10, 0, 134)
-CursorInputBg.BackgroundColor3 = Library.Theme.Header
-CursorInputBg.BorderSizePixel = 0
-CursorInputBg.ZIndex = 23
-CursorInputBg.Parent = CursorCard
-addCorner(CursorInputBg, 5)
 
-local CursorInput = Instance.new("TextBox")
-CursorInput.Size = UDim2.new(1, -10, 1, 0)
-CursorInput.Position = UDim2.new(0, 5, 0, 0)
-CursorInput.BackgroundTransparency = 1
-CursorInput.Font = Library.Fonts.Badge
-CursorInput.PlaceholderText = "Paste Custom Asset ID..."
-CursorInput.PlaceholderColor3 = Library.Theme.TextDim
-CursorInput.Text = ""
-CursorInput.TextColor3 = Library.Theme.Accent
-CursorInput.TextSize = 9.5
-CursorInput.TextXAlignment = Enum.TextXAlignment.Left
-CursorInput.Active = true
-CursorInput.Selectable = true
-CursorInput.ClearTextOnFocus = false
-CursorInput.ZIndex = 24
-CursorInput.Parent = CursorInputBg
-
-local ApplyCursorBtn = Instance.new("TextButton")
-ApplyCursorBtn.Size = UDim2.new(0, 95, 0, 26)
-ApplyCursorBtn.Position = UDim2.new(1, -100, 0, 134)
-ApplyCursorBtn.BackgroundColor3 = Library.Theme.Header
-ApplyCursorBtn.BorderSizePixel = 0
-ApplyCursorBtn.Font = Library.Fonts.Header
-ApplyCursorBtn.Text = "APPLY"
-ApplyCursorBtn.TextColor3 = Library.Theme.Accent
-ApplyCursorBtn.TextSize = 10
-ApplyCursorBtn.ZIndex = 23
-ApplyCursorBtn.Parent = CursorCard
-addCorner(ApplyCursorBtn, 5)
-
-ApplyCursorBtn.MouseButton1Click:Connect(function()
-    if CursorInput.Text ~= "" then
-        local formatted = formatAssetId(CursorInput.Text)
-        if formatted ~= "" then
-            Library.CustomCursorIcon = formatted
-            CustomCursorIcon.Image = formatted
-        end
-    end
-end)
 
 local function toggleSettingsModal(visible)
     if visible == nil then visible = not SettingsModal.Visible end
