@@ -1348,8 +1348,8 @@ ConfigDropList.BackgroundColor3 = Library.Theme.Block
 ConfigDropList.BorderSizePixel = 0
 ConfigDropList.ClipsDescendants = true
 ConfigDropList.Visible = false
-ConfigDropList.ZIndex = 300
-ConfigDropList.Parent = Container
+ConfigDropList.ZIndex = 500
+ConfigDropList.Parent = ScreenGui
 
 local ConfigDropStroke = Instance.new("UIStroke")
 ConfigDropStroke.Color = Library.Theme.StrokeActive
@@ -1583,7 +1583,8 @@ do
                 ConfigNameInput.Text = cfgName
                 ConfigDropdownBtn.Text = cfgName .. ".json v"
                 configDropOpen = false
-                local t = smoothTween(ConfigDropList, DUR_NORMAL, { Size = UDim2.new(1, -105, 0, 0) })
+                local btnWidth = ConfigDropdownBtn.AbsoluteSize.X > 0 and ConfigDropdownBtn.AbsoluteSize.X or 180
+                local t = smoothTween(ConfigDropList, DUR_NORMAL, { Size = UDim2.new(0, btnWidth, 0, 0) })
                 t.Completed:Connect(function()
                     if not configDropOpen then ConfigDropList.Visible = false end
                 end)
@@ -1599,13 +1600,18 @@ do
         configDropOpen = not configDropOpen
         if configDropOpen then
             local height = refreshConfigDropdownOptions()
-            ConfigDropList.Position = UDim2.new(0, 98, 1, 4)
-            ConfigDropList.Size = UDim2.new(1, -105, 0, 0)
-            ConfigDropList.Parent = ConfigSelectBg
+            local btnPos = ConfigDropdownBtn.AbsolutePosition
+            local btnSize = ConfigDropdownBtn.AbsoluteSize
+            local width = btnSize.X > 0 and btnSize.X or 180
+            ConfigDropList.Position = UDim2.new(0, btnPos.X, 0, btnPos.Y + btnSize.Y + 4)
+            ConfigDropList.Size = UDim2.new(0, width, 0, 0)
+            ConfigDropList.ZIndex = 500
+            ConfigDropList.Parent = ScreenGui
             ConfigDropList.Visible = true
-            smoothTween(ConfigDropList, DUR_NORMAL, { Size = UDim2.new(1, -105, 0, height) })
+            smoothTween(ConfigDropList, DUR_NORMAL, { Size = UDim2.new(0, width, 0, height) })
         else
-            local t = smoothTween(ConfigDropList, DUR_NORMAL, { Size = UDim2.new(1, -105, 0, 0) })
+            local btnWidth = ConfigDropdownBtn.AbsoluteSize.X > 0 and ConfigDropdownBtn.AbsoluteSize.X or 180
+            local t = smoothTween(ConfigDropList, DUR_NORMAL, { Size = UDim2.new(0, btnWidth, 0, 0) })
             t.Completed:Connect(function()
                 if not configDropOpen then ConfigDropList.Visible = false end
             end)
