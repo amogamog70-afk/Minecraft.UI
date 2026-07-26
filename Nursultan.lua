@@ -199,6 +199,7 @@ local ScreenGui = Instance.new("ScreenGui")
 ScreenGui.Name = "NursultanGUI"
 ScreenGui.ResetOnSpawn = false
 ScreenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+ScreenGui.IgnoreGuiInset = true
 ScreenGui.Parent = ParentContainer
 
 local ParticleGuiContainer = Instance.new("Frame")
@@ -322,26 +323,28 @@ WMarkStroke.Color = Library.Theme.Stroke
 WMarkStroke.Thickness = 1.2
 WMarkStroke.Parent = Watermark
 
-local WMarkAccent = Instance.new("Frame")
-WMarkAccent.Size = UDim2.new(0, 3, 0, 18)
-WMarkAccent.Position = UDim2.new(0, 8, 0.5, -9)
-WMarkAccent.BackgroundColor3 = Library.Theme.Accent
-WMarkAccent.BorderSizePixel = 0
-WMarkAccent.Parent = Watermark
+local WMarkIcon = Instance.new("ImageLabel")
+WMarkIcon.Name = "WMarkIcon"
+WMarkIcon.Size = UDim2.new(0, 18, 0, 18)
+WMarkIcon.Position = UDim2.new(0, 8, 0.5, -9)
+WMarkIcon.BackgroundTransparency = 1
+WMarkIcon.Image = "rbxassetid://93992148478224"
+WMarkIcon.ImageColor3 = Library.Theme.Accent
+WMarkIcon.Parent = Watermark
 
 local WMarkLabel = Instance.new("TextLabel")
-WMarkLabel.Size = UDim2.new(1, -20, 1, 0)
-WMarkLabel.Position = UDim2.new(0, 18, 0, 0)
+WMarkLabel.Size = UDim2.new(1, -35, 1, 0)
+WMarkLabel.Position = UDim2.new(0, 32, 0, 0)
 WMarkLabel.BackgroundTransparency = 1
 WMarkLabel.Font = Library.Fonts.Header
-WMarkLabel.Text = "NURSULTAN CLIENT  |  [RIGHT SHIFT]"
+WMarkLabel.Text = "STAR.UI  |  [RIGHT SHIFT]"
 WMarkLabel.TextColor3 = Library.Theme.Text
 WMarkLabel.TextSize = 11
 WMarkLabel.TextXAlignment = Enum.TextXAlignment.Left
 WMarkLabel.Parent = Watermark
 UI.Watermark = Watermark
 UI.WMarkStroke = WMarkStroke
-UI.WMarkAccent = WMarkAccent
+UI.WMarkIcon = WMarkIcon
 UI.WMarkLabel = WMarkLabel
 
 local GearBtnFrame = Instance.new("Frame")
@@ -886,12 +889,23 @@ ModalHeader.ZIndex = 21
 ModalHeader.Parent = SettingsModal
 UI.ModalHeader = ModalHeader
 
+local ModalLogoIcon = Instance.new("ImageLabel")
+ModalLogoIcon.Name = "ModalLogoIcon"
+ModalLogoIcon.Size = UDim2.new(0, 20, 0, 20)
+ModalLogoIcon.Position = UDim2.new(0, 12, 0.5, -10)
+ModalLogoIcon.BackgroundTransparency = 1
+ModalLogoIcon.Image = "rbxassetid://93992148478224"
+ModalLogoIcon.ImageColor3 = Library.Theme.Accent
+ModalLogoIcon.ZIndex = 22
+ModalLogoIcon.Parent = ModalHeader
+UI.ModalLogoIcon = ModalLogoIcon
+
 local ModalTitle = Instance.new("TextLabel")
-ModalTitle.Size = UDim2.new(1, -50, 1, 0)
-ModalTitle.Position = UDim2.new(0, 15, 0, 0)
+ModalTitle.Size = UDim2.new(1, -70, 1, 0)
+ModalTitle.Position = UDim2.new(0, 38, 0, 0)
 ModalTitle.BackgroundTransparency = 1
 ModalTitle.Font = Library.Fonts.Header
-ModalTitle.Text = "NURSULTAN CLIENT  |  SETTINGS & MANAGER"
+ModalTitle.Text = "STAR.UI  |  SETTINGS & MANAGER"
 ModalTitle.TextColor3 = Library.Theme.Text
 ModalTitle.TextSize = 11
 ModalTitle.TextXAlignment = Enum.TextXAlignment.Left
@@ -1435,7 +1449,7 @@ trackConnection(UserInputService.InputBegan:Connect(function(input)
         if input.UserInputType == Enum.UserInputType.Keyboard then
             if input.KeyCode ~= Enum.KeyCode.Escape and input.KeyCode ~= Enum.KeyCode.Unknown then
                 Library.ToggleKey = input.KeyCode
-                WMarkLabel.Text = "NURSULTAN CLIENT  |  [" .. string.upper(Library.ToggleKey.Name) .. "]"
+                WMarkLabel.Text = "STAR.UI  |  [" .. string.upper(Library.ToggleKey.Name) .. "]"
             end
             isListeningMenuKey = false
             Library.ListeningKeybind = false
@@ -2880,7 +2894,7 @@ function Library:SetTheme(themeName)
 
     st(UI.Watermark, { BackgroundColor3 = t.Block })
     st(UI.WMarkStroke, { Color = t.Stroke })
-    st(UI.WMarkAccent, { BackgroundColor3 = t.Accent })
+    st(UI.WMarkIcon, { ImageColor3 = t.Accent })
     st(UI.WMarkLabel, { TextColor3 = t.Text })
 
     st(UI.GearBtnFrame, { BackgroundColor3 = t.Block })
@@ -2909,11 +2923,12 @@ function Library:SetTheme(themeName)
     st(UI.SettingsModal, { BackgroundColor3 = t.Block })
     st(UI.ModalHeader, { BackgroundColor3 = t.Header })
     st(UI.ModalSidebar, { BackgroundColor3 = t.Header })
+    st(UI.ModalLogoIcon, { ImageColor3 = t.Accent })
     st(UI.ModalTitle, { TextColor3 = t.Text })
     st(UI.ModalStroke, { Color = t.StrokeActive })
 
     for name, data in pairs(ModalTabs) do
-        local isSel = (name == Library.CurrentThemeName or data.Page.Visible)
+        local isSel = data.Page.Visible
         st(data.Btn, {
             BackgroundColor3 = isSel and t.Block or t.Card,
             TextColor3 = isSel and t.Accent or t.TextDim
@@ -2940,7 +2955,7 @@ function Library:SetTheme(themeName)
         st(UI.TCLabel, { TextColor3 = t.Accent })
         for _, child in ipairs(UI.ThemeCard:GetChildren()) do
             if child:IsA("TextButton") then
-                local isMatch = (child.Text:find(themeName))
+                local isMatch = (child.Text:find(themeName, 1, true) ~= nil)
                 st(child, {
                     BackgroundColor3 = isMatch and t.Header or t.Block,
                     TextColor3 = isMatch and t.Accent or t.TextDim
@@ -3131,7 +3146,7 @@ function Library:CreateBlock(title, defaultPosition)
         Elements = {}
     }
 
-    defaultPosition = defaultPosition or UDim2.new(0.02 + (#Library.Blocks * 0.14), 0, 0.06, 0)
+    defaultPosition = defaultPosition or UDim2.new(0.02, #Library.Blocks * 258, 0.06, 0)
     Block.DefaultPos = defaultPosition
 
     local Frame = Instance.new("Frame")
