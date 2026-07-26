@@ -86,6 +86,8 @@ local Library = {
     ListeningKeybind = false,
     BlurEnabled = true,
     BlurSize = 18,
+    MenuBgImage = "",
+    MenuBgTransparency = 30,
     SnowEnabled = true,
     ParticleCount = 50,
     ParticleSpeed = 1.0,
@@ -205,6 +207,27 @@ ParticleGuiContainer.BackgroundTransparency = 1
 ParticleGuiContainer.ClipsDescendants = false
 ParticleGuiContainer.ZIndex = 1
 ParticleGuiContainer.Parent = ScreenGui
+
+local MenuBgImage = Instance.new("ImageLabel")
+MenuBgImage.Name = "MenuBgImage"
+MenuBgImage.Size = UDim2.new(1, 0, 1, 0)
+MenuBgImage.BackgroundTransparency = 1
+MenuBgImage.ScaleType = Enum.ScaleType.Crop
+MenuBgImage.ImageTransparency = 0.3
+MenuBgImage.Visible = false
+MenuBgImage.ZIndex = 0
+MenuBgImage.Parent = ParticleGuiContainer
+
+local function updateMenuBgImage()
+    local formatted = formatAssetId(Library.MenuBgImage or "")
+    if formatted ~= "" then
+        MenuBgImage.Image = formatted
+        MenuBgImage.ImageTransparency = (Library.MenuBgTransparency or 30) / 100
+        MenuBgImage.Visible = Library.Enabled
+    else
+        MenuBgImage.Visible = false
+    end
+end
 
 local Container = Instance.new("Frame")
 Container.Name = "BlockContainer"
@@ -452,16 +475,18 @@ function Library:RefreshKeybindHUD()
     for featName, data in pairs(Library.KeybindList) do
         local keyStr = ""
         local modeStr = "Toggle"
+        local isActive = false
         if type(data) == "table" then
             keyStr = data.Key or ""
             modeStr = data.Mode or "Toggle"
+            isActive = (data.Active == true or data.ActiveState == true or modeStr == "Always")
         else
             keyStr = tostring(data)
         end
 
         local Row = Instance.new("Frame")
         Row.Size = UDim2.new(1, 0, 0, 22)
-        Row.BackgroundColor3 = Library.Theme.Card
+        Row.BackgroundColor3 = isActive and Library.Theme.CardHover or Library.Theme.Card
         Row.BorderSizePixel = 0
         Row.Parent = HUDListHolder
 
@@ -471,7 +496,7 @@ function Library:RefreshKeybindHUD()
         NameLbl.BackgroundTransparency = 1
         NameLbl.Font = Library.Fonts.Label
         NameLbl.Text = featName
-        NameLbl.TextColor3 = Library.Theme.TextDim
+        NameLbl.TextColor3 = isActive and Library.Theme.Text or Library.Theme.TextDim
         NameLbl.TextSize = 10
         NameLbl.TextXAlignment = Enum.TextXAlignment.Left
         NameLbl.Parent = Row
@@ -479,14 +504,14 @@ function Library:RefreshKeybindHUD()
         local Badge = Instance.new("TextLabel")
         Badge.Size = UDim2.new(0, 80, 0, 16)
         Badge.Position = UDim2.new(1, -82, 0.5, -8)
-        Badge.BackgroundColor3 = Library.Theme.Header
+        Badge.BackgroundColor3 = isActive and Library.Theme.Accent or Library.Theme.Header
         Badge.Font = Library.Fonts.Badge
         if modeStr == "Always" then
             Badge.Text = "ALWAYS"
         else
             Badge.Text = keyStr .. " [" .. string.upper(modeStr) .. "]"
         end
-        Badge.TextColor3 = Library.Theme.Accent
+        Badge.TextColor3 = isActive and Library.Theme.Background or Library.Theme.Accent
         Badge.TextSize = 8.5
         Badge.BorderSizePixel = 0
         Badge.Parent = Row
@@ -1288,6 +1313,81 @@ DeleteConfigBtn.MouseButton1Click:Connect(function()
     end)
 end)
 
+-- Menu Toggle Keybind Card
+local MenuBindCard = Instance.new("Frame")
+MenuBindCard.Size = UDim2.new(1, 0, 0, 75)
+MenuBindCard.BackgroundColor3 = Library.Theme.Card
+MenuBindCard.BorderSizePixel = 0
+MenuBindCard.ZIndex = 22
+MenuBindCard.Parent = ConfigsPage
+
+local MenuBindTitle = Instance.new("TextLabel")
+MenuBindTitle.Size = UDim2.new(1, -20, 0, 18)
+MenuBindTitle.Position = UDim2.new(0, 10, 0, 6)
+MenuBindTitle.BackgroundTransparency = 1
+MenuBindTitle.Font = Library.Fonts.Header
+MenuBindTitle.Text = "MENU TOGGLE KEYBIND"
+MenuBindTitle.TextColor3 = Library.Theme.Accent
+MenuBindTitle.TextSize = 10.5
+MenuBindTitle.TextXAlignment = Enum.TextXAlignment.Left
+MenuBindTitle.ZIndex = 23
+MenuBindTitle.Parent = MenuBindCard
+
+local MenuBindRow = Instance.new("Frame")
+MenuBindRow.Size = UDim2.new(1, -20, 0, 32)
+MenuBindRow.Position = UDim2.new(0, 10, 0, 30)
+MenuBindRow.BackgroundColor3 = Library.Theme.Block
+MenuBindRow.BorderSizePixel = 0
+MenuBindRow.ZIndex = 23
+MenuBindRow.Parent = MenuBindCard
+
+local MBLbl = Instance.new("TextLabel")
+MBLbl.Size = UDim2.new(1, -110, 1, 0)
+MBLbl.Position = UDim2.new(0, 10, 0, 0)
+MBLbl.BackgroundTransparency = 1
+MBLbl.Font = Library.Fonts.Label
+MBLbl.Text = "Toggle Menu Open / Close"
+MBLbl.TextColor3 = Library.Theme.Text
+MBLbl.TextSize = 10.5
+MBLbl.TextXAlignment = Enum.TextXAlignment.Left
+MBLbl.ZIndex = 24
+MBLbl.Parent = MenuBindRow
+
+local MenuKeyBtn = Instance.new("TextButton")
+MenuKeyBtn.Size = UDim2.new(0, 95, 0, 20)
+MenuKeyBtn.Position = UDim2.new(1, -102, 0.5, -10)
+MenuKeyBtn.BackgroundColor3 = Library.Theme.Header
+MenuKeyBtn.BorderSizePixel = 0
+MenuKeyBtn.Font = Library.Fonts.Badge
+MenuKeyBtn.Text = string.upper(Library.ToggleKey.Name)
+MenuKeyBtn.TextColor3 = Library.Theme.Accent
+MenuKeyBtn.TextSize = 9.5
+MenuKeyBtn.ZIndex = 25
+MenuKeyBtn.Parent = MenuBindRow
+
+local isListeningMenuKey = false
+MenuKeyBtn.MouseButton1Click:Connect(function()
+    isListeningMenuKey = true
+    Library.ListeningKeybind = true
+    MenuKeyBtn.Text = "..."
+    MenuKeyBtn.TextColor3 = Library.Theme.TextDim
+end)
+
+trackConnection(UserInputService.InputBegan:Connect(function(input)
+    if isListeningMenuKey then
+        if input.UserInputType == Enum.UserInputType.Keyboard then
+            if input.KeyCode ~= Enum.KeyCode.Escape and input.KeyCode ~= Enum.KeyCode.Unknown then
+                Library.ToggleKey = input.KeyCode
+                WMarkLabel.Text = "NURSULTAN CLIENT  |  [" .. string.upper(Library.ToggleKey.Name) .. "]"
+            end
+            isListeningMenuKey = false
+            Library.ListeningKeybind = false
+            MenuKeyBtn.Text = string.upper(Library.ToggleKey.Name)
+            MenuKeyBtn.TextColor3 = Library.Theme.Accent
+        end
+    end
+end))
+
 -- 2. THEMES TAB PAGE
 local ThemeCard = Instance.new("Frame")
 ThemeCard.Size = UDim2.new(1, 0, 0, 160)
@@ -1899,9 +1999,9 @@ PlaySoundBtn.MouseButton1Click:Connect(function()
     end
 end)
 
--- 5. VISUALS TAB PAGE (ADVANCED BLUR & CUSTOM PARTICLES CONTROL)
+-- 5. VISUALS TAB PAGE (ADVANCED BLUR & WALLPAPER IMAGE CONTROL)
 local BlurCard = Instance.new("Frame")
-BlurCard.Size = UDim2.new(1, 0, 0, 85)
+BlurCard.Size = UDim2.new(1, 0, 0, 195)
 BlurCard.BackgroundColor3 = Library.Theme.Card
 BlurCard.BorderSizePixel = 0
 BlurCard.ZIndex = 22
@@ -1912,7 +2012,7 @@ BlurCardTitle.Size = UDim2.new(1, -20, 0, 18)
 BlurCardTitle.Position = UDim2.new(0, 10, 0, 6)
 BlurCardTitle.BackgroundTransparency = 1
 BlurCardTitle.Font = Library.Fonts.Header
-BlurCardTitle.Text = "BACKGROUND BLUR EFFECT"
+BlurCardTitle.Text = "BACKGROUND BLUR & WALLPAPER IMAGE"
 BlurCardTitle.TextColor3 = Library.Theme.Accent
 BlurCardTitle.TextSize = 10.5
 BlurCardTitle.TextXAlignment = Enum.TextXAlignment.Left
@@ -2057,6 +2157,142 @@ BlurValInput.FocusLost:Connect(function()
         MenuBlur.Size = parsed
     else
         BlurValInput.Text = tostring(Library.BlurSize)
+    end
+end)
+
+-- Wallpaper Background Texture ID Input + Apply Button
+local WallpaperBg = Instance.new("Frame")
+WallpaperBg.Size = UDim2.new(1, -20, 0, 26)
+WallpaperBg.Position = UDim2.new(0, 10, 0, 86)
+WallpaperBg.BackgroundColor3 = Library.Theme.Header
+WallpaperBg.BorderSizePixel = 0
+WallpaperBg.ZIndex = 23
+WallpaperBg.Parent = BlurCard
+
+local WallpaperInput = Instance.new("TextBox")
+WallpaperInput.Size = UDim2.new(1, -10, 1, 0)
+WallpaperInput.Position = UDim2.new(0, 5, 0, 0)
+WallpaperInput.BackgroundTransparency = 1
+WallpaperInput.Font = Library.Fonts.Badge
+WallpaperInput.PlaceholderText = "Paste Wallpaper Image Texture ID..."
+WallpaperInput.PlaceholderColor3 = Library.Theme.TextDim
+WallpaperInput.Text = Library.MenuBgImage
+WallpaperInput.TextColor3 = Library.Theme.Accent
+WallpaperInput.TextSize = 9.5
+WallpaperInput.TextXAlignment = Enum.TextXAlignment.Left
+WallpaperInput.Active = true
+WallpaperInput.Selectable = true
+WallpaperInput.ClearTextOnFocus = false
+WallpaperInput.ZIndex = 24
+WallpaperInput.Parent = WallpaperBg
+
+local ApplyWallpaperBtn = Instance.new("TextButton")
+ApplyWallpaperBtn.Size = UDim2.new(1, -20, 0, 26)
+ApplyWallpaperBtn.Position = UDim2.new(0, 10, 0, 118)
+ApplyWallpaperBtn.BackgroundColor3 = Library.Theme.Header
+ApplyWallpaperBtn.BorderSizePixel = 0
+ApplyWallpaperBtn.Font = Library.Fonts.Header
+ApplyWallpaperBtn.Text = "APPLY BACKGROUND WALLPAPER"
+ApplyWallpaperBtn.TextColor3 = Library.Theme.Accent
+ApplyWallpaperBtn.TextSize = 9.5
+ApplyWallpaperBtn.ZIndex = 23
+ApplyWallpaperBtn.Parent = BlurCard
+
+ApplyWallpaperBtn.MouseButton1Click:Connect(function()
+    Library.MenuBgImage = WallpaperInput.Text
+    updateMenuBgImage()
+end)
+
+-- Wallpaper Transparency Slider (0% - 90%)
+local WallTransRow = Instance.new("Frame")
+WallTransRow.Size = UDim2.new(1, -20, 0, 26)
+WallTransRow.Position = UDim2.new(0, 10, 0, 154)
+WallTransRow.BackgroundTransparency = 1
+WallTransRow.ZIndex = 23
+WallTransRow.Parent = BlurCard
+
+local WallTransLbl = Instance.new("TextLabel")
+WallTransLbl.Size = UDim2.new(0, 85, 1, 0)
+WallTransLbl.BackgroundTransparency = 1
+WallTransLbl.Font = Library.Fonts.Label
+WallTransLbl.Text = "Wallpaper Trans (%):"
+WallTransLbl.TextColor3 = Library.Theme.TextDim
+WallTransLbl.TextSize = 9.5
+WallTransLbl.TextXAlignment = Enum.TextXAlignment.Left
+WallTransLbl.ZIndex = 24
+WallTransLbl.Parent = WallTransRow
+
+local WallTransInput = Instance.new("TextBox")
+WallTransInput.Size = UDim2.new(0, 36, 0, 18)
+WallTransInput.Position = UDim2.new(1, -38, 0.5, -9)
+WallTransInput.BackgroundColor3 = Library.Theme.Header
+WallTransInput.BorderSizePixel = 0
+WallTransInput.Font = Library.Fonts.Badge
+WallTransInput.Text = tostring(Library.MenuBgTransparency)
+WallTransInput.TextColor3 = Library.Theme.Accent
+WallTransInput.TextSize = 9.5
+WallTransInput.ZIndex = 24
+WallTransInput.Parent = WallTransRow
+
+local WallTransTrackBg = Instance.new("TextButton")
+WallTransTrackBg.Size = UDim2.new(1, -140, 0, 6)
+WallTransTrackBg.Position = UDim2.new(0, 90, 0.5, -3)
+WallTransTrackBg.BackgroundColor3 = Library.Theme.Header
+WallTransTrackBg.BorderSizePixel = 0
+WallTransTrackBg.AutoButtonColor = false
+WallTransTrackBg.Text = ""
+WallTransTrackBg.ZIndex = 24
+WallTransTrackBg.Parent = WallTransRow
+
+local WallTransFill = Instance.new("Frame")
+local wallTransRelX = math.clamp(Library.MenuBgTransparency / 90, 0, 1)
+WallTransFill.Size = UDim2.new(wallTransRelX, 0, 1, 0)
+WallTransFill.BackgroundColor3 = Library.Theme.Accent
+WallTransFill.BorderSizePixel = 0
+WallTransFill.ZIndex = 25
+WallTransFill.Parent = WallTransTrackBg
+
+local isDraggingWallTrans = false
+local function updateWallTransPosition(inputX)
+    local width = WallTransTrackBg.AbsoluteSize.X
+    if width <= 0 then return end
+    local relX = math.clamp((inputX - WallTransTrackBg.AbsolutePosition.X) / width, 0, 1)
+    local val = math.floor(relX * 90 + 0.5)
+    Library.MenuBgTransparency = val
+    WallTransInput.Text = tostring(val)
+    WallTransFill.Size = UDim2.new(relX, 0, 1, 0)
+    updateMenuBgImage()
+end
+
+trackConnection(WallTransTrackBg.InputBegan:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+        isDraggingWallTrans = true
+        updateWallTransPosition(input.Position.X)
+    end
+end))
+
+trackConnection(UserInputService.InputEnded:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+        isDraggingWallTrans = false
+    end
+end))
+
+trackConnection(UserInputService.InputChanged:Connect(function(input)
+    if isDraggingWallTrans and (input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch) then
+        updateWallTransPosition(input.Position.X)
+    end
+end))
+
+WallTransInput.FocusLost:Connect(function()
+    local parsed = tonumber(WallTransInput.Text)
+    if parsed then
+        parsed = math.clamp(math.floor(parsed + 0.5), 0, 90)
+        Library.MenuBgTransparency = parsed
+        WallTransInput.Text = tostring(parsed)
+        WallTransFill.Size = UDim2.new(parsed / 90, 0, 1, 0)
+        updateMenuBgImage()
+    else
+        WallTransInput.Text = tostring(Library.MenuBgTransparency)
     end
 end)
 
@@ -2632,6 +2868,13 @@ function Library:SetTheme(themeName)
     smoothTween(BlurValInput, DUR_NORMAL, { BackgroundColor3 = t.Header, TextColor3 = t.Accent })
     smoothTween(BlurTrackBg, DUR_NORMAL, { BackgroundColor3 = t.Header })
     smoothTween(BlurFill, DUR_NORMAL, { BackgroundColor3 = t.Accent })
+    smoothTween(WallpaperBg, DUR_NORMAL, { BackgroundColor3 = t.Header })
+    smoothTween(WallpaperInput, DUR_NORMAL, { TextColor3 = t.Accent })
+    smoothTween(ApplyWallpaperBtn, DUR_NORMAL, { BackgroundColor3 = t.Header, TextColor3 = t.Accent })
+    smoothTween(WallTransLbl, DUR_NORMAL, { TextColor3 = t.TextDim })
+    smoothTween(WallTransInput, DUR_NORMAL, { BackgroundColor3 = t.Header, TextColor3 = t.Accent })
+    smoothTween(WallTransTrackBg, DUR_NORMAL, { BackgroundColor3 = t.Header })
+    smoothTween(WallTransFill, DUR_NORMAL, { BackgroundColor3 = t.Accent })
 
     smoothTween(ParticleCard, DUR_NORMAL, { BackgroundColor3 = t.Card })
     smoothTween(ParticleCardTitle, DUR_NORMAL, { TextColor3 = t.Accent })
@@ -2750,8 +2993,8 @@ trackConnection(UserInputService.InputBegan:Connect(function(input, gameProcesse
     local focused = UserInputService:GetFocusedTextBox()
     if focused then return end
 
-    if input.UserInputType == Enum.KeyCode.Keyboard then
-        if input.KeyCode == Enum.KeyCode.RightShift or input.KeyCode == Library.ToggleKey then
+    if input.UserInputType == Enum.UserInputType.Keyboard then
+        if input.KeyCode == Library.ToggleKey or input.KeyCode == Enum.KeyCode.RightShift then
             Library:Toggle()
         end
     end
@@ -3019,7 +3262,8 @@ function Library:CreateBlock(title, defaultPosition)
             if boundKey ~= Enum.KeyCode.Unknown or mode == "Always" then
                 Library.KeybindList[name] = {
                     Key = (mode == "Always" and "ALWAYS" or string.upper(boundKey.Name)),
-                    Mode = mode
+                    Mode = mode,
+                    Active = state
                 }
             else
                 Library.KeybindList[name] = nil
@@ -3064,6 +3308,12 @@ function Library:CreateBlock(title, defaultPosition)
             })
             smoothTween(Label, DUR_NORMAL, { TextColor3 = state and Library.Theme.Text or Library.Theme.TextDim })
             smoothTween(Stroke, DUR_NORMAL, { Color = state and Library.Theme.StrokeHover or Library.Theme.Stroke })
+
+            if Library.KeybindList[name] then
+                Library.KeybindList[name].Active = state
+                if Library.RefreshKeybindHUD then Library:RefreshKeybindHUD() end
+            end
+
             if fireCallback then
                 task.spawn(function() pcall(callback, state) end)
             end
@@ -3702,11 +3952,14 @@ function Library:CreateBlock(title, defaultPosition)
                 if input.UserInputType == Enum.UserInputType.Keyboard and input.KeyCode == boundKey then
                     if mode == "Toggle" then
                         activeState = not activeState
-                        task.spawn(function() pcall(callback, boundKey, mode, activeState) end)
                     elseif mode == "Hold" then
                         activeState = true
-                        task.spawn(function() pcall(callback, boundKey, mode, true) end)
                     end
+                    if Library.KeybindList[name] then
+                        Library.KeybindList[name].Active = activeState
+                        if Library.RefreshKeybindHUD then Library:RefreshKeybindHUD() end
+                    end
+                    task.spawn(function() pcall(callback, boundKey, mode, activeState) end)
                 end
             end
         end))
@@ -3716,6 +3969,10 @@ function Library:CreateBlock(title, defaultPosition)
                 if input.UserInputType == Enum.UserInputType.Keyboard and input.KeyCode == boundKey then
                     if mode == "Hold" then
                         activeState = false
+                        if Library.KeybindList[name] then
+                            Library.KeybindList[name].Active = false
+                            if Library.RefreshKeybindHUD then Library:RefreshKeybindHUD() end
+                        end
                         task.spawn(function() pcall(callback, boundKey, mode, false) end)
                     end
                 end
