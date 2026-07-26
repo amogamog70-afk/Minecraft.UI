@@ -188,7 +188,7 @@ local Library = {
     }
 }
 
-Library.Theme = Library.Themes["Monochrome Dark"]
+Library.Theme = Library.Themes["Monochrome Slate"] or Library.Themes[Library.CurrentThemeName]
 
 local DUR_FAST   = 0.12
 local DUR_NORMAL = 0.18
