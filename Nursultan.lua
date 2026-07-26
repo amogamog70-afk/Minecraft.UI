@@ -198,11 +198,20 @@ ScreenGui.ResetOnSpawn = false
 ScreenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
 ScreenGui.Parent = ParentContainer
 
+local ParticleGuiContainer = Instance.new("Frame")
+ParticleGuiContainer.Name = "ParticleGuiContainer"
+ParticleGuiContainer.Size = UDim2.new(1, 0, 1, 0)
+ParticleGuiContainer.BackgroundTransparency = 1
+ParticleGuiContainer.ClipsDescendants = false
+ParticleGuiContainer.ZIndex = 1
+ParticleGuiContainer.Parent = ScreenGui
+
 local Container = Instance.new("Frame")
 Container.Name = "BlockContainer"
 Container.Size = UDim2.new(1, 0, 1, 0)
 Container.BackgroundTransparency = 1
 Container.ClipsDescendants = false
+Container.ZIndex = 10
 Container.Parent = ScreenGui
 
 local SnowFolder = Instance.new("Frame")
@@ -210,8 +219,8 @@ SnowFolder.Name = "SnowParticles"
 SnowFolder.Size = UDim2.new(1, 0, 1, 0)
 SnowFolder.BackgroundTransparency = 1
 SnowFolder.ClipsDescendants = false
-SnowFolder.ZIndex = 2
-SnowFolder.Parent = Container
+SnowFolder.ZIndex = 1
+SnowFolder.Parent = ParticleGuiContainer
 
 local Flakes = {}
 
@@ -241,6 +250,7 @@ local function rebuildParticles()
         pInst.Size = UDim2.new(0, pSize, 0, pSize)
         pInst.Position = UDim2.new(math.random(), 0, math.random(), 0)
         pInst.BorderSizePixel = 0
+        pInst.ZIndex = 1
         pInst.Parent = SnowFolder
 
         table.insert(Flakes, {
@@ -387,7 +397,7 @@ end
 local KeybindHUDFrame = Instance.new("Frame")
 KeybindHUDFrame.Name = "KeybindHUDOverlay"
 KeybindHUDFrame.Size = UDim2.new(0, 220, 0, 32)
-KeybindHUDFrame.Position = UDim2.new(1, -235, 0.3, 0)
+KeybindHUDFrame.Position = UDim2.new(1, -510, 1, -180)
 KeybindHUDFrame.BackgroundColor3 = Library.Theme.Block
 KeybindHUDFrame.BorderSizePixel = 0
 KeybindHUDFrame.Parent = Container
@@ -2452,9 +2462,9 @@ PartPresetRow.ZIndex = 23
 PartPresetRow.Parent = ParticleCard
 
 local partPresets = {
-    { Name = "Sakura", Tex = "rbxassetid://6974271850" },
-    { Name = "Snowflake", Tex = "rbxassetid://1142203024" },
-    { Name = "Stars", Tex = "rbxassetid://6974272188" },
+    { Name = "Sakura", Tex = "rbxassetid://132601789498621" },
+    { Name = "Snowflake", Tex = "rbxassetid://16471396163" },
+    { Name = "Stars", Tex = "rbxassetid://112882057182762" },
     { Name = "Square", Tex = "" }
 }
 
@@ -2660,6 +2670,9 @@ function Library:SetTheme(themeName)
                 smoothTween(elem.SwitchBg, DUR_NORMAL, { BackgroundColor3 = elem.GetState() and t.Accent or t.Header })
                 smoothTween(elem.Knob, DUR_NORMAL, { BackgroundColor3 = elem.GetState() and t.Background or t.TextDim })
                 smoothTween(elem.Label, DUR_NORMAL, { TextColor3 = elem.GetState() and t.Text or t.TextDim })
+                if elem.KeyBadgeBtn then smoothTween(elem.KeyBadgeBtn, DUR_NORMAL, { BackgroundColor3 = t.Header, TextColor3 = t.Accent }) end
+                if elem.ModePopup then smoothTween(elem.ModePopup, DUR_NORMAL, { BackgroundColor3 = t.Block }) end
+                if elem.PopupStroke then smoothTween(elem.PopupStroke, DUR_NORMAL, { Color = t.StrokeActive }) end
             elseif elem.Type == "Slider" then
                 smoothTween(elem.Frame, DUR_NORMAL, { BackgroundColor3 = t.Card })
                 smoothTween(elem.Stroke, DUR_NORMAL, { Color = t.Stroke })
@@ -2899,9 +2912,12 @@ function Library:CreateBlock(title, defaultPosition)
         end)
     end
 
-    function Block:AddToggle(name, default, callback)
+    function Block:AddToggle(name, default, callback, defaultKey, defaultMode)
         callback = callback or function() end
         local state = default or false
+        local boundKey = defaultKey or Enum.KeyCode.Unknown
+        local mode = defaultMode or "Toggle"
+        local listening = false
 
         local ToggleBtn = Instance.new("TextButton")
         ToggleBtn.Name = name .. "_Toggle"
@@ -2918,21 +2934,35 @@ function Library:CreateBlock(title, defaultPosition)
         Stroke.Parent = ToggleBtn
 
         local Label = Instance.new("TextLabel")
-        Label.Size = UDim2.new(1, -55, 1, 0)
+        Label.Size = UDim2.new(1, -125, 1, 0)
         Label.Position = UDim2.new(0, 10, 0, 0)
         Label.BackgroundTransparency = 1
         Label.Font = Library.Fonts.Label
         Label.Text = name
         Label.TextColor3 = state and Library.Theme.Text or Library.Theme.TextDim
-        Label.TextSize = 12
+        Label.TextSize = 11.5
         Label.TextXAlignment = Enum.TextXAlignment.Left
         Label.Parent = ToggleBtn
+
+        local KeyBadgeBtn = Instance.new("TextButton")
+        KeyBadgeBtn.Name = "KeyBadge"
+        KeyBadgeBtn.Size = UDim2.new(0, 68, 0, 18)
+        KeyBadgeBtn.Position = UDim2.new(1, -112, 0.5, -9)
+        KeyBadgeBtn.BackgroundColor3 = Library.Theme.Header
+        KeyBadgeBtn.BorderSizePixel = 0
+        KeyBadgeBtn.Font = Library.Fonts.Badge
+        KeyBadgeBtn.Text = "NONE"
+        KeyBadgeBtn.TextColor3 = Library.Theme.Accent
+        KeyBadgeBtn.TextSize = 8.5
+        KeyBadgeBtn.ZIndex = 6
+        KeyBadgeBtn.Parent = ToggleBtn
 
         local SwitchBg = Instance.new("Frame")
         SwitchBg.Size = UDim2.new(0, 32, 0, 18)
         SwitchBg.Position = UDim2.new(1, -40, 0.5, -9)
         SwitchBg.BackgroundColor3 = state and Library.Theme.Accent or Library.Theme.Header
         SwitchBg.BorderSizePixel = 0
+        SwitchBg.ZIndex = 6
         SwitchBg.Parent = ToggleBtn
 
         local SwitchStroke = Instance.new("UIStroke")
@@ -2945,21 +2975,87 @@ function Library:CreateBlock(title, defaultPosition)
         Knob.Position = state and UDim2.new(1, -16, 0.5, -7) or UDim2.new(0, 2, 0.5, -7)
         Knob.BackgroundColor3 = state and Library.Theme.Background or Library.Theme.TextDim
         Knob.BorderSizePixel = 0
-        Knob.ZIndex = 5
+        Knob.ZIndex = 7
         Knob.Parent = SwitchBg
 
-        local elemData = {
-            Type = "Toggle",
-            Frame = ToggleBtn,
-            Stroke = Stroke,
-            SwitchBg = SwitchBg,
-            Knob = Knob,
-            Label = Label,
-            GetState = function() return state end
-        }
-        table.insert(Block.Elements, elemData)
+        local ModePopup = Instance.new("Frame")
+        ModePopup.Name = "ModePopup_" .. name
+        ModePopup.Size = UDim2.new(0, 88, 0, 70)
+        ModePopup.BackgroundColor3 = Library.Theme.Block
+        ModePopup.BorderSizePixel = 0
+        ModePopup.Visible = false
+        ModePopup.ZIndex = 150
+        ModePopup.Parent = Container
 
-        local function updateToggle()
+        local PopupStroke = Instance.new("UIStroke")
+        PopupStroke.Color = Library.Theme.StrokeActive
+        PopupStroke.Thickness = 1.2
+        PopupStroke.Parent = ModePopup
+
+        local PopupPadding = Instance.new("UIPadding")
+        PopupPadding.PaddingTop = UDim.new(0, 3)
+        PopupPadding.PaddingBottom = UDim.new(0, 3)
+        PopupPadding.PaddingLeft = UDim.new(0, 3)
+        PopupPadding.PaddingRight = UDim.new(0, 3)
+        PopupPadding.Parent = ModePopup
+
+        local PopupLayout = Instance.new("UIListLayout")
+        PopupLayout.SortOrder = Enum.SortOrder.LayoutOrder
+        PopupLayout.Padding = UDim.new(0, 2)
+        PopupLayout.Parent = ModePopup
+
+        local modes = { "Toggle", "Hold", "Always" }
+        local modeBtns = {}
+
+        local function updateKeyDisplay()
+            if boundKey == Enum.KeyCode.Unknown and mode ~= "Always" then
+                KeyBadgeBtn.Text = "NONE"
+            elseif mode == "Always" then
+                KeyBadgeBtn.Text = "ALWAYS"
+            else
+                KeyBadgeBtn.Text = string.upper(boundKey.Name) .. " [" .. string.sub(string.upper(mode), 1, 1) .. "]"
+            end
+
+            if boundKey ~= Enum.KeyCode.Unknown or mode == "Always" then
+                Library.KeybindList[name] = {
+                    Key = (mode == "Always" and "ALWAYS" or string.upper(boundKey.Name)),
+                    Mode = mode
+                }
+            else
+                Library.KeybindList[name] = nil
+            end
+
+            if Library.RefreshKeybindHUD then Library:RefreshKeybindHUD() end
+        end
+
+        for _, m in ipairs(modes) do
+            local MBtn = Instance.new("TextButton")
+            MBtn.Size = UDim2.new(1, 0, 0, 20)
+            MBtn.BackgroundColor3 = (m == mode) and Library.Theme.Header or Library.Theme.Card
+            MBtn.BorderSizePixel = 0
+            MBtn.Font = Library.Fonts.Badge
+            MBtn.Text = m
+            MBtn.TextColor3 = (m == mode) and Library.Theme.Accent or Library.Theme.TextDim
+            MBtn.TextSize = 9
+            MBtn.ZIndex = 152
+            MBtn.Parent = ModePopup
+            modeBtns[m] = MBtn
+
+            MBtn.MouseButton1Click:Connect(function()
+                mode = m
+                for mName, btn in pairs(modeBtns) do
+                    btn.BackgroundColor3 = (mName == mode) and Library.Theme.Header or Library.Theme.Card
+                    btn.TextColor3 = (mName == mode) and Library.Theme.Accent or Library.Theme.TextDim
+                end
+                updateKeyDisplay()
+                ModePopup.Visible = false
+            end)
+        end
+
+        updateKeyDisplay()
+
+        local function updateToggle(fireCallback)
+            if fireCallback == nil then fireCallback = true end
             smoothTween(SwitchBg, DUR_NORMAL, { BackgroundColor3 = state and Library.Theme.Accent or Library.Theme.Header })
             smoothTween(SwitchStroke, DUR_NORMAL, { Color = state and Library.Theme.Accent or Library.Theme.Stroke })
             smoothTween(Knob, DUR_NORMAL, {
@@ -2968,28 +3064,111 @@ function Library:CreateBlock(title, defaultPosition)
             })
             smoothTween(Label, DUR_NORMAL, { TextColor3 = state and Library.Theme.Text or Library.Theme.TextDim })
             smoothTween(Stroke, DUR_NORMAL, { Color = state and Library.Theme.StrokeHover or Library.Theme.Stroke })
-            task.spawn(function() pcall(callback, state) end)
+            if fireCallback then
+                task.spawn(function() pcall(callback, state) end)
+            end
         end
 
-        ToggleBtn.MouseEnter:Connect(function()
-            smoothTween(ToggleBtn, DUR_FAST, { BackgroundColor3 = Library.Theme.CardHover })
-            if not state then smoothTween(Stroke, DUR_FAST, { Color = Library.Theme.StrokeHover }) end
-        end)
-
-        ToggleBtn.MouseLeave:Connect(function()
-            smoothTween(ToggleBtn, DUR_FAST, { BackgroundColor3 = Library.Theme.Card })
-            if not state then smoothTween(Stroke, DUR_FAST, { Color = Library.Theme.Stroke }) end
-        end)
-
         ToggleBtn.MouseButton1Click:Connect(function()
+            if listening or ModePopup.Visible then return end
             state = not state
-            updateToggle()
+            updateToggle(true)
         end)
+
+        KeyBadgeBtn.MouseButton1Click:Connect(function()
+            listening = true
+            Library.ListeningKeybind = true
+            KeyBadgeBtn.Text = "..."
+            KeyBadgeBtn.TextColor3 = Library.Theme.TextDim
+            smoothTween(Stroke, DUR_FAST, { Color = Library.Theme.Accent })
+        end)
+
+        KeyBadgeBtn.MouseButton2Click:Connect(function()
+            ModePopup.Visible = not ModePopup.Visible
+            if ModePopup.Visible then
+                local btnPos = KeyBadgeBtn.AbsolutePosition
+                local btnSize = KeyBadgeBtn.AbsoluteSize
+                ModePopup.Position = UDim2.new(0, btnPos.X - 4, 0, btnPos.Y + btnSize.Y + 4)
+                smoothTween(ModePopup, DUR_FAST, { Size = UDim2.new(0, 88, 0, 70) })
+            end
+        end)
+
+        trackConnection(UserInputService.InputBegan:Connect(function(input)
+            if ModePopup.Visible and (input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.MouseButton2) then
+                local clickPos = input.Position
+                local popPos = ModePopup.AbsolutePosition
+                local popSize = ModePopup.AbsoluteSize
+                if clickPos.X < popPos.X or clickPos.X > popPos.X + popSize.X or clickPos.Y < popPos.Y or clickPos.Y > popPos.Y + popSize.Y then
+                    local btnPos = KeyBadgeBtn.AbsolutePosition
+                    local btnSize = KeyBadgeBtn.AbsoluteSize
+                    if not (clickPos.X >= btnPos.X and clickPos.X <= btnPos.X + btnSize.X and clickPos.Y >= btnPos.Y and clickPos.Y <= btnPos.Y + btnSize.Y) then
+                        ModePopup.Visible = false
+                    end
+                end
+            end
+        end))
+
+        trackConnection(UserInputService.InputBegan:Connect(function(input, gpe)
+            if listening then
+                if input.UserInputType == Enum.UserInputType.Keyboard then
+                    if input.KeyCode == Enum.KeyCode.Escape or input.KeyCode == Enum.KeyCode.Backspace then
+                        boundKey = Enum.KeyCode.Unknown
+                    else
+                        boundKey = input.KeyCode
+                    end
+                    listening = false
+                    Library.ListeningKeybind = false
+                    KeyBadgeBtn.TextColor3 = Library.Theme.Accent
+                    smoothTween(Stroke, DUR_FAST, { Color = Library.Theme.Stroke })
+                    updateKeyDisplay()
+                end
+            elseif not gpe and boundKey ~= Enum.KeyCode.Unknown then
+                if input.UserInputType == Enum.UserInputType.Keyboard and input.KeyCode == boundKey then
+                    if mode == "Toggle" then
+                        state = not state
+                        updateToggle(true)
+                    elseif mode == "Hold" then
+                        state = true
+                        updateToggle(true)
+                    end
+                end
+            end
+        end))
+
+        trackConnection(UserInputService.InputEnded:Connect(function(input, gpe)
+            if not gpe and boundKey ~= Enum.KeyCode.Unknown then
+                if input.UserInputType == Enum.UserInputType.Keyboard and input.KeyCode == boundKey then
+                    if mode == "Hold" then
+                        state = false
+                        updateToggle(true)
+                    end
+                end
+            end
+        end))
+
+        local elemData = {
+            Type = "Toggle",
+            Frame = ToggleBtn,
+            Stroke = Stroke,
+            SwitchBg = SwitchBg,
+            Knob = Knob,
+            Label = Label,
+            KeyBadgeBtn = KeyBadgeBtn,
+            ModePopup = ModePopup,
+            PopupStroke = PopupStroke,
+            GetState = function() return state end
+        }
+        table.insert(Block.Elements, elemData)
 
         return {
             Set = function(_, newState)
                 state = newState
-                updateToggle()
+                updateToggle(true)
+            end,
+            SetKeybind = function(_, newKey, newMode)
+                if newKey then boundKey = newKey end
+                if newMode then mode = newMode end
+                updateKeyDisplay()
             end
         }
     end
