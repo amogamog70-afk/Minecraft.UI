@@ -180,6 +180,8 @@ local Library = {
     RadioHUDVisible = true,
     RadioHUDTransparency = 0,
     RadioHUDScale = 100,
+    CustomCursorEnabled = true,
+    CustomCursorIcon = "rbxassetid://113598517899874",
     ConfigFolder = "NursultanClient",
     Fonts = {
         Header = Enum.Font.GothamBold,
@@ -408,6 +410,37 @@ trackConnection(RunService.RenderStepped:Connect(function(dt)
     end
 end))
 
+local CustomCursorIcon = Instance.new("ImageLabel")
+CustomCursorIcon.Name = "StarCustomCursor"
+CustomCursorIcon.Size = UDim2.new(0, 24, 0, 24)
+CustomCursorIcon.BackgroundTransparency = 1
+CustomCursorIcon.Image = Library.CustomCursorIcon
+CustomCursorIcon.ZIndex = 999999
+CustomCursorIcon.Visible = false
+CustomCursorIcon.Parent = ScreenGui
+UI.CustomCursorIcon = CustomCursorIcon
+
+trackConnection(RunService.RenderStepped:Connect(function()
+    if Library.Enabled and ScreenGui and ScreenGui.Enabled then
+        pcall(function()
+            UserInputService.MouseBehavior = Enum.MouseBehavior.Default
+        end)
+        if Library.CustomCursorEnabled then
+            local mousePos = UserInputService:GetMouseLocation()
+            CustomCursorIcon.Position = UDim2.new(0, mousePos.X - 4, 0, mousePos.Y - 36)
+            CustomCursorIcon.Image = Library.CustomCursorIcon
+            CustomCursorIcon.Visible = true
+            UserInputService.MouseIconEnabled = false
+        else
+            CustomCursorIcon.Visible = false
+            UserInputService.MouseIconEnabled = true
+        end
+    else
+        CustomCursorIcon.Visible = false
+        pcall(function() UserInputService.MouseIconEnabled = true end)
+    end
+end))
+
 local TopWatermark = Instance.new("Frame")
 TopWatermark.Name = "StarTopWatermark"
 TopWatermark.Size = UDim2.new(0, 420, 0, 32)
@@ -528,11 +561,12 @@ WMarkTimeLabel.Parent = WMarkContent
 
 UI.Watermark = TopWatermark
 UI.WMarkStroke = TopWMarkStroke
-UI.TopWMarkGlow = TopWMarkGlow
 UI.WMarkIcon = TopWMarkIcon
 UI.WMarkTitle = TopWMarkTitle
 UI.PlayerNameLabel = PlayerNameLabel
 UI.WMarkFpsLabel = WMarkFpsLabel
+UI.WMarkPingLabel = WMarkPingLabel
+UI.WMarkTimeLabel = WMarkTimeLabel
 UI.WMarkPingLabel = WMarkPingLabel
 UI.WMarkTimeLabel = WMarkTimeLabel
 
@@ -732,6 +766,7 @@ HUDCountLabel.TextColor3 = Library.Theme.Accent
 HUDCountLabel.TextSize = 10
 HUDCountLabel.TextXAlignment = Enum.TextXAlignment.Right
 HUDCountLabel.Parent = KeybindHUDHeader
+UI.HUDCountLabel = HUDCountLabel
 
 local HUDListHolder = Instance.new("Frame")
 HUDListHolder.Size = UDim2.new(1, -12, 0, 0)
@@ -1308,6 +1343,7 @@ local function createModalTab(tabName)
     TabBtn.TextSize = 10
     TabBtn.ZIndex = 22
     TabBtn.Parent = ModalSidebar
+    addCorner(TabBtn, 5)
 
     local TabIndicator = Instance.new("Frame")
     TabIndicator.Size = UDim2.new(0, 3, 1, 0)
@@ -1317,6 +1353,7 @@ local function createModalTab(tabName)
     TabIndicator.Visible = false
     TabIndicator.ZIndex = 23
     TabIndicator.Parent = TabBtn
+    addCorner(TabIndicator, 2)
 
     ModalTabs[tabName] = { Page = TabPage, Btn = TabBtn, Indicator = TabIndicator }
     table.insert(SidebarBtns, TabBtn)
@@ -1363,211 +1400,133 @@ do
     ConfigNameBg.Position = UDim2.new(0, 10, 0, 12)
     ConfigNameBg.BackgroundColor3 = Library.Theme.Header
     ConfigNameBg.BorderSizePixel = 0
-ConfigNameBg.ZIndex = 23
-ConfigNameBg.Parent = ConfigCard
+    ConfigNameBg.ZIndex = 23
+    ConfigNameBg.Parent = ConfigCard
+    addCorner(ConfigNameBg, 5)
 
-local ConfigNameInput = Instance.new("TextBox")
-ConfigNameInput.Size = UDim2.new(1, -10, 1, 0)
-ConfigNameInput.Position = UDim2.new(0, 5, 0, 0)
-ConfigNameInput.BackgroundTransparency = 1
-ConfigNameInput.Font = Library.Fonts.Badge
-ConfigNameInput.PlaceholderText = "Config Name (e.g. Rage)..."
-ConfigNameInput.PlaceholderColor3 = Library.Theme.TextDim
-ConfigNameInput.Text = "default"
-ConfigNameInput.TextColor3 = Library.Theme.Accent
-ConfigNameInput.TextSize = 11
-ConfigNameInput.TextXAlignment = Enum.TextXAlignment.Left
-ConfigNameInput.Active = true
-ConfigNameInput.Selectable = true
-ConfigNameInput.ClearTextOnFocus = false
-ConfigNameInput.ZIndex = 25
-ConfigNameInput.Parent = ConfigNameBg
+    local ConfigNameInput = Instance.new("TextBox")
+    ConfigNameInput.Size = UDim2.new(1, -10, 1, 0)
+    ConfigNameInput.Position = UDim2.new(0, 5, 0, 0)
+    ConfigNameInput.BackgroundTransparency = 1
+    ConfigNameInput.Font = Library.Fonts.Badge
+    ConfigNameInput.PlaceholderText = "Config Name (e.g. Rage)..."
+    ConfigNameInput.PlaceholderColor3 = Library.Theme.TextDim
+    ConfigNameInput.Text = "default"
+    ConfigNameInput.TextColor3 = Library.Theme.Accent
+    ConfigNameInput.TextSize = 11
+    ConfigNameInput.TextXAlignment = Enum.TextXAlignment.Left
+    ConfigNameInput.Active = true
+    ConfigNameInput.Selectable = true
+    ConfigNameInput.ClearTextOnFocus = false
+    ConfigNameInput.ZIndex = 25
+    ConfigNameInput.Parent = ConfigNameBg
 
-local SaveCreateBtn = Instance.new("TextButton")
-SaveCreateBtn.Size = UDim2.new(0, 120, 0, 30)
-SaveCreateBtn.Position = UDim2.new(1, -130, 0, 12)
-SaveCreateBtn.BackgroundColor3 = Library.Theme.Header
-SaveCreateBtn.BorderSizePixel = 0
-SaveCreateBtn.Font = Library.Fonts.Header
-SaveCreateBtn.Text = "  SAVE"
-SaveCreateBtn.TextColor3 = Library.Theme.Accent
-SaveCreateBtn.TextSize = 10
-SaveCreateBtn.ZIndex = 23
-SaveCreateBtn.Parent = ConfigCard
+    local SaveCreateBtn = Instance.new("TextButton")
+    SaveCreateBtn.Size = UDim2.new(0, 120, 0, 30)
+    SaveCreateBtn.Position = UDim2.new(1, -130, 0, 12)
+    SaveCreateBtn.BackgroundColor3 = Library.Theme.Header
+    SaveCreateBtn.BorderSizePixel = 0
+    SaveCreateBtn.Font = Library.Fonts.Header
+    SaveCreateBtn.Text = "  SAVE"
+    SaveCreateBtn.TextColor3 = Library.Theme.Accent
+    SaveCreateBtn.TextSize = 10
+    SaveCreateBtn.ZIndex = 23
+    SaveCreateBtn.Parent = ConfigCard
+    addCorner(SaveCreateBtn, 5)
 
-local SaveIcon = Instance.new("ImageLabel")
-SaveIcon.Size = UDim2.new(0, 16, 0, 16)
-SaveIcon.Position = UDim2.new(0, 8, 0.5, -8)
-SaveIcon.BackgroundTransparency = 1
-SaveIcon.Image = "rbxassetid://110746782819291"
-SaveIcon.ImageColor3 = Library.Theme.Accent
-SaveIcon.ZIndex = 24
-SaveIcon.Parent = SaveCreateBtn
+    local SaveIcon = Instance.new("ImageLabel")
+    SaveIcon.Size = UDim2.new(0, 16, 0, 16)
+    SaveIcon.Position = UDim2.new(0, 8, 0.5, -8)
+    SaveIcon.BackgroundTransparency = 1
+    SaveIcon.Image = "rbxassetid://110746782819291"
+    SaveIcon.ImageColor3 = Library.Theme.Accent
+    SaveIcon.ZIndex = 24
+    SaveIcon.Parent = SaveCreateBtn
 
-local ConfigSelectBg = Instance.new("Frame")
-ConfigSelectBg.Size = UDim2.new(1, -20, 0, 30)
-ConfigSelectBg.Position = UDim2.new(0, 10, 0, 50)
-ConfigSelectBg.BackgroundColor3 = Library.Theme.Header
-ConfigSelectBg.BorderSizePixel = 0
-ConfigSelectBg.ZIndex = 23
-ConfigSelectBg.Parent = ConfigCard
+    local ConfigSelectBg = Instance.new("Frame")
+    ConfigSelectBg.Size = UDim2.new(1, -20, 0, 30)
+    ConfigSelectBg.Position = UDim2.new(0, 10, 0, 50)
+    ConfigSelectBg.BackgroundColor3 = Library.Theme.Header
+    ConfigSelectBg.BorderSizePixel = 0
+    ConfigSelectBg.ZIndex = 23
+    ConfigSelectBg.Parent = ConfigCard
+    addCorner(ConfigSelectBg, 5)
 
-local ConfigSelectLbl = Instance.new("TextLabel")
-ConfigSelectLbl.Size = UDim2.new(0, 95, 1, 0)
-ConfigSelectLbl.Position = UDim2.new(0, 8, 0, 0)
-ConfigSelectLbl.BackgroundTransparency = 1
-ConfigSelectLbl.Font = Library.Fonts.Label
-ConfigSelectLbl.Text = "Select Config:"
-ConfigSelectLbl.TextColor3 = Library.Theme.TextDim
-ConfigSelectLbl.TextSize = 10
-ConfigSelectLbl.TextXAlignment = Enum.TextXAlignment.Left
-ConfigSelectLbl.ZIndex = 24
-ConfigSelectLbl.Parent = ConfigSelectBg
+    local ConfigSelectLbl = Instance.new("TextLabel")
+    ConfigSelectLbl.Size = UDim2.new(0, 95, 1, 0)
+    ConfigSelectLbl.Position = UDim2.new(0, 8, 0, 0)
+    ConfigSelectLbl.BackgroundTransparency = 1
+    ConfigSelectLbl.Font = Library.Fonts.Label
+    ConfigSelectLbl.Text = "Select Config:"
+    ConfigSelectLbl.TextColor3 = Library.Theme.TextDim
+    ConfigSelectLbl.TextSize = 10
+    ConfigSelectLbl.TextXAlignment = Enum.TextXAlignment.Left
+    ConfigSelectLbl.ZIndex = 24
+    ConfigSelectLbl.Parent = ConfigSelectBg
 
-local ConfigDropdownBtn = Instance.new("TextButton")
-ConfigDropdownBtn.Size = UDim2.new(1, -105, 0, 24)
-ConfigDropdownBtn.Position = UDim2.new(0, 98, 0.5, -12)
-ConfigDropdownBtn.BackgroundColor3 = Library.Theme.Card
-ConfigDropdownBtn.BorderSizePixel = 0
-ConfigDropdownBtn.Font = Library.Fonts.Badge
-ConfigDropdownBtn.Text = "default.json v"
-ConfigDropdownBtn.TextColor3 = Library.Theme.Accent
-ConfigDropdownBtn.TextSize = 10
-ConfigDropdownBtn.ZIndex = 24
-ConfigDropdownBtn.Parent = ConfigSelectBg
+    local ConfigDropdownBtn = Instance.new("TextButton")
+    ConfigDropdownBtn.Size = UDim2.new(1, -105, 0, 24)
+    ConfigDropdownBtn.Position = UDim2.new(0, 98, 0.5, -12)
+    ConfigDropdownBtn.BackgroundColor3 = Library.Theme.Card
+    ConfigDropdownBtn.BorderSizePixel = 0
+    ConfigDropdownBtn.Font = Library.Fonts.Badge
+    ConfigDropdownBtn.Text = "default.json v"
+    ConfigDropdownBtn.TextColor3 = Library.Theme.Accent
+    ConfigDropdownBtn.TextSize = 10
+    ConfigDropdownBtn.ZIndex = 24
+    ConfigDropdownBtn.Parent = ConfigSelectBg
+    addCorner(ConfigDropdownBtn, 5)
 
-local function getSavedConfigsList()
-    local configs = {}
-    pcall(function()
-        if listfiles and isfolder and isfolder(Library.ConfigFolder) then
-            local files = listfiles(Library.ConfigFolder)
-            for _, filePath in ipairs(files) do
-                local fileName = filePath:match("([^/^\\]+)%.json$") or filePath:match("([^/^\\]+)$")
-                if fileName then
-                    if fileName:sub(-5) == ".json" then
-                        fileName = fileName:sub(1, -6)
+    local function getSavedConfigsList()
+        local configs = {}
+        pcall(function()
+            if listfiles and isfolder and isfolder(Library.ConfigFolder) then
+                local files = listfiles(Library.ConfigFolder)
+                for _, filePath in ipairs(files) do
+                    local fileName = filePath:match("([^/^\\]+)%.json$") or filePath:match("([^/^\\]+)$")
+                    if fileName then
+                        if fileName:sub(-5) == ".json" then
+                            fileName = fileName:sub(1, -6)
+                        end
+                        table.insert(configs, fileName)
                     end
-                    table.insert(configs, fileName)
                 end
             end
+        end)
+        if #configs == 0 then
+            table.insert(configs, "default")
         end
-    end)
-    if #configs == 0 then
-        table.insert(configs, "default")
-    end
-    return configs
-end
-
-local configDropOpen = false
-local function refreshConfigDropdownOptions()
-    for _, child in ipairs(ConfigDropScroll:GetChildren()) do
-        if child:IsA("TextButton") then child:Destroy() end
+        return configs
     end
 
-    local cfgList = getSavedConfigsList()
-    for _, cfgName in ipairs(cfgList) do
-        local ItemBtn = Instance.new("TextButton")
-        ItemBtn.Size = UDim2.new(1, -4, 0, 22)
-        ItemBtn.BackgroundColor3 = (ConfigNameInput.Text == cfgName) and Library.Theme.Header or Library.Theme.Card
-        ItemBtn.BorderSizePixel = 0
-        ItemBtn.Font = Library.Fonts.Badge
-        ItemBtn.Text = "  " .. cfgName .. ".json"
-        ItemBtn.TextColor3 = (ConfigNameInput.Text == cfgName) and Library.Theme.Accent or Library.Theme.TextDim
-        ItemBtn.TextSize = 10
-        ItemBtn.TextXAlignment = Enum.TextXAlignment.Left
-        ItemBtn.ZIndex = 302
-        ItemBtn.Parent = ConfigDropScroll
+    local configDropOpen = false
+    local function refreshConfigDropdownOptions()
+        for _, child in ipairs(ConfigDropScroll:GetChildren()) do
+            if child:IsA("TextButton") then child:Destroy() end
+        end
 
-        ItemBtn.MouseButton1Click:Connect(function()
-            ConfigNameInput.Text = cfgName
-            ConfigDropdownBtn.Text = cfgName .. ".json v"
-            configDropOpen = false
-            local t = smoothTween(ConfigDropList, DUR_NORMAL, { Size = UDim2.new(0, ConfigDropdownBtn.AbsoluteSize.X, 0, 0) })
-            t.Completed:Connect(function()
-                if not configDropOpen then ConfigDropList.Visible = false end
-            end)
-        end)
-    end
+        local cfgList = getSavedConfigsList()
+        for _, cfgName in ipairs(cfgList) do
+            local ItemBtn = Instance.new("TextButton")
+            ItemBtn.Size = UDim2.new(1, -4, 0, 22)
+            ItemBtn.BackgroundColor3 = (ConfigNameInput.Text == cfgName) and Library.Theme.Header or Library.Theme.Card
+            ItemBtn.BorderSizePixel = 0
+            ItemBtn.Font = Library.Fonts.Badge
+            ItemBtn.Text = "  " .. cfgName .. ".json"
+            ItemBtn.TextColor3 = (ConfigNameInput.Text == cfgName) and Library.Theme.Accent or Library.Theme.TextDim
+            ItemBtn.TextSize = 10
+            ItemBtn.TextXAlignment = Enum.TextXAlignment.Left
+            ItemBtn.ZIndex = 302
+            ItemBtn.Parent = ConfigDropScroll
 
-    local totalH = math.min(#cfgList * 24, 110)
-    ConfigDropScroll.CanvasSize = UDim2.new(0, 0, 0, #cfgList * 24)
-    return totalH
-end
-
-ConfigDropdownBtn.MouseButton1Click:Connect(function()
-    configDropOpen = not configDropOpen
-    if configDropOpen then
-        local height = refreshConfigDropdownOptions()
-        local btnPos = ConfigDropdownBtn.AbsolutePosition
-        local btnSize = ConfigDropdownBtn.AbsoluteSize
-        ConfigDropList.Position = UDim2.new(0, btnPos.X, 0, btnPos.Y + btnSize.Y + 2)
-        ConfigDropList.Size = UDim2.new(0, btnSize.X, 0, 0)
-        ConfigDropList.Visible = true
-        smoothTween(ConfigDropList, DUR_NORMAL, { Size = UDim2.new(0, btnSize.X, 0, height) })
-    else
-        local t = smoothTween(ConfigDropList, DUR_NORMAL, { Size = UDim2.new(0, ConfigDropdownBtn.AbsoluteSize.X, 0, 0) })
-        t.Completed:Connect(function()
-            if not configDropOpen then ConfigDropList.Visible = false end
-        end)
-    end
-end)
-
-trackConnection(UserInputService.InputBegan:Connect(function(input)
-    if configDropOpen and (input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.MouseButton2) then
-        local clickPos = input.Position
-        local dropPos = ConfigDropList.AbsolutePosition
-        local dropSize = ConfigDropList.AbsoluteSize
-        if clickPos.X < dropPos.X or clickPos.X > dropPos.X + dropSize.X or clickPos.Y < dropPos.Y or clickPos.Y > dropPos.Y + dropSize.Y then
-            local btnPos = ConfigDropdownBtn.AbsolutePosition
-            local btnSize = ConfigDropdownBtn.AbsoluteSize
-            if not (clickPos.X >= btnPos.X and clickPos.X <= btnPos.X + btnSize.X and clickPos.Y >= btnPos.Y and clickPos.Y <= btnPos.Y + btnSize.Y) then
+            ItemBtn.MouseButton1Click:Connect(function()
+                ConfigNameInput.Text = cfgName
+                ConfigDropdownBtn.Text = cfgName .. ".json v"
                 configDropOpen = false
-                local t = smoothTween(ConfigDropList, DUR_NORMAL, { Size = UDim2.new(0, btnSize.X, 0, 0) })
+                local t = smoothTween(ConfigDropList, DUR_NORMAL, { Size = UDim2.new(1, -105, 0, 0) })
                 t.Completed:Connect(function()
                     if not configDropOpen then ConfigDropList.Visible = false end
                 end)
-            end
-        end
-    end
-end))
-
-local LoadConfigBtn = Instance.new("TextButton")
-LoadConfigBtn.Size = UDim2.new(0.48, 0, 0, 30)
-LoadConfigBtn.Position = UDim2.new(0, 10, 0, 88)
-LoadConfigBtn.BackgroundColor3 = Library.Theme.Header
-LoadConfigBtn.BorderSizePixel = 0
-LoadConfigBtn.Font = Library.Fonts.Header
-LoadConfigBtn.Text = "  LOAD CONFIG"
-LoadConfigBtn.TextColor3 = Library.Theme.Text
-LoadConfigBtn.TextSize = 10
-LoadConfigBtn.ZIndex = 23
-LoadConfigBtn.Parent = ConfigCard
-
-local LoadIcon = Instance.new("ImageLabel")
-LoadIcon.Size = UDim2.new(0, 16, 0, 16)
-LoadIcon.Position = UDim2.new(0, 8, 0.5, -8)
-LoadIcon.BackgroundTransparency = 1
-LoadIcon.Image = "rbxassetid://17119858971"
-LoadIcon.ImageColor3 = Library.Theme.Text
-LoadIcon.ZIndex = 24
-LoadIcon.Parent = LoadConfigBtn
-
-local DeleteConfigBtn = Instance.new("TextButton")
-DeleteConfigBtn.Size = UDim2.new(0.48, 0, 0, 30)
-DeleteConfigBtn.Position = UDim2.new(0.52, -5, 0, 88)
-DeleteConfigBtn.BackgroundColor3 = Library.Theme.Header
-DeleteConfigBtn.BorderSizePixel = 0
-DeleteConfigBtn.Font = Library.Fonts.Header
-DeleteConfigBtn.Text = "   DELETE"
-DeleteConfigBtn.TextColor3 = Color3.fromRGB(255, 90, 90)
-DeleteConfigBtn.TextSize = 10
-DeleteConfigBtn.ZIndex = 23
-DeleteConfigBtn.Parent = ConfigCard
-
-local DeleteIcon = Instance.new("ImageLabel")
-DeleteIcon.Size = UDim2.new(0, 16, 0, 16)
-DeleteIcon.Position = UDim2.new(0, 10, 0.5, -8)
-DeleteIcon.BackgroundTransparency = 1
 DeleteIcon.Image = "rbxassetid://11768918600"
 DeleteIcon.ImageColor3 = Color3.fromRGB(255, 90, 90)
 DeleteIcon.ZIndex = 24
@@ -1675,6 +1634,7 @@ MenuBindCard.BackgroundColor3 = Library.Theme.Card
 MenuBindCard.BorderSizePixel = 0
 MenuBindCard.ZIndex = 22
 MenuBindCard.Parent = ConfigsPage
+addCorner(MenuBindCard, 8)
 
 local MenuBindTitle = Instance.new("TextLabel")
 MenuBindTitle.Size = UDim2.new(1, -20, 0, 18)
@@ -1695,6 +1655,7 @@ MenuBindRow.BackgroundColor3 = Library.Theme.Block
 MenuBindRow.BorderSizePixel = 0
 MenuBindRow.ZIndex = 23
 MenuBindRow.Parent = MenuBindCard
+addCorner(MenuBindRow, 5)
 
 local MBLbl = Instance.new("TextLabel")
 MBLbl.Size = UDim2.new(1, -110, 1, 0)
@@ -1719,6 +1680,7 @@ MenuKeyBtn.TextColor3 = Library.Theme.Accent
 MenuKeyBtn.TextSize = 9.5
 MenuKeyBtn.ZIndex = 25
 MenuKeyBtn.Parent = MenuBindRow
+addCorner(MenuKeyBtn, 5)
 
 local isListeningMenuKey = false
 MenuKeyBtn.MouseButton1Click:Connect(function()
@@ -1791,6 +1753,7 @@ do
         ThBtn.TextXAlignment = Enum.TextXAlignment.Left
         ThBtn.ZIndex = 24
         ThBtn.Parent = ThemeCard
+        addCorner(ThBtn, 5)
 
         ThBtn.MouseButton1Click:Connect(function()
             Library:SetTheme(thName)
@@ -1807,6 +1770,7 @@ do
     SkyPresetCard.ZIndex = 22
     SkyPresetCard.Parent = SkyboxPage
     UI.SkyPresetCard = SkyPresetCard
+    addCorner(SkyPresetCard, 8)
 
     local PresetTitle = Instance.new("TextLabel")
     PresetTitle.Size = UDim2.new(1, -20, 0, 20)
@@ -1937,6 +1901,7 @@ do
     SkyboxCard.ZIndex = 22
     SkyboxCard.Parent = SkyboxPage
     UI.SkyboxCard = SkyboxCard
+    addCorner(SkyboxCard, 8)
 
     local SkyTitle = Instance.new("TextLabel")
     SkyTitle.Size = UDim2.new(1, -20, 0, 20)
@@ -1985,6 +1950,7 @@ do
         BoxBg.BorderSizePixel = 0
         BoxBg.ZIndex = 23
         BoxBg.Parent = InputRow
+        addCorner(BoxBg, 5)
 
         local TxtInput = Instance.new("TextBox")
         TxtInput.Size = UDim2.new(1, -10, 1, 0)
@@ -2018,6 +1984,7 @@ do
     ApplySkyboxBtn.ZIndex = 23
     ApplySkyboxBtn.Parent = SkyboxCard
     UI.ApplySkyboxBtn = ApplySkyboxBtn
+    addCorner(ApplySkyboxBtn, 5)
 
     ApplySkyboxBtn.MouseButton1Click:Connect(function()
         local skyObj = Lighting:FindFirstChildOfClass("Sky")
@@ -2046,6 +2013,7 @@ do
     RadioCard.ZIndex = 22
     RadioCard.Parent = RadioPage
     UI.RadioCard = RadioCard
+    addCorner(RadioCard, 8)
 
     local RadioCardTitle = Instance.new("TextLabel")
     RadioCardTitle.Size = UDim2.new(1, -20, 0, 20)
@@ -2071,6 +2039,7 @@ do
     RadioVisRow.ZIndex = 23
     RadioVisRow.Parent = RadioCard
     UI.RadioVisRow = RadioVisRow
+    addCorner(RadioVisRow, 5)
 
     local RVLabel = Instance.new("TextLabel")
     RVLabel.Size = UDim2.new(1, -60, 1, 0)
@@ -2093,6 +2062,7 @@ do
     RVSwitchBg.ZIndex = 24
     RVSwitchBg.Parent = RadioVisRow
     UI.RVSwitchBg = RVSwitchBg
+    addCorner(RVSwitchBg, 9)
 
     local RVKnob = Instance.new("Frame")
     RVKnob.Size = UDim2.new(0, 12, 0, 12)
@@ -2102,6 +2072,7 @@ do
     RVKnob.ZIndex = 25
     RVKnob.Parent = RVSwitchBg
     UI.RVKnob = RVKnob
+    addCorner(RVKnob, 7)
 
     RadioVisRow.MouseButton1Click:Connect(function()
         Library.RadioHUDVisible = not Library.RadioHUDVisible
@@ -2122,6 +2093,7 @@ do
     TransRow.ZIndex = 23
     TransRow.Parent = RadioCard
     UI.TransRow = TransRow
+    addCorner(TransRow, 5)
 
     local TransLbl = Instance.new("TextLabel")
     TransLbl.Size = UDim2.new(0, 100, 0, 18)
@@ -3138,7 +3110,7 @@ for idx, pTexData in ipairs(partPresets) do
     PTexBtn.Font = Library.Fonts.Badge
     PTexBtn.Text = pTexData.Name
     PTexBtn.TextColor3 = Library.Theme.Accent
-    PTexBtn.TextSize = 9
+PTexBtn.TextSize = 9
     PTexBtn.ZIndex = 24
     PTexBtn.Parent = PartPresetRow
 
@@ -3148,7 +3120,174 @@ for idx, pTexData in ipairs(partPresets) do
         rebuildParticles()
     end)
 end
+
+ApplyPartTexBtn.MouseButton1Click:Connect(function()
+    local formatted = formatAssetId(PartTexInput.Text)
+    Library.ParticleTexture = formatted
+    rebuildParticles()
+end)
+
+-- 4. CURSOR CUSTOMIZATION CARD (5 PRESETS + MANUAL INPUT)
+local CursorCard = Instance.new("Frame")
+CursorCard.Size = UDim2.new(1, 0, 0, 175)
+CursorCard.BackgroundColor3 = Library.Theme.Card
+CursorCard.BorderSizePixel = 0
+CursorCard.ZIndex = 22
+CursorCard.Parent = VisualsPage
+UI.CursorCard = CursorCard
+addCorner(CursorCard, 8)
+
+local CursorCardTitle = Instance.new("TextLabel")
+CursorCardTitle.Size = UDim2.new(1, -20, 0, 18)
+CursorCardTitle.Position = UDim2.new(0, 10, 0, 6)
+CursorCardTitle.BackgroundTransparency = 1
+CursorCardTitle.Font = Library.Fonts.Header
+CursorCardTitle.Text = "CUSTOM CURSOR SETTINGS"
+CursorCardTitle.TextColor3 = Library.Theme.Accent
+CursorCardTitle.TextSize = 10.5
+CursorCardTitle.TextXAlignment = Enum.TextXAlignment.Left
+CursorCardTitle.ZIndex = 23
+CursorCardTitle.Parent = CursorCard
+
+local CursorToggleBlock = Instance.new("TextButton")
+CursorToggleBlock.Size = UDim2.new(1, -20, 0, 26)
+CursorToggleBlock.Position = UDim2.new(0, 10, 0, 26)
+CursorToggleBlock.BackgroundColor3 = Library.Theme.Block
+CursorToggleBlock.BorderSizePixel = 0
+CursorToggleBlock.AutoButtonColor = false
+CursorToggleBlock.Text = ""
+CursorToggleBlock.ZIndex = 23
+CursorToggleBlock.Parent = CursorCard
+addCorner(CursorToggleBlock, 5)
+
+local CTLabel = Instance.new("TextLabel")
+CTLabel.Size = UDim2.new(1, -60, 1, 0)
+CTLabel.Position = UDim2.new(0, 8, 0, 0)
+CTLabel.BackgroundTransparency = 1
+CTLabel.Font = Library.Fonts.Label
+CTLabel.Text = "Enable Custom Cursor"
+CTLabel.TextColor3 = Library.Theme.Text
+CTLabel.TextSize = 10.5
+CTLabel.TextXAlignment = Enum.TextXAlignment.Left
+CTLabel.ZIndex = 24
+CTLabel.Parent = CursorToggleBlock
+
+local CTSwitchBg = Instance.new("Frame")
+CTSwitchBg.Size = UDim2.new(0, 32, 0, 16)
+CTSwitchBg.Position = UDim2.new(1, -40, 0.5, -8)
+CTSwitchBg.BackgroundColor3 = Library.CustomCursorEnabled and Library.Theme.Accent or Library.Theme.Header
+CTSwitchBg.BorderSizePixel = 0
+CTSwitchBg.ZIndex = 24
+CTSwitchBg.Parent = CursorToggleBlock
+addCorner(CTSwitchBg, 9)
+
+local CTKnob = Instance.new("Frame")
+CTKnob.Size = UDim2.new(0, 12, 0, 12)
+CTKnob.Position = Library.CustomCursorEnabled and UDim2.new(1, -14, 0.5, -6) or UDim2.new(0, 2, 0.5, -6)
+CTKnob.BackgroundColor3 = Library.CustomCursorEnabled and Library.Theme.Background or Library.Theme.TextDim
+CTKnob.BorderSizePixel = 0
+CTKnob.ZIndex = 25
+CTKnob.Parent = CTSwitchBg
+addCorner(CTKnob, 7)
+
+CursorToggleBlock.MouseButton1Click:Connect(function()
+    Library.CustomCursorEnabled = not Library.CustomCursorEnabled
+    smoothTween(CTSwitchBg, DUR_NORMAL, { BackgroundColor3 = Library.CustomCursorEnabled and Library.Theme.Accent or Library.Theme.Header })
+    smoothTween(CTKnob, DUR_NORMAL, {
+        Position = Library.CustomCursorEnabled and UDim2.new(1, -14, 0.5, -6) or UDim2.new(0, 2, 0.5, -6),
+        BackgroundColor3 = Library.CustomCursorEnabled and Library.Theme.Background or Library.Theme.TextDim
+    })
+end)
+
+local cursorPresets = {
+    { Name = "Star 1", Id = "113598517899874" },
+    { Name = "Star 2", Id = "5946093983" },
+    { Name = "Hello Kitty", Id = "12014037690" },
+    { Name = "Telegram", Id = "12715836993" },
+    { Name = "Spawn", Id = "12787168857" }
+}
+
+local CursorPresetScroll = Instance.new("Frame")
+CursorPresetScroll.Size = UDim2.new(1, -20, 0, 58)
+CursorPresetScroll.Position = UDim2.new(0, 10, 0, 56)
+CursorPresetScroll.BackgroundTransparency = 1
+CursorPresetScroll.ZIndex = 23
+CursorPresetScroll.Parent = CursorCard
+
+local CursorGrid = Instance.new("UIGridLayout")
+CursorGrid.CellSize = UDim2.new(0.31, 0, 0, 24)
+CursorGrid.CellPadding = UDim2.new(0.03, 0, 0, 4)
+CursorGrid.SortOrder = Enum.SortOrder.LayoutOrder
+CursorGrid.Parent = CursorPresetScroll
+
+for _, preset in ipairs(cursorPresets) do
+    local CBtn = Instance.new("TextButton")
+    CBtn.Size = UDim2.new(1, 0, 1, 0)
+    CBtn.BackgroundColor3 = Library.Theme.Header
+    CBtn.BorderSizePixel = 0
+    CBtn.Font = Library.Fonts.Badge
+    CBtn.Text = preset.Name
+    CBtn.TextColor3 = Library.Theme.Accent
+    CBtn.TextSize = 9.5
+    CBtn.ZIndex = 24
+    CBtn.Parent = CursorPresetScroll
+    addCorner(CBtn, 5)
+
+    CBtn.MouseButton1Click:Connect(function()
+        local assetUrl = "rbxassetid://" .. preset.Id
+        Library.CustomCursorIcon = assetUrl
+        CustomCursorIcon.Image = assetUrl
+    end)
 end
+
+local CursorInputBg = Instance.new("Frame")
+CursorInputBg.Size = UDim2.new(1, -115, 0, 26)
+CursorInputBg.Position = UDim2.new(0, 10, 0, 134)
+CursorInputBg.BackgroundColor3 = Library.Theme.Header
+CursorInputBg.BorderSizePixel = 0
+CursorInputBg.ZIndex = 23
+CursorInputBg.Parent = CursorCard
+addCorner(CursorInputBg, 5)
+
+local CursorInput = Instance.new("TextBox")
+CursorInput.Size = UDim2.new(1, -10, 1, 0)
+CursorInput.Position = UDim2.new(0, 5, 0, 0)
+CursorInput.BackgroundTransparency = 1
+CursorInput.Font = Library.Fonts.Badge
+CursorInput.PlaceholderText = "Paste Custom Asset ID..."
+CursorInput.PlaceholderColor3 = Library.Theme.TextDim
+CursorInput.Text = ""
+CursorInput.TextColor3 = Library.Theme.Accent
+CursorInput.TextSize = 9.5
+CursorInput.TextXAlignment = Enum.TextXAlignment.Left
+CursorInput.Active = true
+CursorInput.Selectable = true
+CursorInput.ClearTextOnFocus = false
+CursorInput.ZIndex = 24
+CursorInput.Parent = CursorInputBg
+
+local ApplyCursorBtn = Instance.new("TextButton")
+ApplyCursorBtn.Size = UDim2.new(0, 95, 0, 26)
+ApplyCursorBtn.Position = UDim2.new(1, -100, 0, 134)
+ApplyCursorBtn.BackgroundColor3 = Library.Theme.Header
+ApplyCursorBtn.BorderSizePixel = 0
+ApplyCursorBtn.Font = Library.Fonts.Header
+ApplyCursorBtn.Text = "APPLY"
+ApplyCursorBtn.TextColor3 = Library.Theme.Accent
+ApplyCursorBtn.TextSize = 10
+ApplyCursorBtn.ZIndex = 23
+ApplyCursorBtn.Parent = CursorCard
+addCorner(ApplyCursorBtn, 5)
+
+ApplyCursorBtn.MouseButton1Click:Connect(function()
+    if CursorInput.Text ~= "" then
+        local formatted = formatAssetId(CursorInput.Text)
+        if formatted ~= "" then
+            Library.CustomCursorIcon = formatted
+            CustomCursorIcon.Image = formatted
+        end
+    end
+end)
 
 local function toggleSettingsModal(visible)
     if visible == nil then visible = not SettingsModal.Visible end
@@ -3187,10 +3326,13 @@ function Library:SetTheme(themeName)
     end
 
     st(UI.Watermark, { BackgroundColor3 = t.Block })
-    st(UI.WMarkStroke, { Color = t.Stroke })
-    st(UI.TopWMarkGlow, { BackgroundColor3 = t.Accent })
+    st(UI.WMarkStroke, { Color = t.StrokeActive })
     st(UI.WMarkIcon, { ImageColor3 = t.Accent })
     st(UI.WMarkTitle, { TextColor3 = t.Accent })
+    st(UI.PlayerNameLabel, { TextColor3 = t.Text })
+    st(UI.WMarkFpsLabel, { TextColor3 = t.Accent })
+    st(UI.WMarkPingLabel, { TextColor3 = t.Accent })
+    st(UI.WMarkTimeLabel, { TextColor3 = t.Text })
 
     st(UI.GearBtnFrame, { BackgroundColor3 = t.Block })
     st(UI.GearStroke, { Color = t.Accent })
@@ -3199,9 +3341,9 @@ function Library:SetTheme(themeName)
     st(UI.KeybindHUDFrame, { BackgroundColor3 = t.Block })
     st(UI.KeybindHUDHeader, { BackgroundColor3 = t.Header })
     st(UI.KeybindHUDStroke, { Color = t.Stroke })
-    st(UI.KeybindHUDGlow, { BackgroundColor3 = t.Accent })
     st(UI.HUDDot, { BackgroundColor3 = t.Accent })
     st(UI.HUDTitle, { TextColor3 = t.Text })
+    st(UI.HUDCountLabel, { TextColor3 = t.Accent })
 
     st(UI.RadioHUDFrame, { BackgroundColor3 = t.Block })
     st(UI.RadioHeader, { BackgroundColor3 = t.Header })
