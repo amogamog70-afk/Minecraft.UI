@@ -1527,10 +1527,93 @@ do
                 t.Completed:Connect(function()
                     if not configDropOpen then ConfigDropList.Visible = false end
                 end)
-DeleteIcon.Image = "rbxassetid://11768918600"
-DeleteIcon.ImageColor3 = Color3.fromRGB(255, 90, 90)
-DeleteIcon.ZIndex = 24
-DeleteIcon.Parent = DeleteConfigBtn
+            end)
+        end
+
+        local totalH = math.min(#cfgList * 24, 110)
+        ConfigDropScroll.CanvasSize = UDim2.new(0, 0, 0, #cfgList * 24)
+        return totalH
+    end
+
+    ConfigDropdownBtn.MouseButton1Click:Connect(function()
+        configDropOpen = not configDropOpen
+        if configDropOpen then
+            local height = refreshConfigDropdownOptions()
+            ConfigDropList.Position = UDim2.new(0, 98, 1, 4)
+            ConfigDropList.Size = UDim2.new(1, -105, 0, 0)
+            ConfigDropList.Parent = ConfigSelectBg
+            ConfigDropList.Visible = true
+            smoothTween(ConfigDropList, DUR_NORMAL, { Size = UDim2.new(1, -105, 0, height) })
+        else
+            local t = smoothTween(ConfigDropList, DUR_NORMAL, { Size = UDim2.new(1, -105, 0, 0) })
+            t.Completed:Connect(function()
+                if not configDropOpen then ConfigDropList.Visible = false end
+            end)
+        end
+    end)
+
+    trackConnection(UserInputService.InputBegan:Connect(function(input)
+        if configDropOpen and (input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.MouseButton2) then
+            local clickPos = input.Position
+            local dropPos = ConfigDropList.AbsolutePosition
+            local dropSize = ConfigDropList.AbsoluteSize
+            if clickPos.X < dropPos.X or clickPos.X > dropPos.X + dropSize.X or clickPos.Y < dropPos.Y or clickPos.Y > dropPos.Y + dropSize.Y then
+                local btnPos = ConfigDropdownBtn.AbsolutePosition
+                local btnSize = ConfigDropdownBtn.AbsoluteSize
+                if not (clickPos.X >= btnPos.X and clickPos.X <= btnPos.X + btnSize.X and clickPos.Y >= btnPos.Y and clickPos.Y <= btnPos.Y + btnSize.Y) then
+                    configDropOpen = false
+                    local t = smoothTween(ConfigDropList, DUR_NORMAL, { Size = UDim2.new(1, -105, 0, 0) })
+                    t.Completed:Connect(function()
+                        if not configDropOpen then ConfigDropList.Visible = false end
+                    end)
+                end
+            end
+        end
+    end))
+
+    local LoadConfigBtn = Instance.new("TextButton")
+    LoadConfigBtn.Size = UDim2.new(0.48, 0, 0, 30)
+    LoadConfigBtn.Position = UDim2.new(0, 10, 0, 88)
+    LoadConfigBtn.BackgroundColor3 = Library.Theme.Header
+    LoadConfigBtn.BorderSizePixel = 0
+    LoadConfigBtn.Font = Library.Fonts.Header
+    LoadConfigBtn.Text = "  LOAD CONFIG"
+    LoadConfigBtn.TextColor3 = Library.Theme.Text
+    LoadConfigBtn.TextSize = 10
+    LoadConfigBtn.ZIndex = 23
+    LoadConfigBtn.Parent = ConfigCard
+    addCorner(LoadConfigBtn, 5)
+
+    local LoadIcon = Instance.new("ImageLabel")
+    LoadIcon.Size = UDim2.new(0, 16, 0, 16)
+    LoadIcon.Position = UDim2.new(0, 8, 0.5, -8)
+    LoadIcon.BackgroundTransparency = 1
+    LoadIcon.Image = "rbxassetid://17119858971"
+    LoadIcon.ImageColor3 = Library.Theme.Text
+    LoadIcon.ZIndex = 24
+    LoadIcon.Parent = LoadConfigBtn
+
+    local DeleteConfigBtn = Instance.new("TextButton")
+    DeleteConfigBtn.Size = UDim2.new(0.48, 0, 0, 30)
+    DeleteConfigBtn.Position = UDim2.new(0.52, -5, 0, 88)
+    DeleteConfigBtn.BackgroundColor3 = Library.Theme.Header
+    DeleteConfigBtn.BorderSizePixel = 0
+    DeleteConfigBtn.Font = Library.Fonts.Header
+    DeleteConfigBtn.Text = "   DELETE"
+    DeleteConfigBtn.TextColor3 = Color3.fromRGB(255, 90, 90)
+    DeleteConfigBtn.TextSize = 10
+    DeleteConfigBtn.ZIndex = 23
+    DeleteConfigBtn.Parent = ConfigCard
+    addCorner(DeleteConfigBtn, 5)
+
+    local DeleteIcon = Instance.new("ImageLabel")
+    DeleteIcon.Size = UDim2.new(0, 16, 0, 16)
+    DeleteIcon.Position = UDim2.new(0, 10, 0.5, -8)
+    DeleteIcon.BackgroundTransparency = 1
+    DeleteIcon.Image = "rbxassetid://11768918600"
+    DeleteIcon.ImageColor3 = Color3.fromRGB(255, 90, 90)
+    DeleteIcon.ZIndex = 24
+    DeleteIcon.Parent = DeleteConfigBtn
 
 local ConfigStatusLabel = Instance.new("TextLabel")
 ConfigStatusLabel.Size = UDim2.new(1, -20, 0, 20)
