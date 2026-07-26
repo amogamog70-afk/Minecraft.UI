@@ -318,20 +318,35 @@ end))
 
 local TopWatermark = Instance.new("Frame")
 TopWatermark.Name = "StarTopWatermark"
-TopWatermark.Size = UDim2.new(0, 440, 0, 30)
-TopWatermark.Position = UDim2.new(0.5, -220, 0, 10)
+TopWatermark.AutomaticSize = Enum.AutomaticSize.X
+TopWatermark.Size = UDim2.new(0, 0, 0, 26)
+TopWatermark.Position = UDim2.new(0, 16, 0, 14)
 TopWatermark.BackgroundColor3 = Library.Theme.Block
+TopWatermark.BackgroundTransparency = 0.20
 TopWatermark.BorderSizePixel = 0
 TopWatermark.Parent = ScreenGui
 
 local TopWMarkStroke = Instance.new("UIStroke")
-TopWMarkStroke.Color = Library.Theme.StrokeActive
-TopWMarkStroke.Thickness = 1.2
+TopWMarkStroke.Color = Library.Theme.Stroke
+TopWMarkStroke.Transparency = 0.3
+TopWMarkStroke.Thickness = 1.0
 TopWMarkStroke.Parent = TopWatermark
+
+local TopWMarkGlow = Instance.new("Frame")
+TopWMarkGlow.Size = UDim2.new(1, -8, 0, 2)
+TopWMarkGlow.Position = UDim2.new(0, 4, 0, 1)
+TopWMarkGlow.BackgroundColor3 = Library.Theme.Accent
+TopWMarkGlow.BorderSizePixel = 0
+TopWMarkGlow.Parent = TopWatermark
+
+local TopWMarkPadding = Instance.new("UIPadding")
+TopWMarkPadding.PaddingLeft = UDim.new(0, 10)
+TopWMarkPadding.PaddingRight = UDim.new(0, 10)
+TopWMarkPadding.Parent = TopWatermark
 
 local TopWMarkLayout = Instance.new("UIListLayout")
 TopWMarkLayout.FillDirection = Enum.FillDirection.Horizontal
-TopWMarkLayout.HorizontalAlignment = Enum.HorizontalAlignment.Center
+TopWMarkLayout.HorizontalAlignment = Enum.HorizontalAlignment.Left
 TopWMarkLayout.VerticalAlignment = Enum.VerticalAlignment.Center
 TopWMarkLayout.Padding = UDim.new(0, 7)
 TopWMarkLayout.Parent = TopWatermark
@@ -373,7 +388,7 @@ addWMarkSep()
 local LocalPlayer = Players.LocalPlayer
 local PlayerHeadshot = Instance.new("ImageLabel")
 PlayerHeadshot.Name = "PlayerHeadshot"
-PlayerHeadshot.Size = UDim2.new(0, 18, 0, 18)
+PlayerHeadshot.Size = UDim2.new(0, 16, 0, 16)
 PlayerHeadshot.BackgroundTransparency = 1
 PlayerHeadshot.Image = "rbxthumb://type=AvatarHeadShot&id=" .. (LocalPlayer and LocalPlayer.UserId or 1) .. "&w=48&h=48"
 PlayerHeadshot.Parent = TopWatermark
@@ -415,27 +430,14 @@ WMarkPingLabel.TextColor3 = Library.Theme.Accent
 WMarkPingLabel.TextSize = 10
 WMarkPingLabel.Parent = TopWatermark
 
-addWMarkSep()
-
-local WMarkTimeLabel = Instance.new("TextLabel")
-WMarkTimeLabel.Name = "WMarkTimeLabel"
-WMarkTimeLabel.AutomaticSize = Enum.AutomaticSize.X
-WMarkTimeLabel.Size = UDim2.new(0, 0, 1, 0)
-WMarkTimeLabel.BackgroundTransparency = 1
-WMarkTimeLabel.Font = Library.Fonts.Badge
-WMarkTimeLabel.Text = "00:00:00"
-WMarkTimeLabel.TextColor3 = Library.Theme.Text
-WMarkTimeLabel.TextSize = 10
-WMarkTimeLabel.Parent = TopWatermark
-
 UI.Watermark = TopWatermark
 UI.WMarkStroke = TopWMarkStroke
+UI.TopWMarkGlow = TopWMarkGlow
 UI.WMarkIcon = TopWMarkIcon
 UI.WMarkTitle = TopWMarkTitle
 UI.PlayerNameLabel = PlayerNameLabel
 UI.WMarkFpsLabel = WMarkFpsLabel
 UI.WMarkPingLabel = WMarkPingLabel
-UI.WMarkTimeLabel = WMarkTimeLabel
 
 local fpsFrameCount = 0
 local lastFpsCheck = tick()
@@ -574,37 +576,48 @@ end
 
 local KeybindHUDFrame = Instance.new("Frame")
 KeybindHUDFrame.Name = "KeybindHUDOverlay"
-KeybindHUDFrame.Size = UDim2.new(0, 260, 0, 32)
-KeybindHUDFrame.Position = UDim2.new(1, -275, 1, -370)
+KeybindHUDFrame.Size = UDim2.new(0, 230, 0, 32)
+KeybindHUDFrame.Position = UDim2.new(1, -250, 0.35, 0)
 KeybindHUDFrame.BackgroundColor3 = Library.Theme.Block
+KeybindHUDFrame.BackgroundTransparency = 0.18
 KeybindHUDFrame.BorderSizePixel = 0
 KeybindHUDFrame.Parent = ScreenGui
 UI.KeybindHUDFrame = KeybindHUDFrame
 
 local KeybindHUDStroke = Instance.new("UIStroke")
 KeybindHUDStroke.Color = Library.Theme.Stroke
-KeybindHUDStroke.Thickness = 1.2
+KeybindHUDStroke.Transparency = 0.3
+KeybindHUDStroke.Thickness = 1.0
 KeybindHUDStroke.Parent = KeybindHUDFrame
 UI.KeybindHUDStroke = KeybindHUDStroke
 
+local KeybindHUDGlow = Instance.new("Frame")
+KeybindHUDGlow.Size = UDim2.new(1, -16, 0, 2)
+KeybindHUDGlow.Position = UDim2.new(0, 8, 0, 2)
+KeybindHUDGlow.BackgroundColor3 = Library.Theme.Accent
+KeybindHUDGlow.BorderSizePixel = 0
+KeybindHUDGlow.Parent = KeybindHUDFrame
+UI.KeybindHUDGlow = KeybindHUDGlow
+
 local KeybindHUDHeader = Instance.new("Frame")
-KeybindHUDHeader.Size = UDim2.new(1, 0, 0, 28)
+KeybindHUDHeader.Size = UDim2.new(1, 0, 0, 32)
 KeybindHUDHeader.BackgroundColor3 = Library.Theme.Header
+KeybindHUDHeader.BackgroundTransparency = 0.10
 KeybindHUDHeader.BorderSizePixel = 0
 KeybindHUDHeader.Parent = KeybindHUDFrame
 UI.KeybindHUDHeader = KeybindHUDHeader
 
 local HUDDot = Instance.new("Frame")
-HUDDot.Size = UDim2.new(0, 5, 0, 5)
-HUDDot.Position = UDim2.new(0, 10, 0.5, -2.5)
+HUDDot.Size = UDim2.new(0, 6, 0, 6)
+HUDDot.Position = UDim2.new(0, 10, 0.5, -3)
 HUDDot.BackgroundColor3 = Library.Theme.Accent
 HUDDot.BorderSizePixel = 0
 HUDDot.Parent = KeybindHUDHeader
 UI.HUDDot = HUDDot
 
 local HUDTitle = Instance.new("TextLabel")
-HUDTitle.Size = UDim2.new(1, -25, 1, 0)
-HUDTitle.Position = UDim2.new(0, 20, 0, 0)
+HUDTitle.Size = UDim2.new(1, -50, 1, 0)
+HUDTitle.Position = UDim2.new(0, 22, 0, 0)
 HUDTitle.BackgroundTransparency = 1
 HUDTitle.Font = Library.Fonts.Header
 HUDTitle.Text = "KEYBINDS"
@@ -614,25 +627,40 @@ HUDTitle.TextXAlignment = Enum.TextXAlignment.Left
 HUDTitle.Parent = KeybindHUDHeader
 UI.HUDTitle = HUDTitle
 
+local HUDCountLabel = Instance.new("TextLabel")
+HUDCountLabel.Size = UDim2.new(0, 30, 1, 0)
+HUDCountLabel.Position = UDim2.new(1, -36, 0, 0)
+HUDCountLabel.BackgroundTransparency = 1
+HUDCountLabel.Font = Library.Fonts.Badge
+HUDCountLabel.Text = "(0)"
+HUDCountLabel.TextColor3 = Library.Theme.Accent
+HUDCountLabel.TextSize = 10
+HUDCountLabel.TextXAlignment = Enum.TextXAlignment.Right
+HUDCountLabel.Parent = KeybindHUDHeader
+
 local HUDListHolder = Instance.new("Frame")
 HUDListHolder.Size = UDim2.new(1, -12, 0, 0)
-HUDListHolder.Position = UDim2.new(0, 6, 0, 32)
+HUDListHolder.Position = UDim2.new(0, 6, 0, 36)
 HUDListHolder.BackgroundTransparency = 1
 HUDListHolder.Parent = KeybindHUDFrame
 
 local HUDListLayout = Instance.new("UIListLayout")
 HUDListLayout.SortOrder = Enum.SortOrder.LayoutOrder
-HUDListLayout.Padding = UDim.new(0, 3)
+HUDListLayout.Padding = UDim.new(0, 4)
 HUDListLayout.Parent = HUDListHolder
 
 makeDraggable(KeybindHUDFrame, KeybindHUDHeader)
 
 function Library:RefreshKeybindHUD()
     for _, child in ipairs(HUDListHolder:GetChildren()) do
-        if child:IsA("Frame") then child:Destroy() end
+        if child:IsA("Frame") or child:IsA("TextLabel") then child:Destroy() end
     end
 
+    local activeCount = 0
+    local totalBinds = 0
+
     for featName, data in pairs(Library.KeybindList) do
+        totalBinds = totalBinds + 1
         local keyStr = ""
         local modeStr = "Toggle"
         local isActive = false
@@ -644,32 +672,46 @@ function Library:RefreshKeybindHUD()
             keyStr = tostring(data)
         end
 
+        if isActive then activeCount = activeCount + 1 end
+
         local Row = Instance.new("Frame")
-        Row.Size = UDim2.new(1, 0, 0, 22)
+        Row.Size = UDim2.new(1, 0, 0, 24)
         Row.BackgroundColor3 = isActive and Library.Theme.CardHover or Library.Theme.Card
         Row.BorderSizePixel = 0
         Row.Parent = HUDListHolder
 
+        local RowStroke = Instance.new("UIStroke")
+        RowStroke.Color = isActive and Library.Theme.StrokeHover or Library.Theme.Stroke
+        RowStroke.Thickness = 1
+        RowStroke.Parent = Row
+
+        local ActiveBar = Instance.new("Frame")
+        ActiveBar.Size = UDim2.new(0, 3, 1, 0)
+        ActiveBar.Position = UDim2.new(0, 0, 0, 0)
+        ActiveBar.BackgroundColor3 = isActive and Library.Theme.Accent or Library.Theme.Header
+        ActiveBar.BorderSizePixel = 0
+        ActiveBar.Parent = Row
+
         local NameLbl = Instance.new("TextLabel")
-        NameLbl.Size = UDim2.new(1, -85, 1, 0)
-        NameLbl.Position = UDim2.new(0, 6, 0, 0)
+        NameLbl.Size = UDim2.new(1, -90, 1, 0)
+        NameLbl.Position = UDim2.new(0, 10, 0, 0)
         NameLbl.BackgroundTransparency = 1
         NameLbl.Font = Library.Fonts.Label
         NameLbl.Text = featName
         NameLbl.TextColor3 = isActive and Library.Theme.Text or Library.Theme.TextDim
-        NameLbl.TextSize = 10
+        NameLbl.TextSize = 10.5
         NameLbl.TextXAlignment = Enum.TextXAlignment.Left
         NameLbl.Parent = Row
 
         local Badge = Instance.new("TextLabel")
-        Badge.Size = UDim2.new(0, 80, 0, 16)
-        Badge.Position = UDim2.new(1, -82, 0.5, -8)
+        Badge.Size = UDim2.new(0, 75, 0, 18)
+        Badge.Position = UDim2.new(1, -78, 0.5, -9)
         Badge.BackgroundColor3 = isActive and Library.Theme.Accent or Library.Theme.Header
         Badge.Font = Library.Fonts.Badge
         if modeStr == "Always" then
             Badge.Text = "ALWAYS"
         else
-            Badge.Text = keyStr .. " [" .. string.upper(modeStr) .. "]"
+            Badge.Text = keyStr .. " [" .. string.sub(string.upper(modeStr), 1, 1) .. "]"
         end
         Badge.TextColor3 = isActive and Library.Theme.Background or Library.Theme.Accent
         Badge.TextSize = 8.5
@@ -677,9 +719,23 @@ function Library:RefreshKeybindHUD()
         Badge.Parent = Row
     end
 
+    if totalBinds == 0 then
+        local EmptyRow = Instance.new("TextLabel")
+        EmptyRow.Size = UDim2.new(1, 0, 0, 20)
+        EmptyRow.BackgroundTransparency = 1
+        EmptyRow.Font = Library.Fonts.Label
+        EmptyRow.Text = "No active keybinds"
+        EmptyRow.TextColor3 = Library.Theme.TextDim
+        EmptyRow.TextSize = 9.5
+        EmptyRow.TextXAlignment = Enum.TextXAlignment.Center
+        EmptyRow.Parent = HUDListHolder
+    end
+
+    HUDCountLabel.Text = "(" .. tostring(activeCount) .. ")"
+
     local listHeight = HUDListLayout.AbsoluteContentSize.Y
     HUDListHolder.Size = UDim2.new(1, -12, 0, listHeight)
-    smoothTween(KeybindHUDFrame, DUR_NORMAL, { Size = UDim2.new(0, 260, 0, 34 + listHeight) })
+    smoothTween(KeybindHUDFrame, DUR_NORMAL, { Size = UDim2.new(0, 230, 0, 42 + listHeight) })
 end
 
 local RadioHUDFrame = Instance.new("Frame")
@@ -687,6 +743,7 @@ RadioHUDFrame.Name = "RadioHUDOverlay"
 RadioHUDFrame.Size = UDim2.new(0, 260, 0, 165)
 RadioHUDFrame.Position = UDim2.new(1, -275, 1, -180)
 RadioHUDFrame.BackgroundColor3 = Library.Theme.Block
+RadioHUDFrame.BackgroundTransparency = 0.18
 RadioHUDFrame.BorderSizePixel = 0
 RadioHUDFrame.Parent = ScreenGui
 UI.RadioHUDFrame = RadioHUDFrame
@@ -698,13 +755,15 @@ RadioHUDUIScale.Parent = RadioHUDFrame
 
 local RadioHUDStroke = Instance.new("UIStroke")
 RadioHUDStroke.Color = Library.Theme.Stroke
-RadioHUDStroke.Thickness = 1.2
+RadioHUDStroke.Transparency = 0.3
+RadioHUDStroke.Thickness = 1.0
 RadioHUDStroke.Parent = RadioHUDFrame
 UI.RadioHUDStroke = RadioHUDStroke
 
 local RadioHeader = Instance.new("Frame")
 RadioHeader.Size = UDim2.new(1, 0, 0, 28)
 RadioHeader.BackgroundColor3 = Library.Theme.Header
+RadioHeader.BackgroundTransparency = 0.10
 RadioHeader.BorderSizePixel = 0
 RadioHeader.Parent = RadioHUDFrame
 UI.RadioHeader = RadioHeader
@@ -987,6 +1046,7 @@ SettingsModal.Name = "SettingsModal"
 SettingsModal.Size = UDim2.new(0, 500, 0, 420)
 SettingsModal.Position = UDim2.new(0.5, -250, 0.5, -210)
 SettingsModal.BackgroundColor3 = Library.Theme.Block
+SettingsModal.BackgroundTransparency = 0.12
 SettingsModal.BorderSizePixel = 0
 SettingsModal.Visible = false
 SettingsModal.ZIndex = 20
@@ -995,7 +1055,8 @@ UI.SettingsModal = SettingsModal
 
 local ModalStroke = Instance.new("UIStroke")
 ModalStroke.Color = Library.Theme.StrokeActive
-ModalStroke.Thickness = 1.5
+ModalStroke.Transparency = 0.25
+ModalStroke.Thickness = 1.2
 ModalStroke.Parent = SettingsModal
 UI.ModalStroke = ModalStroke
 
@@ -1003,6 +1064,7 @@ local ModalHeader = Instance.new("Frame")
 ModalHeader.Name = "ModalHeader"
 ModalHeader.Size = UDim2.new(1, 0, 0, 40)
 ModalHeader.BackgroundColor3 = Library.Theme.Header
+ModalHeader.BackgroundTransparency = 0.08
 ModalHeader.BorderSizePixel = 0
 ModalHeader.ZIndex = 21
 ModalHeader.Parent = SettingsModal
@@ -3013,8 +3075,9 @@ function Library:SetTheme(themeName)
 
     st(UI.Watermark, { BackgroundColor3 = t.Block })
     st(UI.WMarkStroke, { Color = t.Stroke })
+    st(UI.TopWMarkGlow, { BackgroundColor3 = t.Accent })
     st(UI.WMarkIcon, { ImageColor3 = t.Accent })
-    st(UI.WMarkLabel, { TextColor3 = t.Text })
+    st(UI.WMarkTitle, { TextColor3 = t.Accent })
 
     st(UI.GearBtnFrame, { BackgroundColor3 = t.Block })
     st(UI.GearStroke, { Color = t.Accent })
@@ -3023,6 +3086,7 @@ function Library:SetTheme(themeName)
     st(UI.KeybindHUDFrame, { BackgroundColor3 = t.Block })
     st(UI.KeybindHUDHeader, { BackgroundColor3 = t.Header })
     st(UI.KeybindHUDStroke, { Color = t.Stroke })
+    st(UI.KeybindHUDGlow, { BackgroundColor3 = t.Accent })
     st(UI.HUDDot, { BackgroundColor3 = t.Accent })
     st(UI.HUDTitle, { TextColor3 = t.Text })
 
@@ -3222,8 +3286,8 @@ function Library:SetVisible(visible)
             local f = blockData.Frame
             local targetPos = blockData.DefaultPos or f.Position
             f.Position = targetPos
-            f.BackgroundTransparency = 0
-            if blockData.Stroke then blockData.Stroke.Transparency = 0 end
+            f.BackgroundTransparency = 0.15
+            if blockData.Stroke then blockData.Stroke.Transparency = 0.3 end
         end
     else
         MenuBlur.Size = 0
@@ -3271,6 +3335,7 @@ function Library:CreateBlock(title, defaultPosition)
     Frame.Size = UDim2.new(0, 240, 0, 42)
     Frame.Position = defaultPosition
     Frame.BackgroundColor3 = Library.Theme.Block
+    Frame.BackgroundTransparency = 0.15
     Frame.BorderSizePixel = 0
     Frame.ClipsDescendants = true
     Frame.Parent = Container
@@ -3278,7 +3343,8 @@ function Library:CreateBlock(title, defaultPosition)
 
     local FrameStroke = Instance.new("UIStroke")
     FrameStroke.Color = Library.Theme.Stroke
-    FrameStroke.Thickness = 1.2
+    FrameStroke.Transparency = 0.3
+    FrameStroke.Thickness = 1.0
     FrameStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
     FrameStroke.Parent = Frame
     Block.Stroke = FrameStroke
@@ -3287,6 +3353,7 @@ function Library:CreateBlock(title, defaultPosition)
     Header.Name = "Header"
     Header.Size = UDim2.new(1, 0, 0, 38)
     Header.BackgroundColor3 = Library.Theme.Header
+    Header.BackgroundTransparency = 0.08
     Header.BorderSizePixel = 0
     Header.Parent = Frame
     Block.Header = Header
