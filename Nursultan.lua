@@ -411,7 +411,7 @@ end))
 local TopWatermark = Instance.new("Frame")
 TopWatermark.Name = "StarTopWatermark"
 TopWatermark.Size = UDim2.new(0, 420, 0, 32)
-TopWatermark.Position = UDim2.new(0.5, -210, 0, 12)
+TopWatermark.Position = UDim2.new(0.5, -210, 0, 0)
 TopWatermark.BackgroundColor3 = Library.Theme.Block
 TopWatermark.BackgroundTransparency = 0.06
 TopWatermark.BorderSizePixel = 0
@@ -425,14 +425,6 @@ TopWMarkStroke.Color = Library.Theme.StrokeActive
 TopWMarkStroke.Transparency = 0.2
 TopWMarkStroke.Thickness = 1.2
 TopWMarkStroke.Parent = TopWatermark
-
-local TopWMarkGlow = Instance.new("Frame")
-TopWMarkGlow.Size = UDim2.new(1, -16, 0, 2)
-TopWMarkGlow.Position = UDim2.new(0, 8, 0, 1)
-TopWMarkGlow.BackgroundColor3 = Library.Theme.Accent
-TopWMarkGlow.BorderSizePixel = 0
-TopWMarkGlow.Parent = TopWatermark
-addCorner(TopWMarkGlow, 2)
 
 local WMarkContent = Instance.new("Frame")
 WMarkContent.Name = "WMarkContent"
@@ -679,6 +671,8 @@ local function makeDraggable(frame, dragHandle)
     end))
 end
 
+makeDraggable(TopWatermark, TopWatermark)
+
 local KeybindHUDFrame = Instance.new("Frame")
 KeybindHUDFrame.Name = "KeybindHUDOverlay"
 KeybindHUDFrame.Size = UDim2.new(0, 230, 0, 32)
@@ -698,15 +692,6 @@ KeybindHUDStroke.Transparency = 0.3
 KeybindHUDStroke.Thickness = 1.0
 KeybindHUDStroke.Parent = KeybindHUDFrame
 UI.KeybindHUDStroke = KeybindHUDStroke
-
-local KeybindHUDGlow = Instance.new("Frame")
-KeybindHUDGlow.Size = UDim2.new(1, -16, 0, 2)
-KeybindHUDGlow.Position = UDim2.new(0, 8, 0, 2)
-KeybindHUDGlow.BackgroundColor3 = Library.Theme.Accent
-KeybindHUDGlow.BorderSizePixel = 0
-KeybindHUDGlow.Parent = KeybindHUDFrame
-UI.KeybindHUDGlow = KeybindHUDGlow
-addCorner(KeybindHUDGlow, 2)
 
 local KeybindHUDHeader = Instance.new("Frame")
 KeybindHUDHeader.Size = UDim2.new(1, 0, 0, 32)
@@ -3489,15 +3474,6 @@ function Library:CreateBlock(title, defaultPosition)
     Block.Header = Header
     addCorner(Header, 8)
 
-    local TopGlow = Instance.new("Frame")
-    TopGlow.Size = UDim2.new(1, -16, 0, 2)
-    TopGlow.Position = UDim2.new(0, 8, 0, 2)
-    TopGlow.BackgroundColor3 = Library.Theme.Accent
-    TopGlow.BorderSizePixel = 0
-    TopGlow.Parent = Header
-    Block.TopGlow = TopGlow
-    addCorner(TopGlow, 2)
-
     local Dot = Instance.new("Frame")
     Dot.Size = UDim2.new(0, 6, 0, 6)
     Dot.Position = UDim2.new(0, 12, 0.5, -3)
@@ -3590,33 +3566,28 @@ function Library:CreateBlock(title, defaultPosition)
 
     function Block:AddLabel(text)
         local LabelFrame = Instance.new("Frame")
-        LabelFrame.Size = UDim2.new(1, 0, 0, 20)
+        LabelFrame.Size = UDim2.new(1, 0, 0, 22)
         LabelFrame.BackgroundTransparency = 1
         LabelFrame.Parent = Content
 
+        local Dot = Instance.new("Frame")
+        Dot.Size = UDim2.new(0, 3, 0, 10)
+        Dot.Position = UDim2.new(0, 2, 0.5, -5)
+        Dot.BackgroundColor3 = Library.Theme.Accent
+        Dot.BorderSizePixel = 0
+        Dot.Parent = LabelFrame
+        addCorner(Dot, 2)
+
         local TextLabel = Instance.new("TextLabel")
-        TextLabel.Size = UDim2.new(0, 0, 1, 0)
-        TextLabel.AutomaticSize = Enum.AutomaticSize.X
+        TextLabel.Size = UDim2.new(1, -12, 1, 0)
+        TextLabel.Position = UDim2.new(0, 10, 0, 0)
         TextLabel.BackgroundTransparency = 1
         TextLabel.Font = Library.Fonts.Header
         TextLabel.Text = string.upper(text)
-        TextLabel.TextColor3 = Library.Theme.TextDim
-        TextLabel.TextSize = 10
+        TextLabel.TextColor3 = Library.Theme.AccentDim
+        TextLabel.TextSize = 9.5
         TextLabel.TextXAlignment = Enum.TextXAlignment.Left
         TextLabel.Parent = LabelFrame
-
-        local Line = Instance.new("Frame")
-        Line.Size = UDim2.new(1, 0, 0, 1)
-        Line.Position = UDim2.new(0, 0, 0.5, 0)
-        Line.BackgroundColor3 = Library.Theme.Stroke
-        Line.BorderSizePixel = 0
-        Line.Parent = LabelFrame
-
-        TextLabel:GetPropertyChangedSignal("AbsoluteSize"):Connect(function()
-            local w = TextLabel.AbsoluteSize.X
-            Line.Position = UDim2.new(0, w + 8, 0.5, 0)
-            Line.Size = UDim2.new(1, -(w + 8), 0, 1)
-        end)
     end
 
     function Block:AddToggle(name, default, callback, defaultKey, defaultMode)
