@@ -4243,6 +4243,7 @@ function Library:CreateBlock(title, defaultPosition)
                 end
             end
         end))
+    end
     function Block:AddSection(sectionTitle)
         local SectionFrame = Instance.new("Frame")
         SectionFrame.Name = sectionTitle .. "_Section"
