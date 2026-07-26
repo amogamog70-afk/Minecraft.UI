@@ -410,11 +410,12 @@ end))
 
 local TopWatermark = Instance.new("Frame")
 TopWatermark.Name = "StarTopWatermark"
-TopWatermark.Size = UDim2.new(0, 380, 0, 32)
-TopWatermark.Position = UDim2.new(0.5, -190, 0, 12)
+TopWatermark.Size = UDim2.new(0, 420, 0, 32)
+TopWatermark.Position = UDim2.new(0.5, -210, 0, 12)
 TopWatermark.BackgroundColor3 = Library.Theme.Block
 TopWatermark.BackgroundTransparency = 0.06
 TopWatermark.BorderSizePixel = 0
+TopWatermark.ClipsDescendants = true
 TopWatermark.Parent = ScreenGui
 
 addCorner(TopWatermark, 8)
@@ -431,13 +432,20 @@ TopWMarkGlow.Position = UDim2.new(0, 8, 0, 1)
 TopWMarkGlow.BackgroundColor3 = Library.Theme.Accent
 TopWMarkGlow.BorderSizePixel = 0
 TopWMarkGlow.Parent = TopWatermark
+addCorner(TopWMarkGlow, 2)
+
+local WMarkContent = Instance.new("Frame")
+WMarkContent.Name = "WMarkContent"
+WMarkContent.Size = UDim2.new(1, 0, 1, 0)
+WMarkContent.BackgroundTransparency = 1
+WMarkContent.Parent = TopWatermark
 
 local TopWMarkLayout = Instance.new("UIListLayout")
 TopWMarkLayout.FillDirection = Enum.FillDirection.Horizontal
 TopWMarkLayout.HorizontalAlignment = Enum.HorizontalAlignment.Center
 TopWMarkLayout.VerticalAlignment = Enum.VerticalAlignment.Center
 TopWMarkLayout.Padding = UDim.new(0, 6)
-TopWMarkLayout.Parent = TopWatermark
+TopWMarkLayout.Parent = WMarkContent
 
 local TopWMarkIcon = Instance.new("ImageLabel")
 TopWMarkIcon.Name = "TopWMarkIcon"
@@ -445,7 +453,7 @@ TopWMarkIcon.Size = UDim2.new(0, 18, 0, 18)
 TopWMarkIcon.BackgroundTransparency = 1
 TopWMarkIcon.Image = "rbxassetid://93992148478224"
 TopWMarkIcon.ImageColor3 = Library.Theme.Accent
-TopWMarkIcon.Parent = TopWatermark
+TopWMarkIcon.Parent = WMarkContent
 
 local TopWMarkTitle = Instance.new("TextLabel")
 TopWMarkTitle.Name = "TopWMarkTitle"
@@ -455,7 +463,7 @@ TopWMarkTitle.Font = Library.Fonts.Header
 TopWMarkTitle.Text = "STAR.UI"
 TopWMarkTitle.TextColor3 = Library.Theme.Accent
 TopWMarkTitle.TextSize = 11.5
-TopWMarkTitle.Parent = TopWatermark
+TopWMarkTitle.Parent = WMarkContent
 
 local function addWMarkSep()
     local Sep = Instance.new("TextLabel")
@@ -465,7 +473,7 @@ local function addWMarkSep()
     Sep.Text = "|"
     Sep.TextColor3 = Library.Theme.TextDim
     Sep.TextSize = 10
-    Sep.Parent = TopWatermark
+    Sep.Parent = WMarkContent
     return Sep
 end
 
@@ -477,18 +485,18 @@ PlayerHeadshot.Name = "PlayerHeadshot"
 PlayerHeadshot.Size = UDim2.new(0, 18, 0, 18)
 PlayerHeadshot.BackgroundTransparency = 1
 PlayerHeadshot.Image = "rbxthumb://type=AvatarHeadShot&id=" .. (LocalPlayer and LocalPlayer.UserId or 1) .. "&w=48&h=48"
-PlayerHeadshot.Parent = TopWatermark
+PlayerHeadshot.Parent = WMarkContent
 
 local PlayerNameLabel = Instance.new("TextLabel")
 PlayerNameLabel.Name = "PlayerNameLabel"
-PlayerNameLabel.Size = UDim2.new(0, 65, 1, 0)
+PlayerNameLabel.Size = UDim2.new(0, 70, 1, 0)
 PlayerNameLabel.BackgroundTransparency = 1
 PlayerNameLabel.Font = Library.Fonts.Label
 PlayerNameLabel.Text = LocalPlayer and LocalPlayer.DisplayName or "User"
 PlayerNameLabel.TextColor3 = Library.Theme.Text
 PlayerNameLabel.TextSize = 10.5
 PlayerNameLabel.TextTruncate = Enum.TextTruncate.AtEnd
-PlayerNameLabel.Parent = TopWatermark
+PlayerNameLabel.Parent = WMarkContent
 
 addWMarkSep()
 
@@ -500,7 +508,7 @@ WMarkFpsLabel.Font = Library.Fonts.Badge
 WMarkFpsLabel.Text = "60 FPS"
 WMarkFpsLabel.TextColor3 = Library.Theme.Accent
 WMarkFpsLabel.TextSize = 10
-WMarkFpsLabel.Parent = TopWatermark
+WMarkFpsLabel.Parent = WMarkContent
 
 addWMarkSep()
 
@@ -512,19 +520,19 @@ WMarkPingLabel.Font = Library.Fonts.Badge
 WMarkPingLabel.Text = "0 ms"
 WMarkPingLabel.TextColor3 = Library.Theme.Accent
 WMarkPingLabel.TextSize = 10
-WMarkPingLabel.Parent = TopWatermark
+WMarkPingLabel.Parent = WMarkContent
 
 addWMarkSep()
 
 local WMarkTimeLabel = Instance.new("TextLabel")
 WMarkTimeLabel.Name = "WMarkTimeLabel"
-WMarkTimeLabel.Size = UDim2.new(0, 52, 1, 0)
+WMarkTimeLabel.Size = UDim2.new(0, 56, 1, 0)
 WMarkTimeLabel.BackgroundTransparency = 1
 WMarkTimeLabel.Font = Library.Fonts.Badge
 WMarkTimeLabel.Text = "00:00:00"
 WMarkTimeLabel.TextColor3 = Library.Theme.Text
 WMarkTimeLabel.TextSize = 10
-WMarkTimeLabel.Parent = TopWatermark
+WMarkTimeLabel.Parent = WMarkContent
 
 UI.Watermark = TopWatermark
 UI.WMarkStroke = TopWMarkStroke
@@ -674,10 +682,11 @@ end
 local KeybindHUDFrame = Instance.new("Frame")
 KeybindHUDFrame.Name = "KeybindHUDOverlay"
 KeybindHUDFrame.Size = UDim2.new(0, 230, 0, 32)
-KeybindHUDFrame.Position = UDim2.new(1, -250, 0.35, 0)
+KeybindHUDFrame.Position = UDim2.new(1, -240, 0.35, 0)
 KeybindHUDFrame.BackgroundColor3 = Library.Theme.Block
 KeybindHUDFrame.BackgroundTransparency = 0.06
 KeybindHUDFrame.BorderSizePixel = 0
+KeybindHUDFrame.ClipsDescendants = true
 KeybindHUDFrame.Parent = ScreenGui
 UI.KeybindHUDFrame = KeybindHUDFrame
 
@@ -697,6 +706,7 @@ KeybindHUDGlow.BackgroundColor3 = Library.Theme.Accent
 KeybindHUDGlow.BorderSizePixel = 0
 KeybindHUDGlow.Parent = KeybindHUDFrame
 UI.KeybindHUDGlow = KeybindHUDGlow
+addCorner(KeybindHUDGlow, 2)
 
 local KeybindHUDHeader = Instance.new("Frame")
 KeybindHUDHeader.Size = UDim2.new(1, 0, 0, 32)
@@ -705,6 +715,7 @@ KeybindHUDHeader.BackgroundTransparency = 0.10
 KeybindHUDHeader.BorderSizePixel = 0
 KeybindHUDHeader.Parent = KeybindHUDFrame
 UI.KeybindHUDHeader = KeybindHUDHeader
+addCorner(KeybindHUDHeader, 8)
 
 local HUDDot = Instance.new("Frame")
 HUDDot.Size = UDim2.new(0, 6, 0, 6)
@@ -840,10 +851,11 @@ end
 local RadioHUDFrame = Instance.new("Frame")
 RadioHUDFrame.Name = "RadioHUDOverlay"
 RadioHUDFrame.Size = UDim2.new(0, 260, 0, 165)
-RadioHUDFrame.Position = UDim2.new(1, -275, 1, -180)
+RadioHUDFrame.Position = UDim2.new(1, -270, 1, -180)
 RadioHUDFrame.BackgroundColor3 = Library.Theme.Block
 RadioHUDFrame.BackgroundTransparency = 0.06
 RadioHUDFrame.BorderSizePixel = 0
+RadioHUDFrame.ClipsDescendants = true
 RadioHUDFrame.Parent = ScreenGui
 UI.RadioHUDFrame = RadioHUDFrame
 
@@ -868,6 +880,7 @@ RadioHeader.BackgroundTransparency = 0.10
 RadioHeader.BorderSizePixel = 0
 RadioHeader.Parent = RadioHUDFrame
 UI.RadioHeader = RadioHeader
+addCorner(RadioHeader, 8)
 
 local MusicIcon = Instance.new("ImageLabel")
 MusicIcon.Name = "MusicIcon"
@@ -1149,6 +1162,7 @@ SettingsModal.Position = UDim2.new(0.5, -250, 0.5, -210)
 SettingsModal.BackgroundColor3 = Library.Theme.Block
 SettingsModal.BackgroundTransparency = 0.04
 SettingsModal.BorderSizePixel = 0
+SettingsModal.ClipsDescendants = true
 SettingsModal.Visible = false
 SettingsModal.ZIndex = 20
 SettingsModal.Parent = Container
@@ -1172,6 +1186,7 @@ ModalHeader.BorderSizePixel = 0
 ModalHeader.ZIndex = 21
 ModalHeader.Parent = SettingsModal
 UI.ModalHeader = ModalHeader
+addCorner(ModalHeader, 10)
 
 local ModalLogoIcon = Instance.new("ImageLabel")
 ModalLogoIcon.Name = "ModalLogoIcon"
@@ -3472,6 +3487,7 @@ function Library:CreateBlock(title, defaultPosition)
     Header.BorderSizePixel = 0
     Header.Parent = Frame
     Block.Header = Header
+    addCorner(Header, 8)
 
     local TopGlow = Instance.new("Frame")
     TopGlow.Size = UDim2.new(1, -16, 0, 2)
@@ -3480,6 +3496,7 @@ function Library:CreateBlock(title, defaultPosition)
     TopGlow.BorderSizePixel = 0
     TopGlow.Parent = Header
     Block.TopGlow = TopGlow
+    addCorner(TopGlow, 2)
 
     local Dot = Instance.new("Frame")
     Dot.Size = UDim2.new(0, 6, 0, 6)
