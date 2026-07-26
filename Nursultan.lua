@@ -1225,9 +1225,12 @@ local function triggerPlaySound(rawId)
         if soundAsset and soundAsset ~= "" then
             pcall(function() RadioSound:Stop() end)
             RadioSound.SoundId = soundAsset
-            task.wait(0.15)
+            RadioSound.TimePosition = 0
+
+            pcall(function() ContentProvider:PreloadAsync({RadioSound}) end)
+            task.wait(0.2)
             RadioSound:Play()
-            
+
             local cleanName = tostring(rawId):match("([^/]+)$") or rawId
             RadioTrackLabel.Text = "Track: " .. string.sub(cleanName, 1, 28)
             HUDPlayBtn.Text = "PAUSE"
@@ -3563,7 +3566,9 @@ function Library:SetTheme(themeName)
                 if elem.TabRow then smoothTween(elem.TabRow, DUR_NORMAL, { BackgroundColor3 = t.Header }) end
                 if elem.Buttons then
                     for _, btn in ipairs(elem.Buttons) do
-                        local sel = (btn.Text == block.ActiveSubTab)
+                        local btnTextUpper = string.upper(btn.Text)
+                        local blockTabUpper = string.upper(block.ActiveSubTab or "")
+                        local sel = (btnTextUpper == blockTabUpper)
                         smoothTween(btn, DUR_NORMAL, {
                             BackgroundColor3 = sel and t.Block or t.Header,
                             TextColor3 = sel and t.Accent or t.TextDim
