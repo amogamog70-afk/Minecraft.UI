@@ -19,144 +19,284 @@ local Players          = game:GetService("Players")
 local Library = {
     Themes = {
         ["Monochrome Slate"] = {
-            Background   = Color3.fromRGB(14, 15, 17),
-            Header       = Color3.fromRGB(22, 24, 28),
-            Block        = Color3.fromRGB(18, 20, 24),
-            Card         = Color3.fromRGB(25, 27, 32),
-            CardHover    = Color3.fromRGB(33, 36, 43),
-            Stroke       = Color3.fromRGB(48, 52, 62),
-            StrokeHover  = Color3.fromRGB(85, 92, 108),
-            StrokeActive = Color3.fromRGB(215, 222, 235),
-            Accent       = Color3.fromRGB(220, 225, 238),
-            AccentDim    = Color3.fromRGB(150, 158, 175),
-            Text         = Color3.fromRGB(240, 243, 248),
-            TextDim      = Color3.fromRGB(145, 152, 168)
+            Background   = Color3.fromRGB(14, 16, 20),
+            Header       = Color3.fromRGB(28, 34, 42),
+            Block        = Color3.fromRGB(20, 24, 30),
+            Card         = Color3.fromRGB(34, 40, 50),
+            CardHover    = Color3.fromRGB(48, 58, 72),
+            Stroke       = Color3.fromRGB(60, 72, 88),
+            StrokeHover  = Color3.fromRGB(140, 160, 190),
+            StrokeActive = Color3.fromRGB(255, 255, 255),
+            Accent       = Color3.fromRGB(245, 248, 252),
+            AccentDim    = Color3.fromRGB(170, 182, 200),
+            Text         = Color3.fromRGB(255, 255, 255),
+            TextDim      = Color3.fromRGB(150, 160, 180)
         },
         ["Lavender Mist"] = {
-            Background   = Color3.fromRGB(15, 14, 20),
-            Header       = Color3.fromRGB(24, 22, 32),
-            Block        = Color3.fromRGB(19, 17, 26),
-            Card         = Color3.fromRGB(27, 24, 37),
-            CardHover    = Color3.fromRGB(37, 33, 50),
-            Stroke       = Color3.fromRGB(58, 50, 78),
-            StrokeHover  = Color3.fromRGB(110, 95, 148),
-            StrokeActive = Color3.fromRGB(175, 160, 220),
-            Accent       = Color3.fromRGB(180, 165, 225),
-            AccentDim    = Color3.fromRGB(130, 115, 170),
-            Text         = Color3.fromRGB(245, 242, 252),
-            TextDim      = Color3.fromRGB(155, 145, 175)
+            Background   = Color3.fromRGB(20, 16, 32),
+            Header       = Color3.fromRGB(44, 36, 68),
+            Block        = Color3.fromRGB(30, 24, 46),
+            Card         = Color3.fromRGB(56, 46, 84),
+            CardHover    = Color3.fromRGB(72, 58, 108),
+            Stroke       = Color3.fromRGB(95, 78, 140),
+            StrokeHover  = Color3.fromRGB(145, 120, 210),
+            StrokeActive = Color3.fromRGB(195, 180, 255),
+            Accent       = Color3.fromRGB(195, 180, 255),
+            AccentDim    = Color3.fromRGB(145, 130, 195),
+            Text         = Color3.fromRGB(250, 246, 255),
+            TextDim      = Color3.fromRGB(175, 160, 205)
         },
         ["Nordic Sage"] = {
-            Background   = Color3.fromRGB(13, 17, 15),
-            Header       = Color3.fromRGB(20, 27, 24),
-            Block        = Color3.fromRGB(16, 22, 19),
-            Card         = Color3.fromRGB(23, 31, 27),
-            CardHover    = Color3.fromRGB(31, 42, 37),
-            Stroke       = Color3.fromRGB(45, 62, 54),
-            StrokeHover  = Color3.fromRGB(85, 118, 102),
-            StrokeActive = Color3.fromRGB(145, 195, 165),
-            Accent       = Color3.fromRGB(145, 195, 165),
-            AccentDim    = Color3.fromRGB(105, 148, 122),
-            Text         = Color3.fromRGB(240, 248, 243),
-            TextDim      = Color3.fromRGB(142, 165, 152)
+            Background   = Color3.fromRGB(14, 24, 18),
+            Header       = Color3.fromRGB(32, 54, 42),
+            Block        = Color3.fromRGB(22, 38, 29),
+            Card         = Color3.fromRGB(40, 68, 52),
+            CardHover    = Color3.fromRGB(52, 88, 68),
+            Stroke       = Color3.fromRGB(68, 115, 88),
+            StrokeHover  = Color3.fromRGB(105, 175, 135),
+            StrokeActive = Color3.fromRGB(145, 235, 180),
+            Accent       = Color3.fromRGB(145, 235, 180),
+            AccentDim    = Color3.fromRGB(105, 175, 130),
+            Text         = Color3.fromRGB(242, 253, 246),
+            TextDim      = Color3.fromRGB(150, 195, 165)
         },
         ["Rose Gold"] = {
-            Background   = Color3.fromRGB(18, 14, 15),
-            Header       = Color3.fromRGB(28, 22, 23),
-            Block        = Color3.fromRGB(23, 18, 19),
-            Card         = Color3.fromRGB(32, 25, 27),
-            CardHover    = Color3.fromRGB(43, 34, 36),
-            Stroke       = Color3.fromRGB(68, 52, 55),
-            StrokeHover  = Color3.fromRGB(135, 102, 108),
-            StrokeActive = Color3.fromRGB(225, 165, 160),
-            Accent       = Color3.fromRGB(225, 165, 160),
-            AccentDim    = Color3.fromRGB(170, 120, 116),
-            Text         = Color3.fromRGB(252, 242, 243),
-            TextDim      = Color3.fromRGB(175, 148, 150)
+            Background   = Color3.fromRGB(26, 16, 19),
+            Header       = Color3.fromRGB(58, 34, 42),
+            Block        = Color3.fromRGB(40, 24, 29),
+            Card         = Color3.fromRGB(74, 44, 54),
+            CardHover    = Color3.fromRGB(96, 56, 70),
+            Stroke       = Color3.fromRGB(130, 75, 92),
+            StrokeHover  = Color3.fromRGB(195, 115, 140),
+            StrokeActive = Color3.fromRGB(255, 175, 195),
+            Accent       = Color3.fromRGB(255, 175, 195),
+            AccentDim    = Color3.fromRGB(195, 125, 142),
+            Text         = Color3.fromRGB(255, 245, 248),
+            TextDim      = Color3.fromRGB(195, 155, 168)
         },
         ["Ocean Breeze"] = {
-            Background   = Color3.fromRGB(12, 16, 22),
-            Header       = Color3.fromRGB(18, 26, 35),
-            Block        = Color3.fromRGB(15, 21, 29),
-            Card         = Color3.fromRGB(21, 30, 41),
-            CardHover    = Color3.fromRGB(29, 41, 56),
-            Stroke       = Color3.fromRGB(42, 60, 82),
-            StrokeHover  = Color3.fromRGB(82, 115, 155),
-            StrokeActive = Color3.fromRGB(140, 180, 220),
-            Accent       = Color3.fromRGB(140, 180, 220),
-            AccentDim    = Color3.fromRGB(98, 132, 168),
-            Text         = Color3.fromRGB(240, 246, 252),
-            TextDim      = Color3.fromRGB(140, 160, 185)
+            Background   = Color3.fromRGB(14, 22, 34),
+            Header       = Color3.fromRGB(28, 48, 72),
+            Block        = Color3.fromRGB(20, 34, 52),
+            Card         = Color3.fromRGB(36, 62, 92),
+            CardHover    = Color3.fromRGB(48, 80, 118),
+            Stroke       = Color3.fromRGB(65, 110, 160),
+            StrokeHover  = Color3.fromRGB(100, 165, 230),
+            StrokeActive = Color3.fromRGB(130, 205, 255),
+            Accent       = Color3.fromRGB(130, 205, 255),
+            AccentDim    = Color3.fromRGB(95, 155, 195),
+            Text         = Color3.fromRGB(242, 250, 255),
+            TextDim      = Color3.fromRGB(150, 185, 215)
         },
         ["Sakura Blossom"] = {
-            Background   = Color3.fromRGB(18, 13, 16),
-            Header       = Color3.fromRGB(29, 21, 26),
-            Block        = Color3.fromRGB(24, 17, 21),
-            Card         = Color3.fromRGB(33, 24, 29),
-            CardHover    = Color3.fromRGB(45, 33, 40),
-            Stroke       = Color3.fromRGB(72, 52, 64),
-            StrokeHover  = Color3.fromRGB(142, 102, 126),
-            StrokeActive = Color3.fromRGB(235, 170, 195),
-            Accent       = Color3.fromRGB(235, 170, 195),
-            AccentDim    = Color3.fromRGB(178, 122, 145),
-            Text         = Color3.fromRGB(253, 244, 248),
-            TextDim      = Color3.fromRGB(178, 150, 165)
+            Background   = Color3.fromRGB(26, 15, 23),
+            Header       = Color3.fromRGB(58, 32, 52),
+            Block        = Color3.fromRGB(40, 22, 36),
+            Card         = Color3.fromRGB(74, 42, 68),
+            CardHover    = Color3.fromRGB(96, 54, 88),
+            Stroke       = Color3.fromRGB(130, 72, 118),
+            StrokeHover  = Color3.fromRGB(195, 110, 175),
+            StrokeActive = Color3.fromRGB(255, 170, 225),
+            Accent       = Color3.fromRGB(255, 170, 225),
+            AccentDim    = Color3.fromRGB(195, 120, 170),
+            Text         = Color3.fromRGB(255, 245, 252),
+            TextDim      = Color3.fromRGB(195, 150, 182)
         },
         ["Muted Mint"] = {
-            Background   = Color3.fromRGB(12, 17, 19),
-            Header       = Color3.fromRGB(18, 27, 30),
-            Block        = Color3.fromRGB(15, 22, 25),
-            Card         = Color3.fromRGB(20, 31, 35),
-            CardHover    = Color3.fromRGB(28, 43, 48),
-            Stroke       = Color3.fromRGB(42, 65, 74),
-            StrokeHover  = Color3.fromRGB(80, 125, 142),
-            StrokeActive = Color3.fromRGB(130, 205, 195),
-            Accent       = Color3.fromRGB(130, 205, 195),
-            AccentDim    = Color3.fromRGB(92, 152, 144),
-            Text         = Color3.fromRGB(240, 252, 250),
-            TextDim      = Color3.fromRGB(140, 172, 168)
+            Background   = Color3.fromRGB(14, 24, 24),
+            Header       = Color3.fromRGB(28, 52, 50),
+            Block        = Color3.fromRGB(20, 36, 35),
+            Card         = Color3.fromRGB(36, 68, 65),
+            CardHover    = Color3.fromRGB(48, 88, 84),
+            Stroke       = Color3.fromRGB(65, 120, 115),
+            StrokeHover  = Color3.fromRGB(100, 185, 175),
+            StrokeActive = Color3.fromRGB(130, 245, 225),
+            Accent       = Color3.fromRGB(130, 245, 225),
+            AccentDim    = Color3.fromRGB(95, 185, 170),
+            Text         = Color3.fromRGB(242, 255, 252),
+            TextDim      = Color3.fromRGB(150, 195, 188)
         },
         ["Sunset Amber"] = {
-            Background   = Color3.fromRGB(18, 14, 12),
-            Header       = Color3.fromRGB(29, 22, 18),
-            Block        = Color3.fromRGB(24, 18, 15),
-            Card         = Color3.fromRGB(33, 25, 20),
-            CardHover    = Color3.fromRGB(45, 34, 27),
-            Stroke       = Color3.fromRGB(72, 54, 42),
-            StrokeHover  = Color3.fromRGB(142, 106, 82),
-            StrokeActive = Color3.fromRGB(230, 165, 130),
-            Accent       = Color3.fromRGB(230, 165, 130),
-            AccentDim    = Color3.fromRGB(175, 120, 90),
-            Text         = Color3.fromRGB(253, 246, 240),
-            TextDim      = Color3.fromRGB(178, 152, 138)
+            Background   = Color3.fromRGB(26, 17, 12),
+            Header       = Color3.fromRGB(58, 36, 24),
+            Block        = Color3.fromRGB(40, 25, 16),
+            Card         = Color3.fromRGB(76, 48, 30),
+            CardHover    = Color3.fromRGB(98, 62, 38),
+            Stroke       = Color3.fromRGB(135, 84, 50),
+            StrokeHover  = Color3.fromRGB(200, 128, 75),
+            StrokeActive = Color3.fromRGB(255, 180, 110),
+            Accent       = Color3.fromRGB(255, 180, 110),
+            AccentDim    = Color3.fromRGB(195, 130, 75),
+            Text         = Color3.fromRGB(255, 248, 242),
+            TextDim      = Color3.fromRGB(195, 158, 135)
         },
         ["Platinum Steel"] = {
-            Background   = Color3.fromRGB(16, 16, 18),
-            Header       = Color3.fromRGB(25, 25, 29),
-            Block        = Color3.fromRGB(20, 20, 23),
-            Card         = Color3.fromRGB(28, 28, 33),
-            CardHover    = Color3.fromRGB(38, 38, 45),
-            Stroke       = Color3.fromRGB(55, 55, 65),
-            StrokeHover  = Color3.fromRGB(100, 100, 118),
-            StrokeActive = Color3.fromRGB(225, 228, 235),
-            Accent       = Color3.fromRGB(225, 228, 235),
-            AccentDim    = Color3.fromRGB(160, 164, 175),
-            Text         = Color3.fromRGB(248, 249, 252),
-            TextDim      = Color3.fromRGB(152, 155, 165)
+            Background   = Color3.fromRGB(20, 22, 26),
+            Header       = Color3.fromRGB(46, 50, 58),
+            Block        = Color3.fromRGB(32, 35, 41),
+            Card         = Color3.fromRGB(60, 65, 76),
+            CardHover    = Color3.fromRGB(78, 85, 98),
+            Stroke       = Color3.fromRGB(105, 115, 132),
+            StrokeHover  = Color3.fromRGB(160, 175, 200),
+            StrokeActive = Color3.fromRGB(220, 235, 255),
+            Accent       = Color3.fromRGB(220, 235, 255),
+            AccentDim    = Color3.fromRGB(160, 172, 190),
+            Text         = Color3.fromRGB(250, 252, 255),
+            TextDim      = Color3.fromRGB(165, 175, 190)
         },
         ["Aura Indigo"] = {
-            Background   = Color3.fromRGB(14, 13, 22),
-            Header       = Color3.fromRGB(22, 20, 35),
-            Block        = Color3.fromRGB(18, 16, 28),
-            Card         = Color3.fromRGB(25, 22, 39),
-            CardHover    = Color3.fromRGB(35, 31, 54),
-            Stroke       = Color3.fromRGB(52, 46, 80),
-            StrokeHover  = Color3.fromRGB(102, 90, 155),
-            StrokeActive = Color3.fromRGB(155, 165, 235),
-            Accent       = Color3.fromRGB(155, 165, 235),
-            AccentDim    = Color3.fromRGB(110, 118, 178),
-            Text         = Color3.fromRGB(244, 245, 255),
-            TextDim      = Color3.fromRGB(150, 152, 180)
+            Background   = Color3.fromRGB(18, 14, 32),
+            Header       = Color3.fromRGB(40, 30, 72),
+            Block        = Color3.fromRGB(28, 21, 50),
+            Card         = Color3.fromRGB(52, 40, 92),
+            CardHover    = Color3.fromRGB(68, 52, 120),
+            Stroke       = Color3.fromRGB(92, 70, 160),
+            StrokeHover  = Color3.fromRGB(140, 105, 230),
+            StrokeActive = Color3.fromRGB(185, 150, 255),
+            Accent       = Color3.fromRGB(185, 150, 255),
+            AccentDim    = Color3.fromRGB(135, 105, 195),
+            Text         = Color3.fromRGB(248, 245, 255),
+            TextDim      = Color3.fromRGB(170, 155, 205)
+        },
+        ["Cyber Neon"] = {
+            Background   = Color3.fromRGB(10, 14, 22),
+            Header       = Color3.fromRGB(18, 28, 46),
+            Block        = Color3.fromRGB(14, 20, 34),
+            Card         = Color3.fromRGB(24, 38, 62),
+            CardHover    = Color3.fromRGB(34, 52, 85),
+            Stroke       = Color3.fromRGB(40, 75, 120),
+            StrokeHover  = Color3.fromRGB(0, 220, 255),
+            StrokeActive = Color3.fromRGB(0, 255, 230),
+            Accent       = Color3.fromRGB(0, 235, 255),
+            AccentDim    = Color3.fromRGB(0, 160, 195),
+            Text         = Color3.fromRGB(240, 255, 255),
+            TextDim      = Color3.fromRGB(130, 185, 215)
+        },
+        ["Crimson Blood"] = {
+            Background   = Color3.fromRGB(22, 10, 12),
+            Header       = Color3.fromRGB(48, 16, 20),
+            Block        = Color3.fromRGB(34, 12, 15),
+            Card         = Color3.fromRGB(58, 22, 28),
+            CardHover    = Color3.fromRGB(80, 28, 36),
+            Stroke       = Color3.fromRGB(110, 38, 48),
+            StrokeHover  = Color3.fromRGB(220, 60, 75),
+            StrokeActive = Color3.fromRGB(255, 80, 95),
+            Accent       = Color3.fromRGB(255, 75, 90),
+            AccentDim    = Color3.fromRGB(185, 50, 65),
+            Text         = Color3.fromRGB(255, 242, 244),
+            TextDim      = Color3.fromRGB(195, 135, 142)
+        },
+        ["Emerald Dragon"] = {
+            Background   = Color3.fromRGB(10, 22, 14),
+            Header       = Color3.fromRGB(18, 48, 28),
+            Block        = Color3.fromRGB(12, 34, 20),
+            Card         = Color3.fromRGB(22, 58, 34),
+            CardHover    = Color3.fromRGB(30, 80, 46),
+            Stroke       = Color3.fromRGB(42, 115, 66),
+            StrokeHover  = Color3.fromRGB(60, 215, 110),
+            StrokeActive = Color3.fromRGB(85, 255, 145),
+            Accent       = Color3.fromRGB(70, 240, 130),
+            AccentDim    = Color3.fromRGB(45, 175, 92),
+            Text         = Color3.fromRGB(242, 255, 245),
+            TextDim      = Color3.fromRGB(135, 195, 152)
+        },
+        ["Amethyst Violet"] = {
+            Background   = Color3.fromRGB(18, 10, 26),
+            Header       = Color3.fromRGB(42, 20, 62),
+            Block        = Color3.fromRGB(28, 14, 42),
+            Card         = Color3.fromRGB(52, 26, 78),
+            CardHover    = Color3.fromRGB(70, 34, 105),
+            Stroke       = Color3.fromRGB(98, 48, 145),
+            StrokeHover  = Color3.fromRGB(170, 90, 240),
+            StrokeActive = Color3.fromRGB(210, 130, 255),
+            Accent       = Color3.fromRGB(195, 115, 255),
+            AccentDim    = Color3.fromRGB(140, 78, 195),
+            Text         = Color3.fromRGB(252, 242, 255),
+            TextDim      = Color3.fromRGB(180, 140, 210)
+        },
+        ["Solar Gold"] = {
+            Background   = Color3.fromRGB(24, 18, 10),
+            Header       = Color3.fromRGB(52, 38, 16),
+            Block        = Color3.fromRGB(36, 26, 12),
+            Card         = Color3.fromRGB(66, 48, 20),
+            CardHover    = Color3.fromRGB(90, 65, 26),
+            Stroke       = Color3.fromRGB(125, 90, 32),
+            StrokeHover  = Color3.fromRGB(220, 165, 45),
+            StrokeActive = Color3.fromRGB(255, 205, 65),
+            Accent       = Color3.fromRGB(255, 195, 45),
+            AccentDim    = Color3.fromRGB(190, 140, 30),
+            Text         = Color3.fromRGB(255, 250, 240),
+            TextDim      = Color3.fromRGB(195, 170, 130)
+        },
+        ["Midnight Abyss"] = {
+            Background   = Color3.fromRGB(8, 9, 11),
+            Header       = Color3.fromRGB(18, 20, 24),
+            Block        = Color3.fromRGB(12, 14, 17),
+            Card         = Color3.fromRGB(24, 27, 33),
+            CardHover    = Color3.fromRGB(36, 40, 50),
+            Stroke       = Color3.fromRGB(55, 62, 75),
+            StrokeHover  = Color3.fromRGB(200, 215, 240),
+            StrokeActive = Color3.fromRGB(255, 255, 255),
+            Accent       = Color3.fromRGB(255, 255, 255),
+            AccentDim    = Color3.fromRGB(170, 182, 200),
+            Text         = Color3.fromRGB(255, 255, 255),
+            TextDim      = Color3.fromRGB(140, 150, 168)
+        },
+        ["Cyberpunk 2077"] = {
+            Background   = Color3.fromRGB(16, 16, 20),
+            Header       = Color3.fromRGB(38, 36, 14),
+            Block        = Color3.fromRGB(26, 25, 10),
+            Card         = Color3.fromRGB(48, 45, 16),
+            CardHover    = Color3.fromRGB(68, 64, 20),
+            Stroke       = Color3.fromRGB(120, 112, 25),
+            StrokeHover  = Color3.fromRGB(230, 215, 30),
+            StrokeActive = Color3.fromRGB(255, 240, 35),
+            Accent       = Color3.fromRGB(255, 235, 0),
+            AccentDim    = Color3.fromRGB(185, 170, 0),
+            Text         = Color3.fromRGB(255, 254, 235),
+            TextDim      = Color3.fromRGB(185, 180, 140)
+        },
+        ["Toxic Lime"] = {
+            Background   = Color3.fromRGB(12, 20, 12),
+            Header       = Color3.fromRGB(26, 46, 20),
+            Block        = Color3.fromRGB(18, 32, 14),
+            Card         = Color3.fromRGB(34, 62, 24),
+            CardHover    = Color3.fromRGB(46, 85, 32),
+            Stroke       = Color3.fromRGB(75, 140, 48),
+            StrokeHover  = Color3.fromRGB(140, 235, 60),
+            StrokeActive = Color3.fromRGB(170, 255, 75),
+            Accent       = Color3.fromRGB(160, 255, 60),
+            AccentDim    = Color3.fromRGB(110, 185, 40),
+            Text         = Color3.fromRGB(245, 255, 240),
+            TextDim      = Color3.fromRGB(150, 195, 140)
+        },
+        ["Dracula Dark"] = {
+            Background   = Color3.fromRGB(18, 16, 24),
+            Header       = Color3.fromRGB(40, 32, 56),
+            Block        = Color3.fromRGB(28, 22, 40),
+            Card         = Color3.fromRGB(50, 38, 72),
+            CardHover    = Color3.fromRGB(68, 50, 98),
+            Stroke       = Color3.fromRGB(95, 68, 138),
+            StrokeHover  = Color3.fromRGB(220, 100, 180),
+            StrokeActive = Color3.fromRGB(255, 120, 210),
+            Accent       = Color3.fromRGB(255, 120, 190),
+            AccentDim    = Color3.fromRGB(185, 80, 135),
+            Text         = Color3.fromRGB(248, 245, 255),
+            TextDim      = Color3.fromRGB(175, 155, 200)
+        },
+        ["Tokyo Night"] = {
+            Background   = Color3.fromRGB(15, 17, 26),
+            Header       = Color3.fromRGB(26, 32, 52),
+            Block        = Color3.fromRGB(19, 23, 38),
+            Card         = Color3.fromRGB(33, 41, 68),
+            CardHover    = Color3.fromRGB(44, 55, 90),
+            Stroke       = Color3.fromRGB(65, 82, 135),
+            StrokeHover  = Color3.fromRGB(120, 155, 255),
+            StrokeActive = Color3.fromRGB(160, 190, 255),
+            Accent       = Color3.fromRGB(122, 162, 247),
+            AccentDim    = Color3.fromRGB(85, 120, 195),
+            Text         = Color3.fromRGB(240, 245, 255),
+            TextDim      = Color3.fromRGB(145, 165, 210)
         }
     },
     CurrentThemeName = "Monochrome Slate",
@@ -180,7 +320,9 @@ local Library = {
     RadioHUDVisible = true,
     RadioHUDTransparency = 0,
     RadioHUDScale = 100,
+    WatermarkText = "STAR.UI",
     ConfigFolder = "NursultanClient",
+    MusicFolder = "Nursultan/Music",
     Fonts = {
         Header = Enum.Font.GothamBold,
         Label = Enum.Font.GothamMedium,
@@ -364,6 +506,9 @@ pcall(function()
         if not isfolder(Library.ConfigFolder) then
             makefolder(Library.ConfigFolder)
         end
+        if not isfolder(Library.MusicFolder) then
+            makefolder(Library.MusicFolder)
+        end
     end
 end)
 
@@ -445,6 +590,11 @@ Container.BackgroundTransparency = 1
 Container.ClipsDescendants = false
 Container.ZIndex = 10
 Container.Parent = ScreenGui
+
+local ContainerUIScale = Instance.new("UIScale")
+ContainerUIScale.Name = "ContainerUIScale"
+ContainerUIScale.Scale = 1
+ContainerUIScale.Parent = Container
 
 local SnowFolder = Instance.new("Frame")
 SnowFolder.Name = "SnowParticles"
@@ -560,13 +710,15 @@ TopWMarkIcon.Parent = WMarkContent
 
 local TopWMarkTitle = Instance.new("TextLabel")
 TopWMarkTitle.Name = "TopWMarkTitle"
-TopWMarkTitle.Size = UDim2.new(0, 52, 1, 0)
+TopWMarkTitle.AutomaticSize = Enum.AutomaticSize.X
+TopWMarkTitle.Size = UDim2.new(0, 0, 1, 0)
 TopWMarkTitle.BackgroundTransparency = 1
 TopWMarkTitle.Font = Library.Fonts.Header
-TopWMarkTitle.Text = "STAR.UI"
+TopWMarkTitle.Text = Library.WatermarkText or "STAR.UI"
 TopWMarkTitle.TextColor3 = Library.Theme.Accent
 TopWMarkTitle.TextSize = 11.5
 TopWMarkTitle.Parent = WMarkContent
+UI.TopWMarkTitle = TopWMarkTitle
 
 local function addWMarkSep()
     local Sep = Instance.new("TextLabel")
@@ -799,6 +951,43 @@ local function makeDraggable(frame, dragHandle)
     end))
 end
 
+local function makeResizable(targetFrame, gripBtn, minW, minH, maxW, maxH, onResize)
+    minW = minW or 180
+    minH = minH or 80
+    maxW = maxW or 1000
+    maxH = maxH or 900
+
+    local isResizing = false
+    local startMousePos = nil
+    local startFrameSize = nil
+
+    gripBtn.InputBegan:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+            isResizing = true
+            startMousePos = input.Position
+            startFrameSize = targetFrame.AbsoluteSize
+        end
+    end)
+
+    trackConnection(UserInputService.InputChanged:Connect(function(input)
+        if isResizing and (input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch) then
+            local delta = input.Position - startMousePos
+            local newW = math.clamp(startFrameSize.X + delta.X, minW, maxW)
+            local newH = math.clamp(startFrameSize.Y + delta.Y, minH, maxH)
+            targetFrame.Size = UDim2.new(0, newW, 0, newH)
+            if onResize then
+                onResize(newW, newH)
+            end
+        end
+    end))
+
+    trackConnection(UserInputService.InputEnded:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+            isResizing = false
+        end
+    end))
+end
+
 makeDraggable(TopWatermark, TopWatermark)
 
 local KeybindHUDFrame = Instance.new("Frame")
@@ -874,6 +1063,27 @@ HUDListLayout.Padding = UDim.new(0, 4)
 HUDListLayout.Parent = HUDListHolder
 
 makeDraggable(KeybindHUDFrame, KeybindHUDHeader)
+
+local KeybindResizeGrip = Instance.new("TextButton")
+KeybindResizeGrip.Name = "KeybindResizeGrip"
+KeybindResizeGrip.Size = UDim2.new(0, 16, 0, 16)
+KeybindResizeGrip.Position = UDim2.new(1, -14, 1, -14)
+KeybindResizeGrip.BackgroundTransparency = 1
+KeybindResizeGrip.Font = Library.Fonts.Badge
+KeybindResizeGrip.Text = "◢"
+KeybindResizeGrip.TextColor3 = Library.Theme.TextDim
+KeybindResizeGrip.TextSize = 11
+KeybindResizeGrip.ZIndex = 100
+KeybindResizeGrip.Parent = KeybindHUDFrame
+
+KeybindResizeGrip.MouseEnter:Connect(function()
+    smoothTween(KeybindResizeGrip, DUR_FAST, { TextColor3 = Library.Theme.Accent })
+end)
+KeybindResizeGrip.MouseLeave:Connect(function()
+    smoothTween(KeybindResizeGrip, DUR_FAST, { TextColor3 = Library.Theme.TextDim })
+end)
+
+makeResizable(KeybindHUDFrame, KeybindResizeGrip, 180, 40, 600, 600)
 
 function Library:RefreshKeybindHUD()
     for _, child in ipairs(HUDListHolder:GetChildren()) do
@@ -1018,8 +1228,32 @@ RHTitle.TextXAlignment = Enum.TextXAlignment.Left
 RHTitle.Parent = RadioHeader
 UI.RHTitle = RHTitle
 
+local HUDPrevBtn = Instance.new("TextButton")
+HUDPrevBtn.Size = UDim2.new(0, 22, 0, 20)
+HUDPrevBtn.Position = UDim2.new(1, -110, 0.5, -10)
+HUDPrevBtn.BackgroundColor3 = Library.Theme.Card
+HUDPrevBtn.BorderSizePixel = 0
+HUDPrevBtn.Font = Library.Fonts.Badge
+HUDPrevBtn.Text = "<<"
+HUDPrevBtn.TextColor3 = Library.Theme.Accent
+HUDPrevBtn.TextSize = 9
+HUDPrevBtn.Parent = RadioHeader
+addCorner(HUDPrevBtn, 4)
+
+local HUDNextBtn = Instance.new("TextButton")
+HUDNextBtn.Size = UDim2.new(0, 22, 0, 20)
+HUDNextBtn.Position = UDim2.new(1, -85, 0.5, -10)
+HUDNextBtn.BackgroundColor3 = Library.Theme.Card
+HUDNextBtn.BorderSizePixel = 0
+HUDNextBtn.Font = Library.Fonts.Badge
+HUDNextBtn.Text = ">>"
+HUDNextBtn.TextColor3 = Library.Theme.Accent
+HUDNextBtn.TextSize = 9
+HUDNextBtn.Parent = RadioHeader
+addCorner(HUDNextBtn, 4)
+
 local HUDPlayBtn = Instance.new("TextButton")
-HUDPlayBtn.Size = UDim2.new(0, 55, 0, 20)
+HUDPlayBtn.Size = UDim2.new(0, 58, 0, 20)
 HUDPlayBtn.Position = UDim2.new(1, -60, 0.5, -10)
 HUDPlayBtn.BackgroundColor3 = Library.Theme.Card
 HUDPlayBtn.BorderSizePixel = 0
@@ -1030,7 +1264,42 @@ HUDPlayBtn.TextSize = 9
 HUDPlayBtn.Parent = RadioHeader
 UI.HUDPlayBtn = HUDPlayBtn
 
+HUDPrevBtn.MouseButton1Click:Connect(function()
+    if #Playlist > 0 then
+        local prevIndex = CurrentTrackIndex > 1 and CurrentTrackIndex - 1 or #Playlist
+        playWorkspaceTrack(prevIndex)
+    end
+end)
+
+HUDNextBtn.MouseButton1Click:Connect(function()
+    if #Playlist > 0 then
+        local nextIndex = CurrentTrackIndex < #Playlist and CurrentTrackIndex + 1 or 1
+        playWorkspaceTrack(nextIndex)
+    end
+end)
+
 makeDraggable(RadioHUDFrame, RadioHeader)
+
+local RadioResizeGrip = Instance.new("TextButton")
+RadioResizeGrip.Name = "RadioResizeGrip"
+RadioResizeGrip.Size = UDim2.new(0, 16, 0, 16)
+RadioResizeGrip.Position = UDim2.new(1, -14, 1, -14)
+RadioResizeGrip.BackgroundTransparency = 1
+RadioResizeGrip.Font = Library.Fonts.Badge
+RadioResizeGrip.Text = "◢"
+RadioResizeGrip.TextColor3 = Library.Theme.TextDim
+RadioResizeGrip.TextSize = 11
+RadioResizeGrip.ZIndex = 100
+RadioResizeGrip.Parent = RadioHUDFrame
+
+RadioResizeGrip.MouseEnter:Connect(function()
+    smoothTween(RadioResizeGrip, DUR_FAST, { TextColor3 = Library.Theme.Accent })
+end)
+RadioResizeGrip.MouseLeave:Connect(function()
+    smoothTween(RadioResizeGrip, DUR_FAST, { TextColor3 = Library.Theme.TextDim })
+end)
+
+makeResizable(RadioHUDFrame, RadioResizeGrip, 240, 140, 600, 400)
 
 local HUDSoundInputBg = Instance.new("Frame")
 HUDSoundInputBg.Size = UDim2.new(1, -16, 0, 26)
@@ -1213,12 +1482,92 @@ for i, spData in ipairs(speeds) do
     end)
 end
 
-local function triggerPlaySound(rawId)
-    if not rawId or rawId == "" then return end
+local Playlist = {}
+local CurrentTrackIndex = 1
 
-    RadioTrackLabel.Text = "Status: Downloading..."
+local function scanMusicFiles()
+    Playlist = {}
+    pcall(function()
+        if makefolder and isfolder and not isfolder(Library.MusicFolder) then
+            makefolder(Library.MusicFolder)
+        end
+        if listfiles and isfolder and isfolder(Library.MusicFolder) then
+            local files = listfiles(Library.MusicFolder)
+            for _, path in ipairs(files) do
+                local name = path:match("([^/^\\]+)$")
+                if name then
+                    local ext = name:sub(-4):lower()
+                    if ext == ".mp3" or ext == ".wav" or ext == ".ogg" then
+                        table.insert(Playlist, name)
+                    end
+                end
+            end
+        end
+    end)
+    return Playlist
+end
+
+local function playWorkspaceTrack(index)
+    scanMusicFiles()
+    if #Playlist == 0 then
+        RadioTrackLabel.Text = "Drop .mp3/.wav in workspace/Nursultan/Music!"
+        HUDPlayBtn.Text = "PLAY"
+        if PlaySoundBtn then PlaySoundBtn.Text = "  REFRESH FOLDER" end
+        return
+    end
+
+    CurrentTrackIndex = math.clamp(index or 1, 1, #Playlist)
+    local fileName = Playlist[CurrentTrackIndex]
+    local fullPath = Library.MusicFolder .. "/" .. fileName
+
+    RadioTrackLabel.Text = string.format("[%d/%d] %s", CurrentTrackIndex, #Playlist, string.sub(fileName, 1, 22))
     HUDPlayBtn.Text = "LOADING..."
-    if PlaySoundBtn then PlaySoundBtn.Text = "DOWNLOADING..." end
+    if PlaySoundBtn then PlaySoundBtn.Text = "  LOADING..." end
+
+    task.spawn(function()
+        if getcustomasset and isfile and isfile(fullPath) then
+            local okAsset, asset = pcall(function() return getcustomasset(fullPath) end)
+            if okAsset and asset and asset ~= "" then
+                pcall(function() RadioSound:Stop() end)
+                RadioSound.SoundId = asset
+                RadioSound.TimePosition = 0
+                pcall(function() ContentProvider:PreloadAsync({RadioSound}) end)
+                task.wait(0.15)
+                RadioSound:Play()
+
+                HUDPlayBtn.Text = "PAUSE"
+                if PlaySoundBtn then PlaySoundBtn.Text = "  PAUSE TRACK" end
+                return
+            end
+        end
+
+        RadioTrackLabel.Text = "Error loading " .. string.sub(fileName, 1, 20)
+        HUDPlayBtn.Text = "PLAY"
+        if PlaySoundBtn then PlaySoundBtn.Text = "  PLAY TRACK" end
+    end)
+end
+
+RadioSound.Ended:Connect(function()
+    if not RadioSound.Looped and #Playlist > 1 then
+        playWorkspaceTrack(CurrentTrackIndex + 1)
+    end
+end)
+
+local function triggerPlaySound(rawId)
+    if not rawId or rawId == "" then
+        if RadioSound.IsPlaying then
+            RadioSound:Pause()
+            HUDPlayBtn.Text = "PLAY"
+            if PlaySoundBtn then PlaySoundBtn.Text = "  PLAY TRACK" end
+        else
+            playWorkspaceTrack(CurrentTrackIndex)
+        end
+        return
+    end
+
+    RadioTrackLabel.Text = "Loading ID..."
+    HUDPlayBtn.Text = "LOADING..."
+    if PlaySoundBtn then PlaySoundBtn.Text = "  LOADING..." end
 
     task.spawn(function()
         local soundAsset = formatAssetId(rawId)
@@ -1236,7 +1585,7 @@ local function triggerPlaySound(rawId)
             HUDPlayBtn.Text = "PAUSE"
             if PlaySoundBtn then PlaySoundBtn.Text = "  PAUSE RADIO" end
         else
-            RadioTrackLabel.Text = "Error loading song URL"
+            RadioTrackLabel.Text = "Error loading song ID"
             HUDPlayBtn.Text = "PLAY"
             if PlaySoundBtn then PlaySoundBtn.Text = "  PLAY RADIO" end
         end
@@ -1354,7 +1703,7 @@ ModalTitle.Size = UDim2.new(1, -70, 1, 0)
 ModalTitle.Position = UDim2.new(0, 38, 0, 0)
 ModalTitle.BackgroundTransparency = 1
 ModalTitle.Font = Library.Fonts.Header
-ModalTitle.Text = "STAR.UI  |  SETTINGS & MANAGER"
+ModalTitle.Text = (Library.WatermarkText or "STAR.UI") .. "  |  SETTINGS & MANAGER"
 ModalTitle.TextColor3 = Library.Theme.Text
 ModalTitle.TextSize = 11
 ModalTitle.TextXAlignment = Enum.TextXAlignment.Left
@@ -1374,6 +1723,27 @@ CloseModalBtn.ZIndex = 22
 CloseModalBtn.Parent = ModalHeader
 
 makeDraggable(SettingsModal, ModalHeader)
+
+local ModalResizeGrip = Instance.new("TextButton")
+ModalResizeGrip.Name = "ModalResizeGrip"
+ModalResizeGrip.Size = UDim2.new(0, 16, 0, 16)
+ModalResizeGrip.Position = UDim2.new(1, -14, 1, -14)
+ModalResizeGrip.BackgroundTransparency = 1
+ModalResizeGrip.Font = Library.Fonts.Badge
+ModalResizeGrip.Text = "◢"
+ModalResizeGrip.TextColor3 = Library.Theme.TextDim
+ModalResizeGrip.TextSize = 11
+ModalResizeGrip.ZIndex = 100
+ModalResizeGrip.Parent = SettingsModal
+
+ModalResizeGrip.MouseEnter:Connect(function()
+    smoothTween(ModalResizeGrip, DUR_FAST, { TextColor3 = Library.Theme.Accent })
+end)
+ModalResizeGrip.MouseLeave:Connect(function()
+    smoothTween(ModalResizeGrip, DUR_FAST, { TextColor3 = Library.Theme.TextDim })
+end)
+
+makeResizable(SettingsModal, ModalResizeGrip, 440, 320, 900, 700)
 
 -- SIDEBAR TAB NAVIGATION (LEFT: 130px)
 local ModalSidebar = Instance.new("Frame")
@@ -1676,7 +2046,8 @@ do
             local btnPos = ConfigDropdownBtn.AbsolutePosition
             local btnSize = ConfigDropdownBtn.AbsoluteSize
             local width = btnSize.X > 0 and btnSize.X or 180
-            ConfigDropList.Position = UDim2.new(0, btnPos.X, 0, btnPos.Y + btnSize.Y + 4)
+            local topInset = game:GetService("GuiService"):GetGuiInset().Y
+            ConfigDropList.Position = UDim2.new(0, btnPos.X, 0, btnPos.Y - topInset + btnSize.Y + 4)
             ConfigDropList.Size = UDim2.new(0, width, 0, 0)
             ConfigDropList.ZIndex = 500
             ConfigDropList.Parent = ScreenGui
@@ -1917,7 +2288,7 @@ trackConnection(UserInputService.InputBegan:Connect(function(input)
         if input.UserInputType == Enum.UserInputType.Keyboard then
             if input.KeyCode ~= Enum.KeyCode.Escape and input.KeyCode ~= Enum.KeyCode.Unknown then
                 Library.ToggleKey = input.KeyCode
-                WMarkLabel.Text = "STAR.UI  |  [" .. string.upper(Library.ToggleKey.Name) .. "]"
+                WMarkLabel.Text = (Library.WatermarkText or "STAR.UI") .. "  |  [" .. string.upper(Library.ToggleKey.Name) .. "]"
             end
             isListeningMenuKey = false
             Library.ListeningKeybind = false
@@ -1932,6 +2303,7 @@ end
 do
     local ThemeCard = Instance.new("Frame")
     ThemeCard.Size = UDim2.new(1, 0, 0, 205)
+    ThemeCard.Size = UDim2.new(1, 0, 0, 345)
     ThemeCard.BackgroundColor3 = Library.Theme.Card
     ThemeCard.BorderSizePixel = 0
     ThemeCard.ZIndex = 22
@@ -1943,7 +2315,7 @@ do
     TCLabel.Position = UDim2.new(0, 10, 0, 8)
     TCLabel.BackgroundTransparency = 1
     TCLabel.Font = Library.Fonts.Header
-    TCLabel.Text = "SELECT COLOR PALETTE (10 EYE-FRIENDLY THEMES)"
+    TCLabel.Text = "SELECT COLOR PALETTE (20 EYE-FRIENDLY THEMES)"
     TCLabel.TextColor3 = Library.Theme.Accent
     TCLabel.TextSize = 11
     TCLabel.TextXAlignment = Enum.TextXAlignment.Left
@@ -1956,7 +2328,12 @@ do
         "Nordic Sage", "Rose Gold",
         "Ocean Breeze", "Sakura Blossom",
         "Muted Mint", "Sunset Amber",
-        "Platinum Steel", "Aura Indigo"
+        "Platinum Steel", "Aura Indigo",
+        "Cyber Neon", "Crimson Blood",
+        "Emerald Dragon", "Amethyst Violet",
+        "Solar Gold", "Midnight Abyss",
+        "Cyberpunk 2077", "Toxic Lime",
+        "Dracula Dark", "Tokyo Night"
     }
 
     for idx, thName in ipairs(themeNames) do
@@ -1964,8 +2341,8 @@ do
         local row = math.floor((idx - 1) / 2)
 
         local ThBtn = Instance.new("TextButton")
-        ThBtn.Size = UDim2.new(0.48, -4, 0, 26)
-        ThBtn.Position = UDim2.new(col * 0.51, 10, 0, 36 + (row * 30))
+        ThBtn.Size = UDim2.new(0.5, -15, 0, 26)
+        ThBtn.Position = UDim2.new(col * 0.5 + (col == 0 and 10 or 5), 0, 0, 36 + (row * 30))
         ThBtn.BackgroundColor3 = (thName == Library.CurrentThemeName) and Library.Theme.Header or Library.Theme.Block
         ThBtn.BorderSizePixel = 0
         ThBtn.Font = Library.Fonts.Badge
@@ -2229,13 +2606,19 @@ end
 --- 4. RADIO TAB PAGE (RADIO HUD & PLAYER CUSTOMIZATION)
 do
     local RadioCard = Instance.new("Frame")
-    RadioCard.Size = UDim2.new(1, 0, 0, 260)
+    RadioCard.Size = UDim2.new(1, 0, 0, 252)
     RadioCard.BackgroundColor3 = Library.Theme.Card
     RadioCard.BorderSizePixel = 0
     RadioCard.ZIndex = 22
     RadioCard.Parent = RadioPage
     UI.RadioCard = RadioCard
     addCorner(RadioCard, 8)
+
+    local RadioCardStroke = Instance.new("UIStroke")
+    RadioCardStroke.Color = Library.Theme.Stroke
+    RadioCardStroke.Transparency = 0.3
+    RadioCardStroke.Thickness = 1.0
+    RadioCardStroke.Parent = RadioCard
 
     local RadioCardTitle = Instance.new("TextLabel")
     RadioCardTitle.Size = UDim2.new(1, -20, 0, 20)
@@ -2426,141 +2809,132 @@ do
         end
     end)
 
-    -- Radio HUD Scale Slider (50% to 100%)
-    local ScaleRow = Instance.new("Frame")
-    ScaleRow.Size = UDim2.new(1, -20, 0, 40)
-    ScaleRow.Position = UDim2.new(0, 10, 0, 118)
-    ScaleRow.BackgroundColor3 = Library.Theme.Block
-    ScaleRow.BorderSizePixel = 0
-    ScaleRow.ZIndex = 23
-    ScaleRow.Parent = RadioCard
-    UI.ScaleRow = ScaleRow
+-- End of Radio Card Settings
 
-    local ScaleLbl = Instance.new("TextLabel")
-    ScaleLbl.Size = UDim2.new(0, 100, 0, 18)
-    ScaleLbl.Position = UDim2.new(0, 10, 0, 3)
-    ScaleLbl.BackgroundTransparency = 1
-    ScaleLbl.Font = Library.Fonts.Label
-    ScaleLbl.Text = "HUD Scale (%)"
-    ScaleLbl.TextColor3 = Library.Theme.TextDim
-    ScaleLbl.TextSize = 10
-    ScaleLbl.TextXAlignment = Enum.TextXAlignment.Left
-    ScaleLbl.ZIndex = 24
-    ScaleLbl.Parent = ScaleRow
-    UI.ScaleLbl = ScaleLbl
+    -- Sound ID & Playback Controls in Radio Tab
+    local RefreshFolderBtn = Instance.new("TextButton")
+    RefreshFolderBtn.Size = UDim2.new(1, -20, 0, 26)
+    RefreshFolderBtn.Position = UDim2.new(0, 10, 0, 118)
+    RefreshFolderBtn.BackgroundColor3 = Library.Theme.Header
+    RefreshFolderBtn.BorderSizePixel = 0
+    RefreshFolderBtn.Font = Library.Fonts.Header
+    RefreshFolderBtn.Text = "🔄 REFRESH MUSIC FOLDER (workspace/Nursultan/Music)"
+    RefreshFolderBtn.TextColor3 = Library.Theme.Accent
+    RefreshFolderBtn.TextSize = 9.5
+    RefreshFolderBtn.ZIndex = 23
+    RefreshFolderBtn.Parent = RadioCard
+    addCorner(RefreshFolderBtn, 5)
 
-    local ScaleBadge = Instance.new("Frame")
-    ScaleBadge.Size = UDim2.new(0, 36, 0, 16)
-    ScaleBadge.Position = UDim2.new(1, -46, 0, 3)
-    ScaleBadge.BackgroundColor3 = Library.Theme.Header
-    ScaleBadge.BorderSizePixel = 0
-    ScaleBadge.ZIndex = 24
-    ScaleBadge.Parent = ScaleRow
-    UI.ScaleBadge = ScaleBadge
+    local RefStroke = Instance.new("UIStroke")
+    RefStroke.Color = Library.Theme.Stroke
+    RefStroke.Thickness = 1
+    RefStroke.Parent = RefreshFolderBtn
 
-    local ScaleValInput = Instance.new("TextBox")
-    ScaleValInput.Size = UDim2.new(1, 0, 1, 0)
-    ScaleValInput.BackgroundTransparency = 1
-    ScaleValInput.Font = Library.Fonts.Badge
-    ScaleValInput.Text = tostring(Library.RadioHUDScale)
-    ScaleValInput.TextColor3 = Library.Theme.Accent
-    ScaleValInput.TextSize = 9.5
-    ScaleValInput.ZIndex = 25
-    ScaleValInput.Parent = ScaleBadge
-    UI.ScaleValInput = ScaleValInput
+    RefreshFolderBtn.MouseEnter:Connect(function()
+        smoothTween(RefreshFolderBtn, DUR_FAST, { BackgroundColor3 = Library.Theme.CardHover })
+        smoothTween(RefStroke, DUR_FAST, { Color = Library.Theme.StrokeHover })
+    end)
+    RefreshFolderBtn.MouseLeave:Connect(function()
+        smoothTween(RefreshFolderBtn, DUR_FAST, { BackgroundColor3 = Library.Theme.Header })
+        smoothTween(RefStroke, DUR_FAST, { Color = Library.Theme.Stroke })
+    end)
 
-    local ScaleTrackBg = Instance.new("TextButton")
-    ScaleTrackBg.Size = UDim2.new(1, -20, 0, 6)
-    ScaleTrackBg.Position = UDim2.new(0, 10, 0, 26)
-    ScaleTrackBg.BackgroundColor3 = Library.Theme.Header
-    ScaleTrackBg.BorderSizePixel = 0
-    ScaleTrackBg.AutoButtonColor = false
-    ScaleTrackBg.Text = ""
-    ScaleTrackBg.ZIndex = 24
-    ScaleTrackBg.Parent = ScaleRow
-    UI.ScaleTrackBg = ScaleTrackBg
-
-    local ScaleFill = Instance.new("Frame")
-    local sRelX = math.clamp((Library.RadioHUDScale - 50) / (100 - 50), 0, 1)
-    ScaleFill.Size = UDim2.new(sRelX, 0, 1, 0)
-    ScaleFill.BackgroundColor3 = Library.Theme.Accent
-    ScaleFill.BorderSizePixel = 0
-    ScaleFill.ZIndex = 25
-    ScaleFill.Parent = ScaleTrackBg
-    UI.ScaleFill = ScaleFill
-
-    local ScaleHandle = Instance.new("Frame")
-    ScaleHandle.Size = UDim2.new(0, 8, 0, 10)
-    ScaleHandle.Position = UDim2.new(sRelX, -4, 0.5, -5)
-    ScaleHandle.BackgroundColor3 = Library.Theme.Accent
-    ScaleHandle.BorderSizePixel = 0
-    ScaleHandle.ZIndex = 26
-    ScaleHandle.Parent = ScaleTrackBg
-    UI.ScaleHandle = ScaleHandle
-
-    local isDraggingScale = false
-    local function updateScalePosition(inputX)
-        local width = ScaleTrackBg.AbsoluteSize.X
-        if width <= 0 then return end
-        local relX = math.clamp((inputX - ScaleTrackBg.AbsolutePosition.X) / width, 0, 1)
-        local val = math.floor(50 + (100 - 50) * relX + 0.5)
-        Library.RadioHUDScale = val
-        ScaleValInput.Text = tostring(val)
-        ScaleFill.Size = UDim2.new(relX, 0, 1, 0)
-        ScaleHandle.Position = UDim2.new(relX, -4, 0.5, -5)
-        updateRadioHUDProperties()
-    end
-
-    trackConnection(ScaleTrackBg.InputBegan:Connect(function(input)
-        if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
-            isDraggingScale = true
-            updateScalePosition(input.Position.X)
-        end
-    end))
-
-    trackConnection(UserInputService.InputEnded:Connect(function(input)
-        if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
-            isDraggingScale = false
-        end
-    end))
-
-    trackConnection(UserInputService.InputChanged:Connect(function(input)
-        if isDraggingScale and (input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch) then
-            updateScalePosition(input.Position.X)
-        end
-    end))
-
-    ScaleValInput.FocusLost:Connect(function()
-        local parsed = tonumber(ScaleValInput.Text)
-        if parsed then
-            parsed = math.clamp(math.floor(parsed + 0.5), 50, 100)
-            Library.RadioHUDScale = parsed
-            ScaleValInput.Text = tostring(parsed)
-            local relX = (parsed - 50) / (100 - 50)
-            ScaleFill.Size = UDim2.new(relX, 0, 1, 0)
-            ScaleHandle.Position = UDim2.new(relX, -4, 0.5, -5)
-            updateRadioHUDProperties()
+    RefreshFolderBtn.MouseButton1Click:Connect(function()
+        scanMusicFiles()
+        if #Playlist > 0 then
+            playWorkspaceTrack(1)
         else
-            ScaleValInput.Text = tostring(Library.RadioHUDScale)
+            RadioTrackLabel.Text = "No .mp3/.wav files in workspace/Nursultan/Music!"
         end
     end)
 
-    -- Sound ID & Playback Controls in Radio Tab
+    local PrevTabTrackBtn = Instance.new("TextButton")
+    PrevTabTrackBtn.Size = UDim2.new(0.5, -13, 0, 26)
+    PrevTabTrackBtn.Position = UDim2.new(0, 10, 0, 150)
+    PrevTabTrackBtn.BackgroundColor3 = Library.Theme.Header
+    PrevTabTrackBtn.BorderSizePixel = 0
+    PrevTabTrackBtn.Font = Library.Fonts.Header
+    PrevTabTrackBtn.Text = "<< PREV TRACK"
+    PrevTabTrackBtn.TextColor3 = Library.Theme.Text
+    PrevTabTrackBtn.TextSize = 9.5
+    PrevTabTrackBtn.ZIndex = 23
+    PrevTabTrackBtn.Parent = RadioCard
+    addCorner(PrevTabTrackBtn, 5)
+
+    local PrevStroke = Instance.new("UIStroke")
+    PrevStroke.Color = Library.Theme.Stroke
+    PrevStroke.Thickness = 1
+    PrevStroke.Parent = PrevTabTrackBtn
+
+    PrevTabTrackBtn.MouseEnter:Connect(function()
+        smoothTween(PrevTabTrackBtn, DUR_FAST, { BackgroundColor3 = Library.Theme.CardHover })
+        smoothTween(PrevStroke, DUR_FAST, { Color = Library.Theme.StrokeHover })
+    end)
+    PrevTabTrackBtn.MouseLeave:Connect(function()
+        smoothTween(PrevTabTrackBtn, DUR_FAST, { BackgroundColor3 = Library.Theme.Header })
+        smoothTween(PrevStroke, DUR_FAST, { Color = Library.Theme.Stroke })
+    end)
+
+    local NextTabTrackBtn = Instance.new("TextButton")
+    NextTabTrackBtn.Size = UDim2.new(0.5, -13, 0, 26)
+    NextTabTrackBtn.Position = UDim2.new(0.5, 3, 0, 150)
+    NextTabTrackBtn.BackgroundColor3 = Library.Theme.Header
+    NextTabTrackBtn.BorderSizePixel = 0
+    NextTabTrackBtn.Font = Library.Fonts.Header
+    NextTabTrackBtn.Text = "NEXT TRACK >>"
+    NextTabTrackBtn.TextColor3 = Library.Theme.Text
+    NextTabTrackBtn.TextSize = 9.5
+    NextTabTrackBtn.ZIndex = 23
+    NextTabTrackBtn.Parent = RadioCard
+    addCorner(NextTabTrackBtn, 5)
+
+    local NextStroke = Instance.new("UIStroke")
+    NextStroke.Color = Library.Theme.Stroke
+    NextStroke.Thickness = 1
+    NextStroke.Parent = NextTabTrackBtn
+
+    NextTabTrackBtn.MouseEnter:Connect(function()
+        smoothTween(NextTabTrackBtn, DUR_FAST, { BackgroundColor3 = Library.Theme.CardHover })
+        smoothTween(NextStroke, DUR_FAST, { Color = Library.Theme.StrokeHover })
+    end)
+    NextTabTrackBtn.MouseLeave:Connect(function()
+        smoothTween(NextTabTrackBtn, DUR_FAST, { BackgroundColor3 = Library.Theme.Header })
+        smoothTween(NextStroke, DUR_FAST, { Color = Library.Theme.Stroke })
+    end)
+
+    PrevTabTrackBtn.MouseButton1Click:Connect(function()
+        if #Playlist > 0 then
+            playWorkspaceTrack(CurrentTrackIndex > 1 and CurrentTrackIndex - 1 or #Playlist)
+        end
+    end)
+
+    NextTabTrackBtn.MouseButton1Click:Connect(function()
+        if #Playlist > 0 then
+            playWorkspaceTrack(CurrentTrackIndex < #Playlist and CurrentTrackIndex + 1 or 1)
+        end
+    end)
+
     local SoundInputBg = Instance.new("Frame")
-    SoundInputBg.Size = UDim2.new(1, -20, 0, 30)
-    SoundInputBg.Position = UDim2.new(0, 10, 0, 166)
+    SoundInputBg.Size = UDim2.new(1, -20, 0, 26)
+    SoundInputBg.Position = UDim2.new(0, 10, 0, 182)
     SoundInputBg.BackgroundColor3 = Library.Theme.Header
     SoundInputBg.BorderSizePixel = 0
     SoundInputBg.ZIndex = 23
     SoundInputBg.Parent = RadioCard
     UI.SoundInputBg = SoundInputBg
+    addCorner(SoundInputBg, 5)
+
+    local SoundInputStroke = Instance.new("UIStroke")
+    SoundInputStroke.Color = Library.Theme.Stroke
+    SoundInputStroke.Thickness = 1
+    SoundInputStroke.Parent = SoundInputBg
 
     local TabSoundInput = Instance.new("TextBox")
     TabSoundInput.Size = UDim2.new(1, -10, 1, 0)
     TabSoundInput.Position = UDim2.new(0, 5, 0, 0)
     TabSoundInput.BackgroundTransparency = 1
     TabSoundInput.Font = Library.Fonts.Badge
-    TabSoundInput.PlaceholderText = "Paste Roblox ID or SoundCloud / Web Link..."
+    TabSoundInput.PlaceholderText = "Or Enter Roblox Sound ID (e.g. 1837843912)..."
     TabSoundInput.PlaceholderColor3 = Library.Theme.TextDim
     TabSoundInput.Text = ""
     TabSoundInput.TextColor3 = Library.Theme.Accent
@@ -2574,8 +2948,8 @@ do
     UI.TabSoundInput = TabSoundInput
 
     local PlaySoundBtn = Instance.new("TextButton")
-    PlaySoundBtn.Size = UDim2.new(1, -20, 0, 30)
-    PlaySoundBtn.Position = UDim2.new(0, 10, 0, 204)
+    PlaySoundBtn.Size = UDim2.new(1, -20, 0, 28)
+    PlaySoundBtn.Position = UDim2.new(0, 10, 0, 214)
     PlaySoundBtn.BackgroundColor3 = Library.Theme.Header
     PlaySoundBtn.BorderSizePixel = 0
     PlaySoundBtn.Font = Library.Fonts.Header
@@ -2585,14 +2959,31 @@ do
     PlaySoundBtn.ZIndex = 23
     PlaySoundBtn.Parent = RadioCard
     UI.PlaySoundBtn = PlaySoundBtn
+    addCorner(PlaySoundBtn, 5)
+
+    local PlayStroke = Instance.new("UIStroke")
+    PlayStroke.Color = Library.Theme.Stroke
+    PlayStroke.Thickness = 1
+    PlayStroke.Parent = PlaySoundBtn
+
+    PlaySoundBtn.MouseEnter:Connect(function()
+        smoothTween(PlaySoundBtn, DUR_FAST, { BackgroundColor3 = Library.Theme.CardHover })
+        smoothTween(PlayStroke, DUR_FAST, { Color = Library.Theme.StrokeHover })
+    end)
+    PlaySoundBtn.MouseLeave:Connect(function()
+        smoothTween(PlaySoundBtn, DUR_FAST, { BackgroundColor3 = Library.Theme.Header })
+        smoothTween(PlayStroke, DUR_FAST, { Color = Library.Theme.Stroke })
+    end)
 
     PlaySoundBtn.MouseButton1Click:Connect(function()
         if TabSoundInput.Text ~= "" then
             triggerPlaySound(TabSoundInput.Text)
         elseif RadioSound.IsPlaying then
             RadioSound:Pause()
-        elseif RadioSound.SoundId ~= "" then
-            RadioSound:Play()
+            HUDPlayBtn.Text = "PLAY"
+            PlaySoundBtn.Text = "PLAY / PAUSE TRACK"
+        else
+            playWorkspaceTrack(CurrentTrackIndex)
         end
     end)
 end
@@ -3618,9 +4009,13 @@ end
 function Library:SetVisible(visible)
     Library.Enabled = visible
     ScreenGui.Enabled = true
-    Container.Visible = visible
+    if GearBtnFrame then GearBtnFrame.Visible = visible end
 
     if visible then
+        Container.Visible = true
+        ContainerUIScale.Scale = 0.93
+        smoothTween(ContainerUIScale, DUR_NORMAL, { Scale = 1.0 }, EASE_SPRING, DIR_OUT)
+
         if Library.BlurEnabled then
             MenuBlur.Enabled = true
             smoothTween(MenuBlur, DUR_NORMAL, { Size = Library.BlurSize })
@@ -3636,13 +4031,21 @@ function Library:SetVisible(visible)
             if blockData.Stroke then blockData.Stroke.Transparency = 0.3 end
         end
     else
-        MenuBlur.Size = 0
-        MenuBlur.Enabled = false
-        SnowFolder.Visible = false
-        MenuBgImage.Visible = false
-        SettingsModal.Visible = false
-        ConfigDropList.Visible = false
-        configDropOpen = false
+        smoothTween(ContainerUIScale, DUR_FAST, { Scale = 0.93 }, EASE_SMOOTH, DIR_OUT)
+        smoothTween(MenuBlur, DUR_FAST, { Size = 0 })
+
+        task.delay(DUR_FAST, function()
+            if not Library.Enabled then
+                Container.Visible = false
+                MenuBlur.Enabled = false
+                SnowFolder.Visible = false
+                MenuBgImage.Visible = false
+                SettingsModal.Visible = false
+                ConfigDropList.Visible = false
+                configDropOpen = false
+                if GearBtnFrame then GearBtnFrame.Visible = false end
+            end
+        end)
     end
 
     if Library.RefreshKeybindHUD then Library:RefreshKeybindHUD() end
@@ -3651,6 +4054,28 @@ end
 
 function Library:Toggle()
     Library:SetVisible(not Library.Enabled)
+end
+
+function Library:SetWatermark(text)
+    if type(text) == "string" and text ~= "" then
+        Library.WatermarkText = text
+        if UI and UI.TopWMarkTitle then
+            UI.TopWMarkTitle.Text = text
+        end
+        if UI and UI.ModalTitle then
+            UI.ModalTitle.Text = text .. "  |  SETTINGS & MANAGER"
+        end
+        if WMarkLabel then
+            WMarkLabel.Text = text .. "  |  [" .. string.upper(Library.ToggleKey.Name) .. "]"
+        end
+    end
+end
+
+function Library:CreateWindow(hubTitle, gameTitle)
+    if hubTitle and hubTitle ~= "" then
+        Library:SetWatermark(hubTitle)
+    end
+    return Library
 end
 
 trackConnection(UserInputService.InputBegan:Connect(function(input, gameProcessed)
@@ -3766,6 +4191,33 @@ function Library:CreateBlock(title, defaultPosition)
 
     makeDraggable(Frame, Header)
 
+    local ResizeGrip = Instance.new("TextButton")
+    ResizeGrip.Name = "ResizeGrip"
+    ResizeGrip.Size = UDim2.new(0, 16, 0, 16)
+    ResizeGrip.Position = UDim2.new(1, -14, 1, -14)
+    ResizeGrip.BackgroundTransparency = 1
+    ResizeGrip.Font = Library.Fonts.Badge
+    ResizeGrip.Text = "◢"
+    ResizeGrip.TextColor3 = Library.Theme.TextDim
+    ResizeGrip.TextSize = 11
+    ResizeGrip.ZIndex = 50
+    ResizeGrip.Parent = Frame
+    Block.ResizeGrip = ResizeGrip
+
+    ResizeGrip.MouseEnter:Connect(function()
+        smoothTween(ResizeGrip, DUR_FAST, { TextColor3 = Library.Theme.Accent })
+    end)
+    ResizeGrip.MouseLeave:Connect(function()
+        smoothTween(ResizeGrip, DUR_FAST, { TextColor3 = Library.Theme.TextDim })
+    end)
+
+    makeResizable(Frame, ResizeGrip, 180, 80, 800, 900, function(newW, newH)
+        Block.CustomResized = true
+        Block.CustomWidth = newW
+        Block.CustomHeight = newH
+        Content.Size = UDim2.new(1, 0, 0, math.max(30, newH - 38))
+    end)
+
     local MAX_CONTENT_HEIGHT = 420
     local function updateHeight()
         local totalContentHeight = UIListLayout.AbsoluteContentSize.Y + 14
@@ -3774,11 +4226,20 @@ function Library:CreateBlock(title, defaultPosition)
 
         if Block.Expanded then
             Content.Visible = true
-            smoothTween(Content, DUR_NORMAL, { Size = UDim2.new(1, 0, 0, displayContentHeight) })
-            smoothTween(Frame, DUR_NORMAL, { Size = UDim2.new(0, 240, 0, 38 + displayContentHeight) })
+            if Block.CustomResized and Block.CustomWidth and Block.CustomHeight then
+                Content.Size = UDim2.new(1, 0, 0, math.max(30, Block.CustomHeight - 38))
+                Frame.Size = UDim2.new(0, Block.CustomWidth, 0, Block.CustomHeight)
+                ResizeGrip.Visible = true
+            else
+                smoothTween(Content, DUR_NORMAL, { Size = UDim2.new(1, 0, 0, displayContentHeight) })
+                smoothTween(Frame, DUR_NORMAL, { Size = UDim2.new(0, 240, 0, 38 + displayContentHeight) })
+                ResizeGrip.Visible = true
+            end
         else
+            ResizeGrip.Visible = false
             smoothTween(Content, DUR_NORMAL, { Size = UDim2.new(1, 0, 0, 0) })
-            local anim = smoothTween(Frame, DUR_NORMAL, { Size = UDim2.new(0, 240, 0, 38) })
+            local currW = Block.CustomResized and Block.CustomWidth or 240
+            local anim = smoothTween(Frame, DUR_NORMAL, { Size = UDim2.new(0, currW, 0, 38) })
             anim.Completed:Connect(function()
                 if not Block.Expanded then
                     Content.Visible = false
@@ -3991,10 +4452,16 @@ function Library:CreateBlock(title, defaultPosition)
             end
         end
 
-        ToggleBtn.MouseButton1Click:Connect(function()
-            if listening or ModePopup.Visible then return end
-            state = not state
-            updateToggle(true)
+        ToggleBtn.MouseEnter:Connect(function()
+            smoothTween(ToggleBtn, DUR_FAST, { BackgroundColor3 = Library.Theme.CardHover })
+            smoothTween(Stroke, DUR_FAST, { Color = state and Library.Theme.Accent or Library.Theme.StrokeHover })
+            if not state then smoothTween(Label, DUR_FAST, { TextColor3 = Library.Theme.Text }) end
+        end)
+
+        ToggleBtn.MouseLeave:Connect(function()
+            smoothTween(ToggleBtn, DUR_FAST, { BackgroundColor3 = Library.Theme.Card })
+            smoothTween(Stroke, DUR_FAST, { Color = state and Library.Theme.StrokeHover or Library.Theme.Stroke })
+            if not state then smoothTween(Label, DUR_FAST, { TextColor3 = Library.Theme.TextDim }) end
         end)
 
         KeyBadgeBtn.MouseButton1Click:Connect(function()
@@ -4124,6 +4591,18 @@ function Library:CreateBlock(title, defaultPosition)
         HeaderBtn.Text = ""
         HeaderBtn.ZIndex = 6
         HeaderBtn.Parent = DropFrame
+
+        HeaderBtn.MouseEnter:Connect(function()
+            smoothTween(DropFrame, DUR_FAST, { BackgroundColor3 = Library.Theme.CardHover })
+            smoothTween(Stroke, DUR_FAST, { Color = isOpen and Library.Theme.StrokeActive or Library.Theme.StrokeHover })
+            smoothTween(Label, DUR_FAST, { TextColor3 = Library.Theme.Text })
+        end)
+
+        HeaderBtn.MouseLeave:Connect(function()
+            smoothTween(DropFrame, DUR_FAST, { BackgroundColor3 = Library.Theme.Card })
+            smoothTween(Stroke, DUR_FAST, { Color = isOpen and Library.Theme.StrokeActive or Library.Theme.Stroke })
+            smoothTween(Label, DUR_FAST, { TextColor3 = Library.Theme.TextDim })
+        end)
 
         local Label = Instance.new("TextLabel")
         Label.Size = UDim2.new(1, -115, 1, 0)
@@ -4361,17 +4840,21 @@ function Library:CreateBlock(title, defaultPosition)
         Handle.Parent = TrackBg
         addCorner(Handle, 4)
 
-        table.insert(Block.Elements, {
-            Type = "Slider",
-            Frame = SliderFrame,
-            Stroke = Stroke,
-            Label = Label,
-            ValBadge = ValBadge,
-            ValInput = ValInput,
-            TrackBg = TrackBg,
-            Fill = Fill,
-            Handle = Handle
-        })
+        SliderFrame.MouseEnter:Connect(function()
+            smoothTween(SliderFrame, DUR_FAST, { BackgroundColor3 = Library.Theme.CardHover })
+            smoothTween(Stroke, DUR_FAST, { Color = Library.Theme.StrokeHover })
+            smoothTween(Label, DUR_FAST, { TextColor3 = Library.Theme.Text })
+            smoothTween(ValStroke, DUR_FAST, { Color = Library.Theme.StrokeActive })
+        end)
+
+        SliderFrame.MouseLeave:Connect(function()
+            smoothTween(SliderFrame, DUR_FAST, { BackgroundColor3 = Library.Theme.Card })
+            if not isDragging then
+                smoothTween(Stroke, DUR_FAST, { Color = Library.Theme.Stroke })
+            end
+            smoothTween(Label, DUR_FAST, { TextColor3 = Library.Theme.TextDim })
+            smoothTween(ValStroke, DUR_FAST, { Color = Library.Theme.Stroke })
+        end)
 
         local isDragging = false
 
@@ -4458,6 +4941,20 @@ function Library:CreateBlock(title, defaultPosition)
         Stroke.Color = Library.Theme.Stroke
         Stroke.Thickness = 1
         Stroke.Parent = BindFrame
+
+        BindFrame.MouseEnter:Connect(function()
+            smoothTween(BindFrame, DUR_FAST, { BackgroundColor3 = Library.Theme.CardHover })
+            smoothTween(Stroke, DUR_FAST, { Color = Library.Theme.StrokeHover })
+            smoothTween(Label, DUR_FAST, { TextColor3 = Library.Theme.Text })
+        end)
+
+        BindFrame.MouseLeave:Connect(function()
+            smoothTween(BindFrame, DUR_FAST, { BackgroundColor3 = Library.Theme.Card })
+            if not listening then
+                smoothTween(Stroke, DUR_FAST, { Color = Library.Theme.Stroke })
+            end
+            smoothTween(Label, DUR_FAST, { TextColor3 = Library.Theme.TextDim })
+        end)
 
         local Label = Instance.new("TextLabel")
         Label.Size = UDim2.new(1, -105, 1, 0)
