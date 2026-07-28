@@ -1087,9 +1087,9 @@ KeybindResizeGrip.MouseLeave:Connect(function()
     smoothTween(KeybindResizeGrip, DUR_FAST, { TextColor3 = Library.Theme.TextDim })
 end)
 
--- Smart Resize Boundaries across all interactive elements
--- KeybindHUDFrame: Min width 230, Min height 36 | Max width 450, Max height 500
-makeResizable(KeybindHUDFrame, KeybindResizeGrip, 230, 36, 450, 500)
+-- Super small flexible resize boundaries
+-- KeybindHUDFrame: Min width 100, Min height 24 | Max width 500, Max height 600
+makeResizable(KeybindHUDFrame, KeybindResizeGrip, 100, 24, 500, 600)
 
 function Library:RefreshKeybindHUD()
     for _, child in ipairs(HUDListHolder:GetChildren()) do
@@ -1305,8 +1305,8 @@ RadioResizeGrip.MouseLeave:Connect(function()
     smoothTween(RadioResizeGrip, DUR_FAST, { TextColor3 = Library.Theme.TextDim })
 end)
 
--- RadioHUDFrame: Min width 260, Min height 168 | Max width 550, Max height 380
-makeResizable(RadioHUDFrame, RadioResizeGrip, 260, 168, 550, 380)
+-- RadioHUDFrame: Min width 120, Min height 40 | Max width 600, Max height 500
+makeResizable(RadioHUDFrame, RadioResizeGrip, 120, 40, 600, 500)
 
 local HUDSoundInputBg = Instance.new("Frame")
 HUDSoundInputBg.Size = UDim2.new(1, -16, 0, 26)
@@ -1808,28 +1808,6 @@ CloseModalBtn.ZIndex = 22
 CloseModalBtn.Parent = ModalHeader
 
 makeDraggable(SettingsModal, ModalHeader)
-
-local ModalResizeGrip = Instance.new("TextButton")
-ModalResizeGrip.Name = "ModalResizeGrip"
-ModalResizeGrip.Size = UDim2.new(0, 16, 0, 16)
-ModalResizeGrip.Position = UDim2.new(1, -14, 1, -14)
-ModalResizeGrip.BackgroundTransparency = 1
-ModalResizeGrip.Font = Library.Fonts.Badge
-ModalResizeGrip.Text = "◢"
-ModalResizeGrip.TextColor3 = Library.Theme.TextDim
-ModalResizeGrip.TextSize = 11
-ModalResizeGrip.ZIndex = 100
-ModalResizeGrip.Parent = SettingsModal
-
-ModalResizeGrip.MouseEnter:Connect(function()
-    smoothTween(ModalResizeGrip, DUR_FAST, { TextColor3 = Library.Theme.Accent })
-end)
-ModalResizeGrip.MouseLeave:Connect(function()
-    smoothTween(ModalResizeGrip, DUR_FAST, { TextColor3 = Library.Theme.TextDim })
-end)
-
--- SettingsModal: Min width 520, Min height 420 | Max width 900, Max height 700
-makeResizable(SettingsModal, ModalResizeGrip, 520, 420, 900, 700)
 
 -- SIDEBAR TAB NAVIGATION (LEFT: 130px)
 local ModalSidebar = Instance.new("Frame")
@@ -3946,6 +3924,62 @@ function Library:SetTheme(themeName)
                     BackgroundColor3 = isMatch and t.Header or t.Block,
                     TextColor3 = isMatch and t.Accent or t.TextDim
                 })
+            end
+        end
+    end
+
+    -- Update ALL Category Blocks and internal UI elements when theme changes
+    for _, block in ipairs(Library.Blocks) do
+        st(block.Frame, { BackgroundColor3 = t.Block })
+        st(block.Header, { BackgroundColor3 = t.Header })
+        st(block.TitleLabel, { TextColor3 = t.Text })
+        st(block.Dot, { BackgroundColor3 = t.Accent })
+        st(block.Stroke, { Color = t.Stroke })
+
+        if block.SubTabButtons then
+            for name, subData in pairs(block.SubTabButtons) do
+                local isSelected = (string.upper(tostring(name)) == string.upper(tostring(block.ActiveSubTab or "")))
+                st(subData.Button, {
+                    BackgroundColor3 = isSelected and t.Header or t.Block,
+                    TextColor3 = isSelected and t.Accent or t.TextDim
+                })
+                if subData.Stroke then st(subData.Stroke, { Color = isSelected and t.StrokeActive or t.Stroke }) end
+            end
+        end
+
+        for _, elem in ipairs(block.Elements) do
+            if elem.Type == "Toggle" then
+                st(elem.Frame, { BackgroundColor3 = t.Card })
+                if elem.Stroke then st(elem.Stroke, { Color = t.Stroke }) end
+                if elem.Label then st(elem.Label, { TextColor3 = elem.GetState() and t.Text or t.TextDim }) end
+                if elem.KeyBadgeBtn then st(elem.KeyBadgeBtn, { BackgroundColor3 = t.Header, TextColor3 = t.Accent }) end
+                if elem.SwitchBg then st(elem.SwitchBg, { BackgroundColor3 = elem.GetState() and t.Accent or t.Header }) end
+                if elem.Knob then st(elem.Knob, { BackgroundColor3 = elem.GetState() and t.Background or t.TextDim }) end
+            elseif elem.Type == "Slider" then
+                st(elem.Frame, { BackgroundColor3 = t.Card })
+                if elem.Stroke then st(elem.Stroke, { Color = t.Stroke }) end
+                if elem.Label then st(elem.Label, { TextColor3 = t.TextDim }) end
+                if elem.Badge then st(elem.Badge, { BackgroundColor3 = t.Header }) end
+                if elem.ValInput then st(elem.ValInput, { TextColor3 = t.Accent }) end
+                if elem.TrackBg then st(elem.TrackBg, { BackgroundColor3 = t.Header }) end
+                if elem.Fill then st(elem.Fill, { BackgroundColor3 = t.Accent }) end
+                if elem.Handle then st(elem.Handle, { BackgroundColor3 = t.Accent }) end
+            elseif elem.Type == "Dropdown" then
+                st(elem.Frame, { BackgroundColor3 = t.Card })
+                if elem.Stroke then st(elem.Stroke, { Color = t.Stroke }) end
+                if elem.Label then st(elem.Label, { TextColor3 = t.TextDim }) end
+                if elem.DropdownBtn then st(elem.DropdownBtn, { BackgroundColor3 = t.Header, TextColor3 = t.Accent }) end
+                if elem.DropList then st(elem.DropList, { BackgroundColor3 = t.Block }) end
+            elseif elem.Type == "Button" then
+                st(elem.Btn, { BackgroundColor3 = t.Header, TextColor3 = t.Accent })
+                if elem.Stroke then st(elem.Stroke, { Color = t.Stroke }) end
+            elseif elem.Type == "Keybind" then
+                st(elem.Frame, { BackgroundColor3 = t.Card })
+                if elem.Label then st(elem.Label, { TextColor3 = t.TextDim }) end
+                if elem.KeyBtn then st(elem.KeyBtn, { BackgroundColor3 = t.Header, TextColor3 = t.Accent }) end
+            elseif elem.Type == "Label" then
+                if elem.TextLabel then st(elem.TextLabel, { TextColor3 = t.AccentDim }) end
+                if elem.Dot then st(elem.Dot, { BackgroundColor3 = t.Accent }) end
             end
         end
     end
