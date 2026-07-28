@@ -992,6 +992,38 @@ local function makeResizable(targetFrame, gripBtn, minW, minH, maxW, maxH, onRes
     end))
 end
 
+local function makeScalable(targetFrame, uiScaleElem, gripBtn, minScale, maxScale)
+    minScale = minScale or 0.45
+    maxScale = maxScale or 1.6
+
+    local isScaling = false
+    local startMousePos = nil
+    local startScale = 1.0
+
+    gripBtn.InputBegan:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+            isScaling = true
+            startMousePos = input.Position
+            startScale = uiScaleElem.Scale
+        end
+    end)
+
+    trackConnection(UserInputService.InputChanged:Connect(function(input)
+        if isScaling and (input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch) then
+            local delta = input.Position - startMousePos
+            local scaleChange = (delta.X + delta.Y) / 250
+            local newScale = math.clamp(startScale + scaleChange, minScale, maxScale)
+            uiScaleElem.Scale = newScale
+        end
+    end))
+
+    trackConnection(UserInputService.InputEnded:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+            isScaling = false
+        end
+    end))
+end
+
 makeDraggable(TopWatermark, TopWatermark)
 
 local KeybindHUDFrame = Instance.new("Frame")
@@ -1092,14 +1124,8 @@ KeybindResizeGrip.MouseLeave:Connect(function()
     smoothTween(KeybindResizeGrip, DUR_FAST, { TextColor3 = Library.Theme.TextDim })
 end)
 
--- Proportional Vector Resizing: KeybindHUDFrame
-makeResizable(KeybindHUDFrame, KeybindResizeGrip, 60, 18, 600, 600, function(newW, newH)
-    if KeybindHUDUIScale then
-        local scaleX = newW / 230
-        local scaleY = newH / 32
-        KeybindHUDUIScale.Scale = math.clamp(math.min(scaleX, scaleY), 0.3, 3.0)
-    end
-end)
+-- Pure Vector Resizing: KeybindHUDFrame (Smart Minimum Limit: 45% Scale)
+makeScalable(KeybindHUDFrame, KeybindHUDUIScale, KeybindResizeGrip, 0.45, 1.6)
 
 function Library:RefreshKeybindHUD()
     for _, child in ipairs(HUDListHolder:GetChildren()) do
@@ -1315,14 +1341,8 @@ RadioResizeGrip.MouseLeave:Connect(function()
     smoothTween(RadioResizeGrip, DUR_FAST, { TextColor3 = Library.Theme.TextDim })
 end)
 
--- Proportional Vector Resizing: RadioHUDFrame
-makeResizable(RadioHUDFrame, RadioResizeGrip, 80, 25, 600, 600, function(newW, newH)
-    if RadioHUDUIScale then
-        local scaleX = newW / 260
-        local scaleY = newH / 165
-        RadioHUDUIScale.Scale = math.clamp(math.min(scaleX, scaleY), 0.3, 3.0)
-    end
-end)
+-- Pure Vector Resizing: RadioHUDFrame (Smart Minimum Limit: 45% Scale)
+makeScalable(RadioHUDFrame, RadioHUDUIScale, RadioResizeGrip, 0.45, 1.6)
 
 local HUDSoundInputBg = Instance.new("Frame")
 HUDSoundInputBg.Size = UDim2.new(1, -16, 0, 26)
