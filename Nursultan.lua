@@ -1434,9 +1434,81 @@ end))
 
 local SpeedRow = Instance.new("Frame")
 SpeedRow.Size = UDim2.new(1, -16, 0, 24)
-SpeedRow.Position = UDim2.new(0, 8, 0, 110)
+SpeedRow.Position = UDim2.new(0, 8, 0, 108)
 SpeedRow.BackgroundTransparency = 1
 SpeedRow.Parent = RadioHUDFrame
+
+local VolRow = Instance.new("Frame")
+VolRow.Size = UDim2.new(1, -16, 0, 20)
+VolRow.Position = UDim2.new(0, 8, 0, 138)
+VolRow.BackgroundTransparency = 1
+VolRow.Parent = RadioHUDFrame
+
+local VolLbl = Instance.new("TextLabel")
+VolLbl.Size = UDim2.new(0, 52, 1, 0)
+VolLbl.Position = UDim2.new(0, 0, 0, 0)
+VolLbl.BackgroundTransparency = 1
+VolLbl.Font = Library.Fonts.Badge
+VolLbl.Text = string.format("VOL %d%%", math.floor(RadioSound.Volume * 100 + 0.5))
+VolLbl.TextColor3 = Library.Theme.Accent
+VolLbl.TextSize = 8.5
+VolLbl.TextXAlignment = Enum.TextXAlignment.Left
+VolLbl.Parent = VolRow
+
+local VolTrackBg = Instance.new("TextButton")
+VolTrackBg.Size = UDim2.new(1, -55, 0, 6)
+VolTrackBg.Position = UDim2.new(0, 55, 0.5, -3)
+VolTrackBg.BackgroundColor3 = Library.Theme.Header
+VolTrackBg.BorderSizePixel = 0
+VolTrackBg.AutoButtonColor = false
+VolTrackBg.Text = ""
+VolTrackBg.Parent = VolRow
+addCorner(VolTrackBg, 3)
+
+local VolFill = Instance.new("Frame")
+VolFill.Size = UDim2.new(RadioSound.Volume, 0, 1, 0)
+VolFill.BackgroundColor3 = Library.Theme.Accent
+VolFill.BorderSizePixel = 0
+VolFill.Parent = VolTrackBg
+addCorner(VolFill, 3)
+
+local VolHandle = Instance.new("Frame")
+VolHandle.Size = UDim2.new(0, 8, 0, 10)
+VolHandle.Position = UDim2.new(RadioSound.Volume, -4, 0.5, -5)
+VolHandle.BackgroundColor3 = Library.Theme.Accent
+VolHandle.BorderSizePixel = 0
+VolHandle.Parent = VolTrackBg
+addCorner(VolHandle, 4)
+
+local isDraggingVol = false
+local function updateVolumeFromInput(inputX)
+    local width = VolTrackBg.AbsoluteSize.X
+    if width <= 0 then return end
+    local relX = math.clamp((inputX - VolTrackBg.AbsolutePosition.X) / width, 0, 1)
+    RadioSound.Volume = relX
+    VolLbl.Text = string.format("VOL %d%%", math.floor(relX * 100 + 0.5))
+    VolFill.Size = UDim2.new(relX, 0, 1, 0)
+    VolHandle.Position = UDim2.new(relX, -4, 0.5, -5)
+end
+
+trackConnection(VolTrackBg.InputBegan:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+        isDraggingVol = true
+        updateVolumeFromInput(input.Position.X)
+    end
+end))
+
+trackConnection(UserInputService.InputEnded:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+        isDraggingVol = false
+    end
+end))
+
+trackConnection(UserInputService.InputChanged:Connect(function(input)
+    if isDraggingVol and (input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch) then
+        updateVolumeFromInput(input.Position.X)
+    end
+end))
 
 local SpeedLbl = Instance.new("TextLabel")
 SpeedLbl.Size = UDim2.new(0, 45, 1, 0)
@@ -1615,18 +1687,21 @@ end)
 -- FULL TRANSPARENCY & PERFECT PROPORTIONAL SCALING (ROBLOX UISCALE)
 local function updateRadioHUDProperties()
     RadioHUDFrame.Visible = Library.RadioHUDVisible
-    local transparencyVal = (Library.RadioHUDTransparency or 0) / 100
+    local alpha = math.clamp((Library.RadioHUDTransparency or 0) / 100, 0, 0.95)
 
-    RadioHUDFrame.BackgroundTransparency = transparencyVal
-    RadioHeader.BackgroundTransparency = transparencyVal
-    RadioHUDStroke.Transparency = transparencyVal
-    HUDSoundInputBg.BackgroundTransparency = transparencyVal
-    SeekTrackBg.BackgroundTransparency = transparencyVal
-    HUDPlayBtn.BackgroundTransparency = transparencyVal
-
-    for _, child in ipairs(SpeedRow:GetChildren()) do
-        if child:IsA("TextButton") then
-            child.BackgroundTransparency = transparencyVal
+    RadioHUDFrame.BackgroundTransparency = math.max(0.06, alpha)
+    for _, desc in ipairs(RadioHUDFrame:GetDescendants()) do
+        if desc:IsA("Frame") or desc:IsA("TextButton") or desc:IsA("TextBox") then
+            desc.BackgroundTransparency = math.max(desc.BackgroundTransparency, alpha)
+        end
+        if desc:IsA("TextLabel") or desc:IsA("TextButton") or desc:IsA("TextBox") then
+            desc.TextTransparency = alpha
+        end
+        if desc:IsA("ImageLabel") or desc:IsA("ImageButton") then
+            desc.ImageTransparency = alpha
+        end
+        if desc:IsA("UIStroke") then
+            desc.Transparency = math.max(desc.Transparency, alpha)
         end
     end
 
@@ -1661,7 +1736,8 @@ SettingsModal.Position = UDim2.new(0.5, -260, 0.5, -210)
 SettingsModal.BackgroundColor3 = Library.Theme.Block
 SettingsModal.BackgroundTransparency = 0.04
 SettingsModal.BorderSizePixel = 0
-SettingsModal.ClipsDescendants = true
+SettingsModal.ClipsDescendants = false
+SettingsModal.Active = true
 SettingsModal.Visible = false
 SettingsModal.ZIndex = 60
 SettingsModal.Parent = ScreenGui
@@ -1777,7 +1853,8 @@ ModalPageContainer.Size = UDim2.new(1, -130, 1, -40)
 ModalPageContainer.Position = UDim2.new(0, 130, 0, 40)
 ModalPageContainer.BackgroundTransparency = 1
 ModalPageContainer.ClipsDescendants = false
-ModalPageContainer.ZIndex = 21
+ModalPageContainer.Active = true
+ModalPageContainer.ZIndex = 62
 ModalPageContainer.Parent = SettingsModal
 
 local ModalTabs = {}
@@ -1824,7 +1901,8 @@ local function createModalTab(tabName)
     TabPage.ScrollBarThickness = 4
     TabPage.ScrollBarImageColor3 = Library.Theme.Accent
     TabPage.Visible = false
-    TabPage.ZIndex = 22
+    TabPage.ClipsDescendants = false
+    TabPage.ZIndex = 63
     TabPage.Parent = ModalPageContainer
 
     local PageLayout = Instance.new("UIListLayout")
@@ -1951,7 +2029,8 @@ do
     ConfigSelectBg.Position = UDim2.new(0, 10, 0, 50)
     ConfigSelectBg.BackgroundColor3 = Library.Theme.Header
     ConfigSelectBg.BorderSizePixel = 0
-    ConfigSelectBg.ZIndex = 23
+    ConfigSelectBg.ClipsDescendants = false
+    ConfigSelectBg.ZIndex = 64
     ConfigSelectBg.Parent = ConfigCard
     addCorner(ConfigSelectBg, 5)
 
@@ -1964,7 +2043,7 @@ do
     ConfigSelectLbl.TextColor3 = Library.Theme.TextDim
     ConfigSelectLbl.TextSize = 10
     ConfigSelectLbl.TextXAlignment = Enum.TextXAlignment.Left
-    ConfigSelectLbl.ZIndex = 24
+    ConfigSelectLbl.ZIndex = 65
     ConfigSelectLbl.Parent = ConfigSelectBg
 
     local ConfigDropdownBtn = Instance.new("TextButton")
@@ -1972,13 +2051,46 @@ do
     ConfigDropdownBtn.Position = UDim2.new(0, 98, 0.5, -12)
     ConfigDropdownBtn.BackgroundColor3 = Library.Theme.Card
     ConfigDropdownBtn.BorderSizePixel = 0
+    ConfigDropdownBtn.ClipsDescendants = false
     ConfigDropdownBtn.Font = Library.Fonts.Badge
     ConfigDropdownBtn.Text = "default.json v"
     ConfigDropdownBtn.TextColor3 = Library.Theme.Accent
     ConfigDropdownBtn.TextSize = 10
-    ConfigDropdownBtn.ZIndex = 24
+    ConfigDropdownBtn.ZIndex = 65
     ConfigDropdownBtn.Parent = ConfigSelectBg
     addCorner(ConfigDropdownBtn, 5)
+
+    -- UNCLIPPED CONFIG SELECTION DROPDOWN (PARENTED DIRECTLY TO BUTTON)
+    local ConfigDropList = Instance.new("Frame")
+    ConfigDropList.Name = "ConfigDropListOverlay"
+    ConfigDropList.Size = UDim2.new(1, 0, 0, 0)
+    ConfigDropList.Position = UDim2.new(0, 0, 1, 4)
+    ConfigDropList.BackgroundColor3 = Library.Theme.Block
+    ConfigDropList.BorderSizePixel = 0
+    ConfigDropList.ClipsDescendants = true
+    ConfigDropList.Visible = false
+    ConfigDropList.ZIndex = 500
+    ConfigDropList.Parent = ConfigDropdownBtn
+
+    local ConfigDropStroke = Instance.new("UIStroke")
+    ConfigDropStroke.Color = Library.Theme.StrokeActive
+    ConfigDropStroke.Thickness = 1.2
+    ConfigDropStroke.ZIndex = 501
+    ConfigDropStroke.Parent = ConfigDropList
+
+    local ConfigDropScroll = Instance.new("ScrollingFrame")
+    ConfigDropScroll.Size = UDim2.new(1, 0, 1, 0)
+    ConfigDropScroll.BackgroundTransparency = 1
+    ConfigDropScroll.BorderSizePixel = 0
+    ConfigDropScroll.ScrollBarThickness = 3
+    ConfigDropScroll.ScrollBarImageColor3 = Library.Theme.Accent
+    ConfigDropScroll.ZIndex = 501
+    ConfigDropScroll.Parent = ConfigDropList
+
+    local ConfigDropLayout = Instance.new("UIListLayout")
+    ConfigDropLayout.SortOrder = Enum.SortOrder.LayoutOrder
+    ConfigDropLayout.Padding = UDim.new(0, 2)
+    ConfigDropLayout.Parent = ConfigDropScroll
 
     local function getSavedConfigsList()
         local configs = {}
@@ -2043,19 +2155,11 @@ do
         configDropOpen = not configDropOpen
         if configDropOpen then
             local height = refreshConfigDropdownOptions()
-            local btnPos = ConfigDropdownBtn.AbsolutePosition
-            local btnSize = ConfigDropdownBtn.AbsoluteSize
-            local width = btnSize.X > 0 and btnSize.X or 180
-            local topInset = game:GetService("GuiService"):GetGuiInset().Y
-            ConfigDropList.Position = UDim2.new(0, btnPos.X, 0, btnPos.Y - topInset + btnSize.Y + 4)
-            ConfigDropList.Size = UDim2.new(0, width, 0, 0)
-            ConfigDropList.ZIndex = 500
-            ConfigDropList.Parent = ScreenGui
+            ConfigDropList.Size = UDim2.new(1, 0, 0, 0)
             ConfigDropList.Visible = true
-            smoothTween(ConfigDropList, DUR_NORMAL, { Size = UDim2.new(0, width, 0, height) })
+            smoothTween(ConfigDropList, DUR_NORMAL, { Size = UDim2.new(1, 0, 0, height) })
         else
-            local btnWidth = ConfigDropdownBtn.AbsoluteSize.X > 0 and ConfigDropdownBtn.AbsoluteSize.X or 180
-            local t = smoothTween(ConfigDropList, DUR_NORMAL, { Size = UDim2.new(0, btnWidth, 0, 0) })
+            local t = smoothTween(ConfigDropList, DUR_NORMAL, { Size = UDim2.new(1, 0, 0, 0) })
             t.Completed:Connect(function()
                 if not configDropOpen then ConfigDropList.Visible = false end
             end)
@@ -2302,11 +2406,10 @@ end
 -- 2. THEMES TAB PAGE
 do
     local ThemeCard = Instance.new("Frame")
-    ThemeCard.Size = UDim2.new(1, 0, 0, 205)
     ThemeCard.Size = UDim2.new(1, 0, 0, 345)
     ThemeCard.BackgroundColor3 = Library.Theme.Card
     ThemeCard.BorderSizePixel = 0
-    ThemeCard.ZIndex = 22
+    ThemeCard.ZIndex = 64
     ThemeCard.Parent = ThemesPage
     UI.ThemeCard = ThemeCard
 
@@ -2350,7 +2453,7 @@ do
         ThBtn.TextColor3 = (thName == Library.CurrentThemeName) and Library.Theme.Accent or Library.Theme.TextDim
         ThBtn.TextSize = 9.5
         ThBtn.TextXAlignment = Enum.TextXAlignment.Left
-        ThBtn.ZIndex = 24
+        ThBtn.ZIndex = 65
         ThBtn.Parent = ThemeCard
         addCorner(ThBtn, 5)
 
@@ -2606,7 +2709,7 @@ end
 --- 4. RADIO TAB PAGE (RADIO HUD & PLAYER CUSTOMIZATION)
 do
     local RadioCard = Instance.new("Frame")
-    RadioCard.Size = UDim2.new(1, 0, 0, 122)
+    RadioCard.Size = UDim2.new(1, 0, 0, 168)
     RadioCard.BackgroundColor3 = Library.Theme.Card
     RadioCard.BorderSizePixel = 0
     RadioCard.ZIndex = 22
@@ -2810,6 +2913,102 @@ do
     end)
 
 -- End of Radio Card Settings
+
+    -- Radio Sound Volume Slider (0% to 100%)
+    local VolCardRow = Instance.new("Frame")
+    VolCardRow.Size = UDim2.new(1, -20, 0, 40)
+    VolCardRow.Position = UDim2.new(0, 10, 0, 118)
+    VolCardRow.BackgroundColor3 = Library.Theme.Block
+    VolCardRow.BorderSizePixel = 0
+    VolCardRow.ZIndex = 65
+    VolCardRow.Parent = RadioCard
+    addCorner(VolCardRow, 5)
+
+    local VolCardStroke = Instance.new("UIStroke")
+    VolCardStroke.Color = Library.Theme.Stroke
+    VolCardStroke.Thickness = 1
+    VolCardStroke.Parent = VolCardRow
+
+    local VolCardLbl = Instance.new("TextLabel")
+    VolCardLbl.Size = UDim2.new(0, 130, 0, 18)
+    VolCardLbl.Position = UDim2.new(0, 10, 0, 3)
+    VolCardLbl.BackgroundTransparency = 1
+    VolCardLbl.Font = Library.Fonts.Label
+    VolCardLbl.Text = "Radio Sound Volume (%)"
+    VolCardLbl.TextColor3 = Library.Theme.TextDim
+    VolCardLbl.TextSize = 10
+    VolCardLbl.TextXAlignment = Enum.TextXAlignment.Left
+    VolCardLbl.ZIndex = 66
+    VolCardLbl.Parent = VolCardRow
+
+    local VolCardBadge = Instance.new("Frame")
+    VolCardBadge.Size = UDim2.new(0, 36, 0, 16)
+    VolCardBadge.Position = UDim2.new(1, -46, 0, 3)
+    VolCardBadge.BackgroundColor3 = Library.Theme.Header
+    VolCardBadge.BorderSizePixel = 0
+    VolCardBadge.ZIndex = 66
+    VolCardBadge.Parent = VolCardRow
+    addCorner(VolCardBadge, 4)
+
+    local VolCardValInput = Instance.new("TextBox")
+    VolCardValInput.Size = UDim2.new(1, 0, 1, 0)
+    VolCardValInput.BackgroundTransparency = 1
+    VolCardValInput.Font = Library.Fonts.Badge
+    VolCardValInput.Text = tostring(math.floor(RadioSound.Volume * 100 + 0.5))
+    VolCardValInput.TextColor3 = Library.Theme.Accent
+    VolCardValInput.TextSize = 9.5
+    VolCardValInput.ZIndex = 67
+    VolCardValInput.Parent = VolCardBadge
+
+    local VolCardTrackBg = Instance.new("TextButton")
+    VolCardTrackBg.Size = UDim2.new(1, -20, 0, 6)
+    VolCardTrackBg.Position = UDim2.new(0, 10, 0, 26)
+    VolCardTrackBg.BackgroundColor3 = Library.Theme.Header
+    VolCardTrackBg.BorderSizePixel = 0
+    VolCardTrackBg.AutoButtonColor = false
+    VolCardTrackBg.Text = ""
+    VolCardTrackBg.ZIndex = 66
+    VolCardTrackBg.Parent = VolCardRow
+    addCorner(VolCardTrackBg, 3)
+
+    local VolCardFill = Instance.new("Frame")
+    VolCardFill.Size = UDim2.new(RadioSound.Volume, 0, 1, 0)
+    VolCardFill.BackgroundColor3 = Library.Theme.Accent
+    VolCardFill.BorderSizePixel = 0
+    VolCardFill.ZIndex = 67
+    VolCardFill.Parent = VolCardTrackBg
+
+    local isDraggingVolCard = false
+    local function updateVolCardPosition(inputX)
+        local width = VolCardTrackBg.AbsoluteSize.X
+        if width <= 0 then return end
+        local relX = math.clamp((inputX - VolCardTrackBg.AbsolutePosition.X) / width, 0, 1)
+        RadioSound.Volume = relX
+        VolCardValInput.Text = tostring(math.floor(relX * 100 + 0.5))
+        VolCardFill.Size = UDim2.new(relX, 0, 1, 0)
+        if VolLbl then VolLbl.Text = string.format("VOL %d%%", math.floor(relX * 100 + 0.5)) end
+        if VolFill then VolFill.Size = UDim2.new(relX, 0, 1, 0) end
+        if VolHandle then VolHandle.Position = UDim2.new(relX, -4, 0.5, -5) end
+    end
+
+    trackConnection(VolCardTrackBg.InputBegan:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+            isDraggingVolCard = true
+            updateVolCardPosition(input.Position.X)
+        end
+    end))
+
+    trackConnection(UserInputService.InputEnded:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+            isDraggingVolCard = false
+        end
+    end))
+
+    trackConnection(UserInputService.InputChanged:Connect(function(input)
+        if isDraggingVolCard and (input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch) then
+            updateVolCardPosition(input.Position.X)
+        end
+    end))
 
 -- End of Radio Card Settings
 end
