@@ -513,14 +513,18 @@ pcall(function()
 end)
 
 local ParentContainer = nil
-if gethui then
-    pcall(function() ParentContainer = gethui() end)
+pcall(function()
+    if gethui then
+        ParentContainer = gethui()
+    end
+end)
+if not ParentContainer then
+    pcall(function()
+        ParentContainer = Players.LocalPlayer:WaitForChild("PlayerGui")
+    end)
 end
 if not ParentContainer then
     pcall(function() ParentContainer = CoreGui end)
-end
-if not ParentContainer or not pcall(function() return ParentContainer.Name end) then
-    ParentContainer = Players.LocalPlayer:WaitForChild("PlayerGui")
 end
 
 if ParentContainer:FindFirstChild("NursultanGUI") then
@@ -1084,8 +1088,8 @@ KeybindResizeGrip.MouseLeave:Connect(function()
 end)
 
 -- Smart Resize Boundaries across all interactive elements
--- KeybindHUDFrame: Min width 190, Min height 36 | Max width 400, Max height 500
-makeResizable(KeybindHUDFrame, KeybindResizeGrip, 190, 36, 400, 500)
+-- KeybindHUDFrame: Min width 230, Min height 36 | Max width 450, Max height 500
+makeResizable(KeybindHUDFrame, KeybindResizeGrip, 230, 36, 450, 500)
 
 function Library:RefreshKeybindHUD()
     for _, child in ipairs(HUDListHolder:GetChildren()) do
@@ -1301,8 +1305,8 @@ RadioResizeGrip.MouseLeave:Connect(function()
     smoothTween(RadioResizeGrip, DUR_FAST, { TextColor3 = Library.Theme.TextDim })
 end)
 
--- RadioHUDFrame: Min width 240, Min height 165 | Max width 500, Max height 350
-makeResizable(RadioHUDFrame, RadioResizeGrip, 240, 165, 500, 350)
+-- RadioHUDFrame: Min width 260, Min height 168 | Max width 550, Max height 380
+makeResizable(RadioHUDFrame, RadioResizeGrip, 260, 168, 550, 380)
 
 local HUDSoundInputBg = Instance.new("Frame")
 HUDSoundInputBg.Size = UDim2.new(1, -16, 0, 26)
@@ -1824,8 +1828,8 @@ ModalResizeGrip.MouseLeave:Connect(function()
     smoothTween(ModalResizeGrip, DUR_FAST, { TextColor3 = Library.Theme.TextDim })
 end)
 
--- SettingsModal: Min width 440, Min height 320 | Max width 850, Max height 650
-makeResizable(SettingsModal, ModalResizeGrip, 440, 320, 850, 650)
+-- SettingsModal: Min width 520, Min height 420 | Max width 900, Max height 700
+makeResizable(SettingsModal, ModalResizeGrip, 520, 420, 900, 700)
 
 -- SIDEBAR TAB NAVIGATION (LEFT: 130px)
 local ModalSidebar = Instance.new("Frame")
@@ -2492,7 +2496,7 @@ do
 
         local ThBtn = Instance.new("TextButton")
         ThBtn.Size = UDim2.new(0.5, -15, 0, 26)
-        ThBtn.Position = UDim2.new(col * 0.5 + (col == 0 and 10 or 5), 0, 0, 36 + (row * 30))
+        ThBtn.Position = UDim2.new(col * 0.5, col == 0 and 10 or 5, 0, 36 + (row * 30))
         ThBtn.BackgroundColor3 = (thName == Library.CurrentThemeName) and Library.Theme.Header or Library.Theme.Block
         ThBtn.BorderSizePixel = 0
         ThBtn.Font = Library.Fonts.Badge
@@ -4296,8 +4300,8 @@ function Library:CreateBlock(title, defaultPosition)
         smoothTween(ResizeGrip, DUR_FAST, { TextColor3 = Library.Theme.TextDim })
     end)
 
-    -- Category Block: Min width 200, Min height 90 | Max width 600, Max height 700
-    makeResizable(Frame, ResizeGrip, 200, 90, 600, 700, function(newW, newH)
+    -- Category Block: Min width 240, Min height 100 | Max width 600, Max height 750
+    makeResizable(Frame, ResizeGrip, 240, 100, 600, 750, function(newW, newH)
         Block.CustomResized = true
         Block.CustomWidth = newW
         Block.CustomHeight = newH
