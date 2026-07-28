@@ -1003,6 +1003,18 @@ UI.KeybindHUDFrame = KeybindHUDFrame
 
 addCorner(KeybindHUDFrame, 8)
 
+local KeybindHUDUIScale = Instance.new("UIScale")
+KeybindHUDUIScale.Name = "KeybindHUDUIScale"
+KeybindHUDUIScale.Scale = 1
+KeybindHUDUIScale.Parent = KeybindHUDFrame
+
+KeybindHUDFrame:GetPropertyChangedSignal("AbsoluteSize"):Connect(function()
+    local sz = KeybindHUDFrame.AbsoluteSize
+    if sz.X > 0 then
+        KeybindHUDUIScale.Scale = math.clamp(sz.X / 230, 0.35, 2.5)
+    end
+end)
+
 local KeybindHUDStroke = Instance.new("UIStroke")
 KeybindHUDStroke.Color = Library.Theme.Stroke
 KeybindHUDStroke.Transparency = 0.3
@@ -1083,7 +1095,7 @@ KeybindResizeGrip.MouseLeave:Connect(function()
     smoothTween(KeybindResizeGrip, DUR_FAST, { TextColor3 = Library.Theme.TextDim })
 end)
 
-makeResizable(KeybindHUDFrame, KeybindResizeGrip, 180, 40, 600, 600)
+makeResizable(KeybindHUDFrame, KeybindResizeGrip, 70, 25, 600, 600)
 
 function Library:RefreshKeybindHUD()
     for _, child in ipairs(HUDListHolder:GetChildren()) do
@@ -1189,6 +1201,15 @@ local RadioHUDUIScale = Instance.new("UIScale")
 RadioHUDUIScale.Name = "RadioHUDUIScale"
 RadioHUDUIScale.Scale = 1
 RadioHUDUIScale.Parent = RadioHUDFrame
+
+RadioHUDFrame:GetPropertyChangedSignal("AbsoluteSize"):Connect(function()
+    local sz = RadioHUDFrame.AbsoluteSize
+    if sz.X > 0 and sz.Y > 0 then
+        local scaleX = sz.X / 260
+        local scaleY = sz.Y / 165
+        RadioHUDUIScale.Scale = math.clamp(math.min(scaleX, scaleY), 0.35, 2.5)
+    end
+end)
 
 local RadioHUDStroke = Instance.new("UIStroke")
 RadioHUDStroke.Color = Library.Theme.Stroke
@@ -1299,7 +1320,7 @@ RadioResizeGrip.MouseLeave:Connect(function()
     smoothTween(RadioResizeGrip, DUR_FAST, { TextColor3 = Library.Theme.TextDim })
 end)
 
-makeResizable(RadioHUDFrame, RadioResizeGrip, 240, 140, 600, 400)
+makeResizable(RadioHUDFrame, RadioResizeGrip, 80, 50, 800, 600)
 
 local HUDSoundInputBg = Instance.new("Frame")
 HUDSoundInputBg.Size = UDim2.new(1, -16, 0, 26)
@@ -1433,14 +1454,14 @@ trackConnection(RunService.RenderStepped:Connect(function()
 end))
 
 local SpeedRow = Instance.new("Frame")
-SpeedRow.Size = UDim2.new(1, -16, 0, 24)
-SpeedRow.Position = UDim2.new(0, 8, 0, 108)
+SpeedRow.Size = UDim2.new(1, -16, 0, 22)
+SpeedRow.Position = UDim2.new(0, 8, 0, 106)
 SpeedRow.BackgroundTransparency = 1
 SpeedRow.Parent = RadioHUDFrame
 
 local VolRow = Instance.new("Frame")
-VolRow.Size = UDim2.new(1, -16, 0, 20)
-VolRow.Position = UDim2.new(0, 8, 0, 138)
+VolRow.Size = UDim2.new(1, -16, 0, 24)
+VolRow.Position = UDim2.new(0, 8, 0, 134)
 VolRow.BackgroundTransparency = 1
 VolRow.Parent = RadioHUDFrame
 
@@ -1451,34 +1472,36 @@ VolLbl.BackgroundTransparency = 1
 VolLbl.Font = Library.Fonts.Badge
 VolLbl.Text = string.format("VOL %d%%", math.floor(RadioSound.Volume * 100 + 0.5))
 VolLbl.TextColor3 = Library.Theme.Accent
-VolLbl.TextSize = 8.5
+VolLbl.TextSize = 9
 VolLbl.TextXAlignment = Enum.TextXAlignment.Left
 VolLbl.Parent = VolRow
 
 local VolTrackBg = Instance.new("TextButton")
-VolTrackBg.Size = UDim2.new(1, -55, 0, 6)
-VolTrackBg.Position = UDim2.new(0, 55, 0.5, -3)
+VolTrackBg.Size = UDim2.new(1, -58, 0, 8)
+VolTrackBg.Position = UDim2.new(0, 56, 0.5, -4)
 VolTrackBg.BackgroundColor3 = Library.Theme.Header
 VolTrackBg.BorderSizePixel = 0
 VolTrackBg.AutoButtonColor = false
+VolTrackBg.ClipsDescendants = false
 VolTrackBg.Text = ""
 VolTrackBg.Parent = VolRow
-addCorner(VolTrackBg, 3)
+addCorner(VolTrackBg, 4)
 
 local VolFill = Instance.new("Frame")
 VolFill.Size = UDim2.new(RadioSound.Volume, 0, 1, 0)
 VolFill.BackgroundColor3 = Library.Theme.Accent
 VolFill.BorderSizePixel = 0
 VolFill.Parent = VolTrackBg
-addCorner(VolFill, 3)
+addCorner(VolFill, 4)
 
 local VolHandle = Instance.new("Frame")
-VolHandle.Size = UDim2.new(0, 8, 0, 10)
-VolHandle.Position = UDim2.new(RadioSound.Volume, -4, 0.5, -5)
+VolHandle.Size = UDim2.new(0, 10, 0, 12)
+VolHandle.Position = UDim2.new(RadioSound.Volume, -5, 0.5, -6)
 VolHandle.BackgroundColor3 = Library.Theme.Accent
 VolHandle.BorderSizePixel = 0
+VolHandle.ZIndex = 10
 VolHandle.Parent = VolTrackBg
-addCorner(VolHandle, 4)
+addCorner(VolHandle, 5)
 
 local isDraggingVol = false
 local function updateVolumeFromInput(inputX)
@@ -1488,7 +1511,7 @@ local function updateVolumeFromInput(inputX)
     RadioSound.Volume = relX
     VolLbl.Text = string.format("VOL %d%%", math.floor(relX * 100 + 0.5))
     VolFill.Size = UDim2.new(relX, 0, 1, 0)
-    VolHandle.Position = UDim2.new(relX, -4, 0.5, -5)
+    VolHandle.Position = UDim2.new(relX, -5, 0.5, -6)
 end
 
 trackConnection(VolTrackBg.InputBegan:Connect(function(input)
@@ -1852,10 +1875,24 @@ ModalPageContainer.Name = "ModalPageContainer"
 ModalPageContainer.Size = UDim2.new(1, -130, 1, -40)
 ModalPageContainer.Position = UDim2.new(0, 130, 0, 40)
 ModalPageContainer.BackgroundTransparency = 1
-ModalPageContainer.ClipsDescendants = false
+ModalPageContainer.ClipsDescendants = true
 ModalPageContainer.Active = true
 ModalPageContainer.ZIndex = 62
 ModalPageContainer.Parent = SettingsModal
+
+-- MODAL BLOCKER FOR CONFIG SELECTION DROPDOWN
+local ConfigDropBackdrop = Instance.new("TextButton")
+ConfigDropBackdrop.Name = "ConfigDropBackdrop"
+ConfigDropBackdrop.Size = UDim2.new(1, 0, 1, 0)
+ConfigDropBackdrop.Position = UDim2.new(0, 0, 0, 0)
+ConfigDropBackdrop.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+ConfigDropBackdrop.BackgroundTransparency = 0.55
+ConfigDropBackdrop.Text = ""
+ConfigDropBackdrop.AutoButtonColor = false
+ConfigDropBackdrop.Active = true
+ConfigDropBackdrop.Visible = false
+ConfigDropBackdrop.ZIndex = 490
+ConfigDropBackdrop.Parent = SettingsModal
 
 local ModalTabs = {}
 local SidebarBtns = {}
@@ -1901,9 +1938,10 @@ local function createModalTab(tabName)
     TabPage.ScrollBarThickness = 4
     TabPage.ScrollBarImageColor3 = Library.Theme.Accent
     TabPage.Visible = false
-    TabPage.ClipsDescendants = false
+    TabPage.ClipsDescendants = true
     TabPage.ZIndex = 63
     TabPage.Parent = ModalPageContainer
+    TabPage.CanvasSize = UDim2.new(0, 0, 0, 400)
 
     local PageLayout = Instance.new("UIListLayout")
     PageLayout.SortOrder = Enum.SortOrder.LayoutOrder
@@ -1911,7 +1949,8 @@ local function createModalTab(tabName)
     PageLayout.Parent = TabPage
 
     PageLayout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
-        TabPage.CanvasSize = UDim2.new(0, 0, 0, PageLayout.AbsoluteContentSize.Y + 15)
+        local h = math.max(PageLayout.AbsoluteContentSize.Y + 35, 380)
+        TabPage.CanvasSize = UDim2.new(0, 0, 0, h)
     end)
 
     local TabBtn = Instance.new("TextButton")
@@ -1949,6 +1988,15 @@ local function createModalTab(tabName)
                 BackgroundColor3 = isSelected and Library.Theme.Block or Library.Theme.Card,
                 TextColor3 = isSelected and Library.Theme.Accent or Library.Theme.TextDim
             })
+            if isSelected then
+                task.defer(function()
+                    local layout = data.Page:FindFirstChildOfClass("UIListLayout")
+                    if layout then
+                        local h = math.max(layout.AbsoluteContentSize.Y + 35, 380)
+                        data.Page.CanvasSize = UDim2.new(0, 0, 0, h)
+                    end
+                end)
+            end
         end
     end)
 
@@ -2138,8 +2186,8 @@ do
                 ConfigNameInput.Text = cfgName
                 ConfigDropdownBtn.Text = cfgName .. ".json v"
                 configDropOpen = false
-                local btnWidth = ConfigDropdownBtn.AbsoluteSize.X > 0 and ConfigDropdownBtn.AbsoluteSize.X or 180
-                local t = smoothTween(ConfigDropList, DUR_NORMAL, { Size = UDim2.new(0, btnWidth, 0, 0) })
+                ConfigDropBackdrop.Visible = false
+                local t = smoothTween(ConfigDropList, DUR_NORMAL, { Size = UDim2.new(1, 0, 0, 0) })
                 t.Completed:Connect(function()
                     if not configDropOpen then ConfigDropList.Visible = false end
                 end)
@@ -2153,12 +2201,24 @@ do
 
     ConfigDropdownBtn.MouseButton1Click:Connect(function()
         configDropOpen = not configDropOpen
+        ConfigDropBackdrop.Visible = configDropOpen
         if configDropOpen then
             local height = refreshConfigDropdownOptions()
             ConfigDropList.Size = UDim2.new(1, 0, 0, 0)
             ConfigDropList.Visible = true
             smoothTween(ConfigDropList, DUR_NORMAL, { Size = UDim2.new(1, 0, 0, height) })
         else
+            local t = smoothTween(ConfigDropList, DUR_NORMAL, { Size = UDim2.new(1, 0, 0, 0) })
+            t.Completed:Connect(function()
+                if not configDropOpen then ConfigDropList.Visible = false end
+            end)
+        end
+    end)
+
+    ConfigDropBackdrop.MouseButton1Click:Connect(function()
+        if configDropOpen then
+            configDropOpen = false
+            ConfigDropBackdrop.Visible = false
             local t = smoothTween(ConfigDropList, DUR_NORMAL, { Size = UDim2.new(1, 0, 0, 0) })
             t.Completed:Connect(function()
                 if not configDropOpen then ConfigDropList.Visible = false end
@@ -2422,7 +2482,7 @@ do
     TCLabel.TextColor3 = Library.Theme.Accent
     TCLabel.TextSize = 11
     TCLabel.TextXAlignment = Enum.TextXAlignment.Left
-    TCLabel.ZIndex = 23
+    TCLabel.ZIndex = 65
     TCLabel.Parent = ThemeCard
     UI.TCLabel = TCLabel
 
@@ -3791,10 +3851,7 @@ local function toggleSettingsModal(visible)
     end
 end
 
-ModalBackdrop.MouseButton1Click:Connect(function()
-    toggleSettingsModal(false)
-end)
-
+-- Modal Settings can ONLY be closed by clicking the CloseModalBtn (X) or GearIcon toggle
 CloseModalBtn.MouseButton1Click:Connect(function()
     toggleSettingsModal(false)
 end)
