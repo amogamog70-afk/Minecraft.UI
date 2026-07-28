@@ -2606,7 +2606,7 @@ end
 --- 4. RADIO TAB PAGE (RADIO HUD & PLAYER CUSTOMIZATION)
 do
     local RadioCard = Instance.new("Frame")
-    RadioCard.Size = UDim2.new(1, 0, 0, 252)
+    RadioCard.Size = UDim2.new(1, 0, 0, 122)
     RadioCard.BackgroundColor3 = Library.Theme.Card
     RadioCard.BorderSizePixel = 0
     RadioCard.ZIndex = 22
@@ -2811,181 +2811,7 @@ do
 
 -- End of Radio Card Settings
 
-    -- Sound ID & Playback Controls in Radio Tab
-    local RefreshFolderBtn = Instance.new("TextButton")
-    RefreshFolderBtn.Size = UDim2.new(1, -20, 0, 26)
-    RefreshFolderBtn.Position = UDim2.new(0, 10, 0, 118)
-    RefreshFolderBtn.BackgroundColor3 = Library.Theme.Header
-    RefreshFolderBtn.BorderSizePixel = 0
-    RefreshFolderBtn.Font = Library.Fonts.Header
-    RefreshFolderBtn.Text = "🔄 REFRESH MUSIC FOLDER (workspace/Nursultan/Music)"
-    RefreshFolderBtn.TextColor3 = Library.Theme.Accent
-    RefreshFolderBtn.TextSize = 9.5
-    RefreshFolderBtn.ZIndex = 23
-    RefreshFolderBtn.Parent = RadioCard
-    addCorner(RefreshFolderBtn, 5)
-
-    local RefStroke = Instance.new("UIStroke")
-    RefStroke.Color = Library.Theme.Stroke
-    RefStroke.Thickness = 1
-    RefStroke.Parent = RefreshFolderBtn
-
-    RefreshFolderBtn.MouseEnter:Connect(function()
-        smoothTween(RefreshFolderBtn, DUR_FAST, { BackgroundColor3 = Library.Theme.CardHover })
-        smoothTween(RefStroke, DUR_FAST, { Color = Library.Theme.StrokeHover })
-    end)
-    RefreshFolderBtn.MouseLeave:Connect(function()
-        smoothTween(RefreshFolderBtn, DUR_FAST, { BackgroundColor3 = Library.Theme.Header })
-        smoothTween(RefStroke, DUR_FAST, { Color = Library.Theme.Stroke })
-    end)
-
-    RefreshFolderBtn.MouseButton1Click:Connect(function()
-        scanMusicFiles()
-        if #Playlist > 0 then
-            playWorkspaceTrack(1)
-        else
-            RadioTrackLabel.Text = "No .mp3/.wav files in workspace/Nursultan/Music!"
-        end
-    end)
-
-    local PrevTabTrackBtn = Instance.new("TextButton")
-    PrevTabTrackBtn.Size = UDim2.new(0.5, -13, 0, 26)
-    PrevTabTrackBtn.Position = UDim2.new(0, 10, 0, 150)
-    PrevTabTrackBtn.BackgroundColor3 = Library.Theme.Header
-    PrevTabTrackBtn.BorderSizePixel = 0
-    PrevTabTrackBtn.Font = Library.Fonts.Header
-    PrevTabTrackBtn.Text = "<< PREV TRACK"
-    PrevTabTrackBtn.TextColor3 = Library.Theme.Text
-    PrevTabTrackBtn.TextSize = 9.5
-    PrevTabTrackBtn.ZIndex = 23
-    PrevTabTrackBtn.Parent = RadioCard
-    addCorner(PrevTabTrackBtn, 5)
-
-    local PrevStroke = Instance.new("UIStroke")
-    PrevStroke.Color = Library.Theme.Stroke
-    PrevStroke.Thickness = 1
-    PrevStroke.Parent = PrevTabTrackBtn
-
-    PrevTabTrackBtn.MouseEnter:Connect(function()
-        smoothTween(PrevTabTrackBtn, DUR_FAST, { BackgroundColor3 = Library.Theme.CardHover })
-        smoothTween(PrevStroke, DUR_FAST, { Color = Library.Theme.StrokeHover })
-    end)
-    PrevTabTrackBtn.MouseLeave:Connect(function()
-        smoothTween(PrevTabTrackBtn, DUR_FAST, { BackgroundColor3 = Library.Theme.Header })
-        smoothTween(PrevStroke, DUR_FAST, { Color = Library.Theme.Stroke })
-    end)
-
-    local NextTabTrackBtn = Instance.new("TextButton")
-    NextTabTrackBtn.Size = UDim2.new(0.5, -13, 0, 26)
-    NextTabTrackBtn.Position = UDim2.new(0.5, 3, 0, 150)
-    NextTabTrackBtn.BackgroundColor3 = Library.Theme.Header
-    NextTabTrackBtn.BorderSizePixel = 0
-    NextTabTrackBtn.Font = Library.Fonts.Header
-    NextTabTrackBtn.Text = "NEXT TRACK >>"
-    NextTabTrackBtn.TextColor3 = Library.Theme.Text
-    NextTabTrackBtn.TextSize = 9.5
-    NextTabTrackBtn.ZIndex = 23
-    NextTabTrackBtn.Parent = RadioCard
-    addCorner(NextTabTrackBtn, 5)
-
-    local NextStroke = Instance.new("UIStroke")
-    NextStroke.Color = Library.Theme.Stroke
-    NextStroke.Thickness = 1
-    NextStroke.Parent = NextTabTrackBtn
-
-    NextTabTrackBtn.MouseEnter:Connect(function()
-        smoothTween(NextTabTrackBtn, DUR_FAST, { BackgroundColor3 = Library.Theme.CardHover })
-        smoothTween(NextStroke, DUR_FAST, { Color = Library.Theme.StrokeHover })
-    end)
-    NextTabTrackBtn.MouseLeave:Connect(function()
-        smoothTween(NextTabTrackBtn, DUR_FAST, { BackgroundColor3 = Library.Theme.Header })
-        smoothTween(NextStroke, DUR_FAST, { Color = Library.Theme.Stroke })
-    end)
-
-    PrevTabTrackBtn.MouseButton1Click:Connect(function()
-        if #Playlist > 0 then
-            playWorkspaceTrack(CurrentTrackIndex > 1 and CurrentTrackIndex - 1 or #Playlist)
-        end
-    end)
-
-    NextTabTrackBtn.MouseButton1Click:Connect(function()
-        if #Playlist > 0 then
-            playWorkspaceTrack(CurrentTrackIndex < #Playlist and CurrentTrackIndex + 1 or 1)
-        end
-    end)
-
-    local SoundInputBg = Instance.new("Frame")
-    SoundInputBg.Size = UDim2.new(1, -20, 0, 26)
-    SoundInputBg.Position = UDim2.new(0, 10, 0, 182)
-    SoundInputBg.BackgroundColor3 = Library.Theme.Header
-    SoundInputBg.BorderSizePixel = 0
-    SoundInputBg.ZIndex = 23
-    SoundInputBg.Parent = RadioCard
-    UI.SoundInputBg = SoundInputBg
-    addCorner(SoundInputBg, 5)
-
-    local SoundInputStroke = Instance.new("UIStroke")
-    SoundInputStroke.Color = Library.Theme.Stroke
-    SoundInputStroke.Thickness = 1
-    SoundInputStroke.Parent = SoundInputBg
-
-    local TabSoundInput = Instance.new("TextBox")
-    TabSoundInput.Size = UDim2.new(1, -10, 1, 0)
-    TabSoundInput.Position = UDim2.new(0, 5, 0, 0)
-    TabSoundInput.BackgroundTransparency = 1
-    TabSoundInput.Font = Library.Fonts.Badge
-    TabSoundInput.PlaceholderText = "Or Enter Roblox Sound ID (e.g. 1837843912)..."
-    TabSoundInput.PlaceholderColor3 = Library.Theme.TextDim
-    TabSoundInput.Text = ""
-    TabSoundInput.TextColor3 = Library.Theme.Accent
-    TabSoundInput.TextSize = 10
-    TabSoundInput.TextXAlignment = Enum.TextXAlignment.Left
-    TabSoundInput.Active = true
-    TabSoundInput.Selectable = true
-    TabSoundInput.ClearTextOnFocus = false
-    TabSoundInput.ZIndex = 35
-    TabSoundInput.Parent = SoundInputBg
-    UI.TabSoundInput = TabSoundInput
-
-    local PlaySoundBtn = Instance.new("TextButton")
-    PlaySoundBtn.Size = UDim2.new(1, -20, 0, 28)
-    PlaySoundBtn.Position = UDim2.new(0, 10, 0, 214)
-    PlaySoundBtn.BackgroundColor3 = Library.Theme.Header
-    PlaySoundBtn.BorderSizePixel = 0
-    PlaySoundBtn.Font = Library.Fonts.Header
-    PlaySoundBtn.Text = "PLAY / PAUSE TRACK"
-    PlaySoundBtn.TextColor3 = Library.Theme.Accent
-    PlaySoundBtn.TextSize = 10
-    PlaySoundBtn.ZIndex = 23
-    PlaySoundBtn.Parent = RadioCard
-    UI.PlaySoundBtn = PlaySoundBtn
-    addCorner(PlaySoundBtn, 5)
-
-    local PlayStroke = Instance.new("UIStroke")
-    PlayStroke.Color = Library.Theme.Stroke
-    PlayStroke.Thickness = 1
-    PlayStroke.Parent = PlaySoundBtn
-
-    PlaySoundBtn.MouseEnter:Connect(function()
-        smoothTween(PlaySoundBtn, DUR_FAST, { BackgroundColor3 = Library.Theme.CardHover })
-        smoothTween(PlayStroke, DUR_FAST, { Color = Library.Theme.StrokeHover })
-    end)
-    PlaySoundBtn.MouseLeave:Connect(function()
-        smoothTween(PlaySoundBtn, DUR_FAST, { BackgroundColor3 = Library.Theme.Header })
-        smoothTween(PlayStroke, DUR_FAST, { Color = Library.Theme.Stroke })
-    end)
-
-    PlaySoundBtn.MouseButton1Click:Connect(function()
-        if TabSoundInput.Text ~= "" then
-            triggerPlaySound(TabSoundInput.Text)
-        elseif RadioSound.IsPlaying then
-            RadioSound:Pause()
-            HUDPlayBtn.Text = "PLAY"
-            PlaySoundBtn.Text = "PLAY / PAUSE TRACK"
-        else
-            playWorkspaceTrack(CurrentTrackIndex)
-        end
-    end)
+-- End of Radio Card Settings
 end
 
 -- 5. VISUALS TAB PAGE (ADVANCED BLUR & WALLPAPER IMAGE CONTROL)
@@ -4258,6 +4084,112 @@ function Library:CreateBlock(title, defaultPosition)
         updateHeight()
     end)
 
+    Block.ActiveSubTab = nil
+    Block.SubTabButtons = {}
+    Block.RegisteredSubTabs = {}
+
+    local function registerElement(elemData)
+        elemData.SubTab = Block.ActiveSubTab
+        if Block.ActiveSubTab and elemData.SubTab then
+            elemData.Frame.Visible = (Block.ActiveSubTab == elemData.SubTab)
+        end
+        table.insert(Block.Elements, elemData)
+    end
+
+    function Block:AddSubTabs(tabList, callback)
+        if type(tabList) ~= "table" or #tabList == 0 then return end
+        Block.RegisteredSubTabs = tabList
+
+        local SubTabHolder = Instance.new("Frame")
+        SubTabHolder.Name = "SubTabHolder"
+        SubTabHolder.Size = UDim2.new(1, 0, 0, 26)
+        SubTabHolder.BackgroundColor3 = Library.Theme.Card
+        SubTabHolder.BorderSizePixel = 0
+        SubTabHolder.ZIndex = 12
+        SubTabHolder.Parent = Content
+        addCorner(SubTabHolder, 6)
+
+        local SubTabStroke = Instance.new("UIStroke")
+        SubTabStroke.Color = Library.Theme.Stroke
+        SubTabStroke.Transparency = 0.3
+        SubTabStroke.Thickness = 1
+        SubTabStroke.Parent = SubTabHolder
+
+        local SubListLayout = Instance.new("UIListLayout")
+        SubListLayout.FillDirection = Enum.FillDirection.Horizontal
+        SubListLayout.SortOrder = Enum.SortOrder.LayoutOrder
+        SubListLayout.Padding = UDim.new(0, 3)
+        SubListLayout.Parent = SubTabHolder
+
+        local SubPadding = Instance.new("UIPadding")
+        SubPadding.PaddingTop = UDim.new(0, 3)
+        SubPadding.PaddingBottom = UDim.new(0, 3)
+        SubPadding.PaddingLeft = UDim.new(0, 3)
+        SubPadding.PaddingRight = UDim.new(0, 3)
+        SubPadding.Parent = SubTabHolder
+
+        local numTabs = #tabList
+        for i, tabName in ipairs(tabList) do
+            local TabBtn = Instance.new("TextButton")
+            TabBtn.Name = "SubTab_" .. tabName
+            TabBtn.Size = UDim2.new(1 / numTabs, -(math.floor((numTabs - 1) * 3 / numTabs)), 1, 0)
+            TabBtn.BackgroundColor3 = (i == 1) and Library.Theme.Header or Library.Theme.Block
+            TabBtn.BorderSizePixel = 0
+            TabBtn.Font = Library.Fonts.Badge
+            TabBtn.Text = tabName
+            TabBtn.TextColor3 = (i == 1) and Library.Theme.Accent or Library.Theme.TextDim
+            TabBtn.TextSize = 10
+            TabBtn.ZIndex = 13
+            TabBtn.Parent = SubTabHolder
+            addCorner(TabBtn, 4)
+
+            local TabBtnStroke = Instance.new("UIStroke")
+            TabBtnStroke.Color = (i == 1) and Library.Theme.StrokeActive or Library.Theme.Stroke
+            TabBtnStroke.Thickness = 1
+            TabBtnStroke.Parent = TabBtn
+
+            Block.SubTabButtons[tabName] = { Button = TabBtn, Stroke = TabBtnStroke }
+
+            TabBtn.MouseButton1Click:Connect(function()
+                Block:SetCurrentSubTab(tabName)
+                if callback then callback(tabName) end
+            end)
+        end
+
+        Block.ActiveSubTab = tabList[1]
+        return SubTabHolder
+    end
+
+    function Block:SetCurrentSubTab(tabName)
+        if not tabName then return end
+        local targetName = string.upper(tostring(tabName))
+        Block.ActiveSubTab = targetName
+
+        for name, data in pairs(Block.SubTabButtons) do
+            local isSelected = (string.upper(tostring(name)) == targetName)
+            smoothTween(data.Button, DUR_FAST, {
+                BackgroundColor3 = isSelected and Library.Theme.Header or Library.Theme.Block,
+                TextColor3 = isSelected and Library.Theme.Accent or Library.Theme.TextDim
+            })
+            smoothTween(data.Stroke, DUR_FAST, {
+                Color = isSelected and Library.Theme.StrokeActive or Library.Theme.Stroke
+            })
+        end
+
+        for _, elemData in ipairs(Block.Elements) do
+            if elemData.SubTab then
+                local shouldShow = (string.upper(tostring(elemData.SubTab)) == targetName)
+                elemData.Frame.Visible = shouldShow
+            end
+        end
+
+        task.defer(updateHeight)
+    end
+
+    function Block:AddSection(text)
+        return Block:AddLabel(text)
+    end
+
     function Block:AddLabel(text)
         local LabelFrame = Instance.new("Frame")
         LabelFrame.Size = UDim2.new(1, 0, 0, 22)
@@ -4282,6 +4214,8 @@ function Library:CreateBlock(title, defaultPosition)
         TextLabel.TextSize = 9.5
         TextLabel.TextXAlignment = Enum.TextXAlignment.Left
         TextLabel.Parent = LabelFrame
+
+        registerElement({ Type = "Label", Frame = LabelFrame })
     end
 
     function Block:AddToggle(name, default, callback, defaultKey, defaultMode)
@@ -4547,7 +4481,7 @@ function Library:CreateBlock(title, defaultPosition)
             PopupStroke = PopupStroke,
             GetState = function() return state end
         }
-        table.insert(Block.Elements, elemData)
+        registerElement(elemData)
 
         return {
             Set = function(_, newState)
@@ -4655,7 +4589,7 @@ function Library:CreateBlock(title, defaultPosition)
         }
         table.insert(Library.OpenDropdowns, dropdownObject)
 
-        table.insert(Block.Elements, {
+        registerElement({
             Type = "Dropdown",
             Frame = DropFrame,
             Stroke = Stroke,
@@ -4919,6 +4853,15 @@ function Library:CreateBlock(title, defaultPosition)
                 updateSliderPosition(input.Position.X)
             end
         end))
+
+        registerElement({
+            Type = "Slider",
+            Frame = SliderFrame,
+            Stroke = Stroke,
+            Label = Label,
+            ValBadge = ValBadge,
+            ValInput = ValInput
+        })
     end
 
     -- KEYBIND WITH FULL MODE NAME DISPLAY (e.g. "F [TOGGLE]", "R [HOLD]", "ALWAYS")
@@ -5101,7 +5044,7 @@ function Library:CreateBlock(title, defaultPosition)
             end
         end))
 
-        table.insert(Block.Elements, {
+        registerElement({
             Type = "Keybind",
             Frame = BindFrame,
             Stroke = Stroke,
@@ -5166,6 +5109,8 @@ function Library:CreateBlock(title, defaultPosition)
         SectionFrame.BackgroundTransparency = 1
         SectionFrame.Parent = Content
 
+        registerElement({ Type = "Section", Frame = SectionFrame })
+
         local Line = Instance.new("Frame")
         Line.Size = UDim2.new(1, -16, 0, 1)
         Line.Position = UDim2.new(0, 8, 0.5, 0)
@@ -5191,84 +5136,8 @@ function Library:CreateBlock(title, defaultPosition)
         TitleLbl.TextSize = 8.5
         TitleLbl.Parent = TitleBg
 
-        local sTab = subTab or Block.CurrentSubTab
-        if sTab then sTab = string.upper(sTab) end
-        table.insert(Block.Elements, { Type = "Section", Frame = SectionFrame, Line = Line, TitleBg = TitleBg, TitleLbl = TitleLbl, SubTab = sTab })
-        if Block.ActiveSubTab and sTab and sTab ~= Block.ActiveSubTab then
-            SectionFrame.Visible = false
-        end
-
         updateHeight()
         return SectionFrame
-    end
-
-    function Block:SetCurrentSubTab(subName)
-        if subName then
-            Block.CurrentSubTab = string.upper(subName)
-        else
-            Block.CurrentSubTab = nil
-        end
-    end
-
-    function Block:AddSubTabs(tabList, callback)
-        local TabRow = Instance.new("Frame")
-        TabRow.Name = "SubTabRow"
-        TabRow.Size = UDim2.new(1, 0, 0, 24)
-        TabRow.BackgroundColor3 = Library.Theme.Header
-        TabRow.BackgroundTransparency = 0.10
-        TabRow.BorderSizePixel = 0
-        TabRow.Parent = Content
-        addCorner(TabRow, 5)
-
-        local activeTab = string.upper(tabList[1])
-        Block.ActiveSubTab = activeTab
-        Block.CurrentSubTab = activeTab
-        local buttons = {}
-
-        local function refreshSubTabVisibility()
-            for _, elem in ipairs(Block.Elements) do
-                if elem.SubTab then
-                    elem.Frame.Visible = (string.upper(elem.SubTab) == activeTab)
-                end
-            end
-            task.defer(updateHeight)
-        end
-
-        for idx, tabName in ipairs(tabList) do
-            local upperName = string.upper(tabName)
-            local TabBtn = Instance.new("TextButton")
-            TabBtn.Size = UDim2.new(1 / #tabList, -2, 1, -4)
-            TabBtn.Position = UDim2.new((idx - 1) / #tabList, 1, 0, 2)
-            TabBtn.BackgroundColor3 = (upperName == activeTab) and Library.Theme.Block or Library.Theme.Header
-            TabBtn.BorderSizePixel = 0
-            TabBtn.Font = Library.Fonts.Badge
-            TabBtn.Text = upperName
-            TabBtn.TextColor3 = (upperName == activeTab) and Library.Theme.Accent or Library.Theme.TextDim
-            TabBtn.TextSize = 9
-            TabBtn.Parent = TabRow
-            addCorner(TabBtn, 4)
-            table.insert(buttons, TabBtn)
-
-            TabBtn.MouseButton1Click:Connect(function()
-                activeTab = upperName
-                Block.ActiveSubTab = upperName
-                Block.CurrentSubTab = upperName
-                for _, btn in ipairs(buttons) do
-                    local sel = (btn.Text == activeTab)
-                    smoothTween(btn, DUR_FAST, {
-                        BackgroundColor3 = sel and Library.Theme.Block or Library.Theme.Header,
-                        TextColor3 = sel and Library.Theme.Accent or Library.Theme.TextDim
-                    })
-                end
-                refreshSubTabVisibility()
-                if callback then callback(tabName) end
-            end)
-        end
-
-        refreshSubTabVisibility()
-        table.insert(Block.Elements, { Type = "SubTab", TabRow = TabRow, Buttons = buttons, SubTab = nil })
-        updateHeight()
-        return TabRow
     end
 
     table.insert(Library.Blocks, Block)
