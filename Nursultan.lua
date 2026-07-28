@@ -1003,18 +1003,6 @@ UI.KeybindHUDFrame = KeybindHUDFrame
 
 addCorner(KeybindHUDFrame, 8)
 
-local KeybindHUDUIScale = Instance.new("UIScale")
-KeybindHUDUIScale.Name = "KeybindHUDUIScale"
-KeybindHUDUIScale.Scale = 1
-KeybindHUDUIScale.Parent = KeybindHUDFrame
-
-KeybindHUDFrame:GetPropertyChangedSignal("AbsoluteSize"):Connect(function()
-    local sz = KeybindHUDFrame.AbsoluteSize
-    if sz.X > 0 then
-        KeybindHUDUIScale.Scale = math.clamp(sz.X / 230, 0.35, 2.5)
-    end
-end)
-
 local KeybindHUDStroke = Instance.new("UIStroke")
 KeybindHUDStroke.Color = Library.Theme.Stroke
 KeybindHUDStroke.Transparency = 0.3
@@ -1095,7 +1083,9 @@ KeybindResizeGrip.MouseLeave:Connect(function()
     smoothTween(KeybindResizeGrip, DUR_FAST, { TextColor3 = Library.Theme.TextDim })
 end)
 
-makeResizable(KeybindHUDFrame, KeybindResizeGrip, 70, 25, 600, 600)
+-- Smart Resize Boundaries across all interactive elements
+-- KeybindHUDFrame: Min width 190, Min height 36 | Max width 400, Max height 500
+makeResizable(KeybindHUDFrame, KeybindResizeGrip, 190, 36, 400, 500)
 
 function Library:RefreshKeybindHUD()
     for _, child in ipairs(HUDListHolder:GetChildren()) do
@@ -1201,15 +1191,6 @@ local RadioHUDUIScale = Instance.new("UIScale")
 RadioHUDUIScale.Name = "RadioHUDUIScale"
 RadioHUDUIScale.Scale = 1
 RadioHUDUIScale.Parent = RadioHUDFrame
-
-RadioHUDFrame:GetPropertyChangedSignal("AbsoluteSize"):Connect(function()
-    local sz = RadioHUDFrame.AbsoluteSize
-    if sz.X > 0 and sz.Y > 0 then
-        local scaleX = sz.X / 260
-        local scaleY = sz.Y / 165
-        RadioHUDUIScale.Scale = math.clamp(math.min(scaleX, scaleY), 0.35, 2.5)
-    end
-end)
 
 local RadioHUDStroke = Instance.new("UIStroke")
 RadioHUDStroke.Color = Library.Theme.Stroke
@@ -1320,7 +1301,8 @@ RadioResizeGrip.MouseLeave:Connect(function()
     smoothTween(RadioResizeGrip, DUR_FAST, { TextColor3 = Library.Theme.TextDim })
 end)
 
-makeResizable(RadioHUDFrame, RadioResizeGrip, 80, 50, 800, 600)
+-- RadioHUDFrame: Min width 240, Min height 165 | Max width 500, Max height 350
+makeResizable(RadioHUDFrame, RadioResizeGrip, 240, 165, 500, 350)
 
 local HUDSoundInputBg = Instance.new("Frame")
 HUDSoundInputBg.Size = UDim2.new(1, -16, 0, 26)
@@ -1842,7 +1824,8 @@ ModalResizeGrip.MouseLeave:Connect(function()
     smoothTween(ModalResizeGrip, DUR_FAST, { TextColor3 = Library.Theme.TextDim })
 end)
 
-makeResizable(SettingsModal, ModalResizeGrip, 440, 320, 900, 700)
+-- SettingsModal: Min width 440, Min height 320 | Max width 850, Max height 650
+makeResizable(SettingsModal, ModalResizeGrip, 440, 320, 850, 650)
 
 -- SIDEBAR TAB NAVIGATION (LEFT: 130px)
 local ModalSidebar = Instance.new("Frame")
@@ -1939,9 +1922,10 @@ local function createModalTab(tabName)
     TabPage.ScrollBarImageColor3 = Library.Theme.Accent
     TabPage.Visible = false
     TabPage.ClipsDescendants = true
+    TabPage.AutomaticCanvasSize = Enum.AutomaticSize.Y
+    TabPage.CanvasSize = UDim2.new(0, 0, 0, 450)
     TabPage.ZIndex = 63
     TabPage.Parent = ModalPageContainer
-    TabPage.CanvasSize = UDim2.new(0, 0, 0, 400)
 
     local PageLayout = Instance.new("UIListLayout")
     PageLayout.SortOrder = Enum.SortOrder.LayoutOrder
@@ -2466,12 +2450,15 @@ end
 -- 2. THEMES TAB PAGE
 do
     local ThemeCard = Instance.new("Frame")
-    ThemeCard.Size = UDim2.new(1, 0, 0, 345)
+    ThemeCard.Size = UDim2.new(1, 0, 0, 360)
     ThemeCard.BackgroundColor3 = Library.Theme.Card
     ThemeCard.BorderSizePixel = 0
     ThemeCard.ZIndex = 64
     ThemeCard.Parent = ThemesPage
     UI.ThemeCard = ThemeCard
+
+    ThemesPage.AutomaticCanvasSize = Enum.AutomaticSize.Y
+    ThemesPage.CanvasSize = UDim2.new(0, 0, 0, 450)
 
     local TCLabel = Instance.new("TextLabel")
     TCLabel.Size = UDim2.new(1, -20, 0, 24)
@@ -2516,6 +2503,17 @@ do
         ThBtn.ZIndex = 65
         ThBtn.Parent = ThemeCard
         addCorner(ThBtn, 5)
+
+        ThBtn.MouseEnter:Connect(function()
+            smoothTween(ThBtn, DUR_FAST, { BackgroundColor3 = Color3.fromRGB(255, 255, 255), TextColor3 = Color3.fromRGB(0, 0, 0) })
+        end)
+        ThBtn.MouseLeave:Connect(function()
+            local isMatch = (thName == Library.CurrentThemeName)
+            smoothTween(ThBtn, DUR_FAST, {
+                BackgroundColor3 = isMatch and Library.Theme.Header or Library.Theme.Block,
+                TextColor3 = isMatch and Library.Theme.Accent or Library.Theme.TextDim
+            })
+        end)
 
         ThBtn.MouseButton1Click:Connect(function()
             Library:SetTheme(thName)
@@ -4095,6 +4093,7 @@ function Library:SetVisible(visible)
 
     if visible then
         Container.Visible = true
+        if GearBtnFrame then GearBtnFrame.Visible = true end
         ContainerUIScale.Scale = 0.93
         smoothTween(ContainerUIScale, DUR_NORMAL, { Scale = 1.0 }, EASE_SPRING, DIR_OUT)
 
@@ -4107,10 +4106,11 @@ function Library:SetVisible(visible)
 
         for i, blockData in ipairs(Library.Blocks) do
             local f = blockData.Frame
-            local targetPos = blockData.DefaultPos or f.Position
-            f.Position = targetPos
-            f.BackgroundTransparency = 0.04
-            if blockData.Stroke then blockData.Stroke.Transparency = 0.3 end
+            if f then
+                f.Visible = true
+                f.BackgroundTransparency = 0.04
+                if blockData.Stroke then blockData.Stroke.Transparency = 0.3 end
+            end
         end
     else
         smoothTween(ContainerUIScale, DUR_FAST, { Scale = 0.93 }, EASE_SMOOTH, DIR_OUT)
@@ -4126,6 +4126,9 @@ function Library:SetVisible(visible)
                 ConfigDropList.Visible = false
                 configDropOpen = false
                 if GearBtnFrame then GearBtnFrame.Visible = false end
+                for i, blockData in ipairs(Library.Blocks) do
+                    if blockData.Frame then blockData.Frame.Visible = false end
+                end
             end
         end)
     end
@@ -4293,7 +4296,8 @@ function Library:CreateBlock(title, defaultPosition)
         smoothTween(ResizeGrip, DUR_FAST, { TextColor3 = Library.Theme.TextDim })
     end)
 
-    makeResizable(Frame, ResizeGrip, 180, 80, 800, 900, function(newW, newH)
+    -- Category Block: Min width 200, Min height 90 | Max width 600, Max height 700
+    makeResizable(Frame, ResizeGrip, 200, 90, 600, 700, function(newW, newH)
         Block.CustomResized = true
         Block.CustomWidth = newW
         Block.CustomHeight = newH
@@ -4495,6 +4499,15 @@ function Library:CreateBlock(title, defaultPosition)
         Stroke.Color = Library.Theme.Stroke
         Stroke.Thickness = 1
         Stroke.Parent = ToggleBtn
+
+        ToggleBtn.MouseEnter:Connect(function()
+            smoothTween(ToggleBtn, DUR_FAST, { BackgroundColor3 = Library.Theme.CardHover })
+            smoothTween(Stroke, DUR_FAST, { Color = Color3.fromRGB(255, 255, 255) })
+        end)
+        ToggleBtn.MouseLeave:Connect(function()
+            smoothTween(ToggleBtn, DUR_FAST, { BackgroundColor3 = Library.Theme.Card })
+            smoothTween(Stroke, DUR_FAST, { Color = Library.Theme.Stroke })
+        end)
 
         local Label = Instance.new("TextLabel")
         Label.Size = UDim2.new(1, -125, 1, 0)
