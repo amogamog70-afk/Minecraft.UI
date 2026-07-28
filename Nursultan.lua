@@ -1007,6 +1007,11 @@ UI.KeybindHUDFrame = KeybindHUDFrame
 
 addCorner(KeybindHUDFrame, 8)
 
+local KeybindHUDUIScale = Instance.new("UIScale")
+KeybindHUDUIScale.Name = "KeybindHUDUIScale"
+KeybindHUDUIScale.Scale = 1
+KeybindHUDUIScale.Parent = KeybindHUDFrame
+
 local KeybindHUDStroke = Instance.new("UIStroke")
 KeybindHUDStroke.Color = Library.Theme.Stroke
 KeybindHUDStroke.Transparency = 0.3
@@ -1087,9 +1092,14 @@ KeybindResizeGrip.MouseLeave:Connect(function()
     smoothTween(KeybindResizeGrip, DUR_FAST, { TextColor3 = Library.Theme.TextDim })
 end)
 
--- Super small flexible resize boundaries
--- KeybindHUDFrame: Min width 100, Min height 24 | Max width 500, Max height 600
-makeResizable(KeybindHUDFrame, KeybindResizeGrip, 100, 24, 500, 600)
+-- Proportional Vector Resizing: KeybindHUDFrame
+makeResizable(KeybindHUDFrame, KeybindResizeGrip, 60, 18, 600, 600, function(newW, newH)
+    if KeybindHUDUIScale then
+        local scaleX = newW / 230
+        local scaleY = newH / 32
+        KeybindHUDUIScale.Scale = math.clamp(math.min(scaleX, scaleY), 0.3, 3.0)
+    end
+end)
 
 function Library:RefreshKeybindHUD()
     for _, child in ipairs(HUDListHolder:GetChildren()) do
@@ -1305,8 +1315,14 @@ RadioResizeGrip.MouseLeave:Connect(function()
     smoothTween(RadioResizeGrip, DUR_FAST, { TextColor3 = Library.Theme.TextDim })
 end)
 
--- RadioHUDFrame: Min width 120, Min height 40 | Max width 600, Max height 500
-makeResizable(RadioHUDFrame, RadioResizeGrip, 120, 40, 600, 500)
+-- Proportional Vector Resizing: RadioHUDFrame
+makeResizable(RadioHUDFrame, RadioResizeGrip, 80, 25, 600, 600, function(newW, newH)
+    if RadioHUDUIScale then
+        local scaleX = newW / 260
+        local scaleY = newH / 165
+        RadioHUDUIScale.Scale = math.clamp(math.min(scaleX, scaleY), 0.3, 3.0)
+    end
+end)
 
 local HUDSoundInputBg = Instance.new("Frame")
 HUDSoundInputBg.Size = UDim2.new(1, -16, 0, 26)
