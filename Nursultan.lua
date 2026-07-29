@@ -4289,6 +4289,17 @@ function Library:CreateWindow(hubTitle, gameTitle)
     return Library
 end
 
+function Library:Init(...)
+    return Library:CreateWindow(...)
+end
+
+function Library:CreateTab(title, pos)
+    return Library:CreateBlock(title, pos)
+end
+Library.AddTab = Library.CreateTab
+Library.AddBlock = Library.CreateBlock
+
+
 trackConnection(UserInputService.InputBegan:Connect(function(input, gameProcessed)
     if Library.ListeningKeybind then return end
 
@@ -4315,7 +4326,7 @@ function Library:CreateBlock(title, defaultPosition)
     defaultPosition = defaultPosition or UDim2.new(0.02, blockIndex * 255, 0.08, 0)
     Block.DefaultPos = defaultPosition
 
-    -- Direct Parent to ScreenGui with High ZIndex (10) for 100% guaranteed rendering on top layer
+    -- Parent to Container so ContainerUIScale and Container.Visible smoothly control block animations
     local Frame = Instance.new("Frame")
     Frame.Name = title .. "_Block"
     Frame.Size = UDim2.new(0, 245, 0, 360)
@@ -4326,7 +4337,7 @@ function Library:CreateBlock(title, defaultPosition)
     Frame.ClipsDescendants = false
     Frame.Visible = Library.Enabled
     Frame.ZIndex = 10
-    Frame.Parent = ScreenGui
+    Frame.Parent = Container
     Block.Frame = Frame
 
     addCorner(Frame, 8)
@@ -4476,14 +4487,36 @@ function Library:CreateBlock(title, defaultPosition)
             if Block.ActiveSubTab then
                 local isMatch = (elemData.SubTab == string.upper(tostring(Block.ActiveSubTab)))
                 elemData.Frame.Visible = isMatch
+            else
+                elemData.Frame.Visible = true
             end
+        else
+            elemData.Frame.Visible = true
         end
         table.insert(Block.Elements, elemData)
     end
 
-    function Block:AddSubTabs(tabList, callback)
+    function Block:AddSubTabs(tabList, callback, ...)
+        if type(tabList) == "string" then
+            local args = { tabList, callback, ... }
+            local newTabs = {}
+            local cb = nil
+            for _, arg in ipairs(args) do
+                if type(arg) == "string" then
+                    table.insert(newTabs, arg)
+                elseif type(arg) == "function" then
+                    cb = arg
+                end
+            end
+            tabList = newTabs
+            if cb then callback = cb end
+        end
+
         if type(tabList) ~= "table" or #tabList == 0 then return end
         Block.RegisteredSubTabs = tabList
+
+        local existingHolder = Content:FindFirstChild("SubTabHolder")
+        if existingHolder then existingHolder:Destroy() end
 
         local SubTabHolder = Instance.new("Frame")
         SubTabHolder.Name = "SubTabHolder"
@@ -4515,13 +4548,14 @@ function Library:CreateBlock(title, defaultPosition)
 
         local numTabs = #tabList
         for i, tabName in ipairs(tabList) do
+            local strTabName = tostring(tabName)
             local TabBtn = Instance.new("TextButton")
-            TabBtn.Name = "SubTab_" .. tabName
+            TabBtn.Name = "SubTab_" .. strTabName
             TabBtn.Size = UDim2.new(1 / numTabs, -(math.floor((numTabs - 1) * 3 / numTabs)), 1, 0)
             TabBtn.BackgroundColor3 = (i == 1) and Library.Theme.Header or Library.Theme.Block
             TabBtn.BorderSizePixel = 0
             TabBtn.Font = Library.Fonts.Badge
-            TabBtn.Text = tabName
+            TabBtn.Text = strTabName
             TabBtn.TextColor3 = (i == 1) and Library.Theme.Accent or Library.Theme.TextDim
             TabBtn.TextSize = 10
             TabBtn.ZIndex = 13
@@ -4533,17 +4567,42 @@ function Library:CreateBlock(title, defaultPosition)
             TabBtnStroke.Thickness = 1
             TabBtnStroke.Parent = TabBtn
 
-            Block.SubTabButtons[tabName] = { Button = TabBtn, Stroke = TabBtnStroke }
+            Block.SubTabButtons[strTabName] = { Button = TabBtn, Stroke = TabBtnStroke }
 
             TabBtn.MouseButton1Click:Connect(function()
-                Block:SetCurrentSubTab(tabName)
-                if callback then callback(tabName) end
+                Block:SetCurrentSubTab(strTabName)
+                if callback then callback(strTabName) end
             end)
         end
 
-        Block.ActiveSubTab = tabList[1]
+        Block.ActiveSubTab = string.upper(tostring(tabList[1]))
+        task.defer(updateHeight)
         return SubTabHolder
     end
+
+    function Block:AddSubTab(tabName, callback)
+        if type(tabName) == "table" then
+            return Block:AddSubTabs(tabName, callback)
+        end
+        local currentList = Block.RegisteredSubTabs or {}
+        local found = false
+        for _, name in ipairs(currentList) do
+            if string.upper(tostring(name)) == string.upper(tostring(tabName)) then
+                found = true
+                break
+            end
+        end
+        if not found then
+            table.insert(currentList, tostring(tabName))
+            Block:AddSubTabs(currentList, callback)
+        end
+        Block:SetCurrentSubTab(tabName)
+        return Block
+    end
+    Block.CreateTab = Block.AddSubTab
+    Block.AddTab = Block.AddSubTab
+    Block.CreateSubTab = Block.AddSubTab
+    Block.CreateSubTabs = Block.AddSubTabs
 
     function Block:SetCurrentSubTab(tabName)
         if not tabName then return end
@@ -4570,6 +4629,7 @@ function Library:CreateBlock(title, defaultPosition)
 
         task.defer(updateHeight)
     end
+
 
     function Block:AddSection(text)
         return Block:AddLabel(text)
@@ -5057,7 +5117,7 @@ function Library:CreateBlock(title, defaultPosition)
         Stroke.Thickness = 1
         Stroke.Parent = BtnFrame
 
-        table.insert(Block.Elements, {
+        registerElement({
             Type = "Button",
             Frame = BtnFrame,
             Stroke = Stroke
@@ -5503,7 +5563,7 @@ function Library:CreateBlock(title, defaultPosition)
         SectionFrame.BackgroundTransparency = 1
         SectionFrame.Parent = Content
 
-        registerElement({ Type = "Section", Frame = SectionFrame })
+        registerElement({ Type = "Section", Frame = SectionFrame }, subTab)
 
         local Line = Instance.new("Frame")
         Line.Size = UDim2.new(1, -16, 0, 1)
@@ -5533,6 +5593,14 @@ function Library:CreateBlock(title, defaultPosition)
         updateHeight()
         return SectionFrame
     end
+
+    function Block:AddGroupbox(title)
+        Block:AddSection(title)
+        return Block
+    end
+    Block.AddLeftGroupbox = Block.AddGroupbox
+    Block.AddRightGroupbox = Block.AddGroupbox
+    Block.CreateWindow = Block.AddGroupbox
 
     table.insert(Library.Blocks, Block)
     return Block
