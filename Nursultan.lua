@@ -1124,8 +1124,8 @@ KeybindResizeGrip.MouseLeave:Connect(function()
     smoothTween(KeybindResizeGrip, DUR_FAST, { TextColor3 = Library.Theme.TextDim })
 end)
 
--- Pure Vector Resizing: KeybindHUDFrame (Smart Limits: 50% to 160%)
-makeScalable(KeybindHUDFrame, KeybindHUDUIScale, KeybindResizeGrip, 0.50, 1.60)
+-- Solid Minimum Boundaries for Keybinds Overlay (Min: 180x36 px)
+makeResizable(KeybindHUDFrame, KeybindResizeGrip, 180, 36, 450, 500)
 
 function Library:RefreshKeybindHUD()
     for _, child in ipairs(HUDListHolder:GetChildren()) do
@@ -1341,8 +1341,8 @@ RadioResizeGrip.MouseLeave:Connect(function()
     smoothTween(RadioResizeGrip, DUR_FAST, { TextColor3 = Library.Theme.TextDim })
 end)
 
--- Pure Vector Resizing: RadioHUDFrame (Smart Limits: 50% to 160%)
-makeScalable(RadioHUDFrame, RadioHUDUIScale, RadioResizeGrip, 0.50, 1.60)
+-- Solid Minimum Boundaries for Radio Player (Min: 220x140 px)
+makeResizable(RadioHUDFrame, RadioResizeGrip, 220, 140, 500, 350)
 
 local HUDSoundInputBg = Instance.new("Frame")
 HUDSoundInputBg.Size = UDim2.new(1, -16, 0, 26)
@@ -4203,6 +4203,9 @@ function Library:SetVisible(visible)
             local f = blockData.Frame
             if f then
                 f.Visible = true
+                if blockData.DefaultPos then
+                    f.Position = blockData.DefaultPos
+                end
                 f.BackgroundTransparency = 0.04
                 if blockData.Stroke then blockData.Stroke.Transparency = 0.3 end
             end
