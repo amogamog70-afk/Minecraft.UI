@@ -4940,7 +4940,6 @@ function Library:CreateWindow(hubTitle, gameTitle)
     Container.Visible = true
     Library.Enabled = true
     Library:SetWatermark(hubStr)
-    getOrCreateMainWindow(hubStr)
     return Library
 end
 
@@ -4948,8 +4947,8 @@ function Library:Init(...)
     return Library:CreateWindow(...)
 end
 
-function Library:CreateTab(title)
-    return createTabObj(title)
+function Library:CreateTab(title, pos)
+    return Library:CreateBlock(title, pos)
 end
 Library.AddTab = Library.CreateTab
 Library.AddBlock = Library.CreateBlock
@@ -4982,7 +4981,7 @@ function Library:CreateBlock(title, defaultPosition)
     }
 
     local blockIndex = #Library.Blocks
-    defaultPosition = defaultPosition or UDim2.new(0.02, blockIndex * 255, 0.08, 0)
+    defaultPosition = defaultPosition or UDim2.new(0, 15 + (blockIndex * 255), 0, 50)
     Block.DefaultPos = defaultPosition
 
     -- Parent to Container so ContainerUIScale and Container.Visible smoothly control block animations
