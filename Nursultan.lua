@@ -4458,10 +4458,14 @@ function Library:CreateBlock(title, defaultPosition)
     Block.SubTabButtons = {}
     Block.RegisteredSubTabs = {}
 
-    local function registerElement(elemData)
-        elemData.SubTab = Block.ActiveSubTab
-        if Block.ActiveSubTab and elemData.SubTab then
-            elemData.Frame.Visible = (Block.ActiveSubTab == elemData.SubTab)
+    local function registerElement(elemData, explicitSubTab)
+        local activeSub = explicitSubTab or Block.ActiveSubTab
+        if activeSub then
+            elemData.SubTab = string.upper(tostring(activeSub))
+            if Block.ActiveSubTab then
+                local isMatch = (elemData.SubTab == string.upper(tostring(Block.ActiveSubTab)))
+                elemData.Frame.Visible = isMatch
+            end
         end
         table.insert(Block.Elements, elemData)
     end
