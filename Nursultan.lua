@@ -4218,15 +4218,7 @@ function Library:SetVisible(visible)
         for i, blockData in ipairs(Library.Blocks) do
             local f = blockData.Frame
             if f then
-                f.Visible = true
-                if blockData.DefaultPos then
-                    f.Position = blockData.DefaultPos
-                end
-                f.BackgroundTransparency = 0.04
-                if blockData.Stroke then blockData.Stroke.Transparency = 0.3 end
-                if blockData.UpdateHeight then
-                    pcall(blockData.UpdateHeight)
-                end
+                f.Visible = visible
             end
         end
     else
@@ -4297,22 +4289,26 @@ function Library:CreateBlock(title, defaultPosition)
     local Block = {
         Title = title or "Category",
         Expanded = true,
-        Elements = {}
+        Elements = {},
+        CustomWidth = 245,
+        CustomHeight = 360
     }
 
     local blockIndex = #Library.Blocks
     defaultPosition = defaultPosition or UDim2.new(0.02, blockIndex * 255, 0.08, 0)
     Block.DefaultPos = defaultPosition
 
+    -- Direct Parent to ScreenGui for 100% guaranteed rendering
     local Frame = Instance.new("Frame")
     Frame.Name = title .. "_Block"
-    Frame.Size = UDim2.new(0, 245, 0, 320)
+    Frame.Size = UDim2.new(0, 245, 0, 360)
     Frame.Position = defaultPosition
     Frame.BackgroundColor3 = Library.Theme.Block
     Frame.BackgroundTransparency = 0.04
     Frame.BorderSizePixel = 0
     Frame.ClipsDescendants = false
-    Frame.Parent = Container
+    Frame.Visible = Library.Enabled
+    Frame.Parent = ScreenGui
     Block.Frame = Frame
 
     addCorner(Frame, 8)
@@ -4367,7 +4363,7 @@ function Library:CreateBlock(title, defaultPosition)
 
     local Content = Instance.new("ScrollingFrame")
     Content.Name = "Content"
-    Content.Size = UDim2.new(1, 0, 0, 0)
+    Content.Size = UDim2.new(1, 0, 1, -38)
     Content.Position = UDim2.new(0, 0, 0, 38)
     Content.BackgroundTransparency = 1
     Content.ClipsDescendants = true
@@ -4414,44 +4410,19 @@ function Library:CreateBlock(title, defaultPosition)
         smoothTween(ResizeGrip, DUR_FAST, { TextColor3 = Library.Theme.TextDim })
     end)
 
-    -- Category Block: Min width 240, Min height 100 | Max width 600, Max height 750
-    makeResizable(Frame, ResizeGrip, 240, 100, 600, 750, function(newW, newH)
-        Block.CustomResized = true
+    makeResizable(Frame, ResizeGrip, 200, 120, 600, 850, function(newW, newH)
         Block.CustomWidth = newW
         Block.CustomHeight = newH
-        Content.Size = UDim2.new(1, 0, 0, math.max(30, newH - 38))
+        if Block.Expanded then
+            Content.Size = UDim2.new(1, 0, 1, -38)
+        end
     end)
 
-    local MAX_CONTENT_HEIGHT = 460
-
     local function updateHeight()
-        local elemCount = #Block.Elements
-        local layoutHeight = UIListLayout.AbsoluteContentSize.Y
-        local contentH = math.max(layoutHeight, elemCount * 36 + 10) + 10
-        Content.CanvasSize = UDim2.new(0, 0, 0, contentH)
-        local displayH = math.min(contentH, MAX_CONTENT_HEIGHT)
-
-        if Block.Expanded then
-            Content.Visible = true
-            if Block.CustomResized and Block.CustomWidth and Block.CustomHeight then
-                Content.Size = UDim2.new(1, 0, 0, math.max(30, Block.CustomHeight - 38))
-                Frame.Size = UDim2.new(0, Block.CustomWidth, 0, Block.CustomHeight)
-                ResizeGrip.Visible = true
-            else
-                Content.Size = UDim2.new(1, 0, 0, displayH)
-                Frame.Size = UDim2.new(0, 245, 0, 38 + displayH)
-                ResizeGrip.Visible = true
-            end
-        else
-            ResizeGrip.Visible = false
-            Content.Size = UDim2.new(1, 0, 0, 0)
-            local currW = Block.CustomResized and Block.CustomWidth or 245
-            Frame.Size = UDim2.new(0, currW, 0, 38)
-            Content.Visible = false
-        end
+        local layoutHeight = UIListLayout.AbsoluteContentSize.Y + 16
+        Content.CanvasSize = UDim2.new(0, 0, 0, layoutHeight)
     end
     Block.UpdateHeight = updateHeight
-
     UIListLayout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(updateHeight)
 
     CollapseBtn.MouseButton1Click:Connect(function()
@@ -4459,7 +4430,16 @@ function Library:CreateBlock(title, defaultPosition)
         CollapseBtn.Text = Block.Expanded and "-" or "+"
         smoothTween(CollapseBtn, DUR_NORMAL, { Rotation = Block.Expanded and 0 or 180 })
         smoothTween(CollapseBtn, DUR_FAST, { TextColor3 = Block.Expanded and Library.Theme.Text or Library.Theme.TextDim })
-        updateHeight()
+
+        if Block.Expanded then
+            Content.Visible = true
+            ResizeGrip.Visible = true
+            Frame.Size = UDim2.new(0, Block.CustomWidth or 245, 0, Block.CustomHeight or 360)
+        else
+            Content.Visible = false
+            ResizeGrip.Visible = false
+            Frame.Size = UDim2.new(0, Block.CustomWidth or 245, 0, 38)
+        end
     end)
 
     Block.ActiveSubTab = nil
