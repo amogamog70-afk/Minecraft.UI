@@ -1752,10 +1752,15 @@ local function updateRadioHUDProperties()
             desc.Transparency = math.max(desc.Transparency, alpha)
         end
     end
+end
 
-    RadioHUDFrame.Size = UDim2.new(0, 260, 0, 165)
-    local scaleVal = (Library.RadioHUDScale or 100) / 100
-    RadioHUDUIScale.Scale = scaleVal
+local function updateRadioHUDProperties()
+    if not UI or not UI.RadioHUDFrame then return end
+    UI.RadioHUDFrame.BackgroundTransparency = (Library.RadioHUDTransparency or 0) / 100
+    UI.RadioHUDFrame.Visible = Library.RadioHUDVisible and Library.Enabled
+
+    local scaleVal = math.clamp((Library.RadioHUDScale or 100) / 100, 0.60, 1.40)
+    if RadioHUDUIScale then RadioHUDUIScale.Scale = scaleVal end
 end
 
 -- Modal Backdrop (Blocks clicks/interactions to background UI when Settings is open)
@@ -4406,33 +4411,34 @@ function Library:CreateBlock(title, defaultPosition)
     end)
 
     local MAX_CONTENT_HEIGHT = 420
-    local function updateHeight()
-        local totalContentHeight = UIListLayout.AbsoluteContentSize.Y + 14
-        Content.CanvasSize = UDim2.new(0, 0, 0, totalContentHeight)
-        local displayContentHeight = math.min(totalContentHeight, MAX_CONTENT_HEIGHT)
+    local updateHeightTask = nil
 
-        if Block.Expanded then
-            Content.Visible = true
-            if Block.CustomResized and Block.CustomWidth and Block.CustomHeight then
-                Content.Size = UDim2.new(1, 0, 0, math.max(30, Block.CustomHeight - 38))
-                Frame.Size = UDim2.new(0, Block.CustomWidth, 0, Block.CustomHeight)
-                ResizeGrip.Visible = true
-            else
-                smoothTween(Content, DUR_NORMAL, { Size = UDim2.new(1, 0, 0, displayContentHeight) })
-                smoothTween(Frame, DUR_NORMAL, { Size = UDim2.new(0, 240, 0, 38 + displayContentHeight) })
-                ResizeGrip.Visible = true
-            end
-        else
-            ResizeGrip.Visible = false
-            smoothTween(Content, DUR_NORMAL, { Size = UDim2.new(1, 0, 0, 0) })
-            local currW = Block.CustomResized and Block.CustomWidth or 240
-            local anim = smoothTween(Frame, DUR_NORMAL, { Size = UDim2.new(0, currW, 0, 38) })
-            anim.Completed:Connect(function()
-                if not Block.Expanded then
-                    Content.Visible = false
+    local function updateHeight()
+        if updateHeightTask then task.cancel(updateHeightTask) end
+        updateHeightTask = task.defer(function()
+            local totalContentHeight = UIListLayout.AbsoluteContentSize.Y + 14
+            Content.CanvasSize = UDim2.new(0, 0, 0, totalContentHeight)
+            local displayContentHeight = math.min(totalContentHeight, MAX_CONTENT_HEIGHT)
+
+            if Block.Expanded then
+                Content.Visible = true
+                if Block.CustomResized and Block.CustomWidth and Block.CustomHeight then
+                    Content.Size = UDim2.new(1, 0, 0, math.max(30, Block.CustomHeight - 38))
+                    Frame.Size = UDim2.new(0, Block.CustomWidth, 0, Block.CustomHeight)
+                    ResizeGrip.Visible = true
+                else
+                    Content.Size = UDim2.new(1, 0, 0, displayContentHeight)
+                    Frame.Size = UDim2.new(0, 240, 0, 38 + displayContentHeight)
+                    ResizeGrip.Visible = true
                 end
-            end)
-        end
+            else
+                ResizeGrip.Visible = false
+                Content.Size = UDim2.new(1, 0, 0, 0)
+                local currW = Block.CustomResized and Block.CustomWidth or 240
+                Frame.Size = UDim2.new(0, currW, 0, 38)
+                Content.Visible = false
+            end
+        end)
     end
 
     UIListLayout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(updateHeight)
