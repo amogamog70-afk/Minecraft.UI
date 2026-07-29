@@ -992,9 +992,11 @@ local function makeResizable(targetFrame, gripBtn, minW, minH, maxW, maxH, onRes
     end))
 end
 
-local function makeScalable(targetFrame, uiScaleElem, gripBtn, minScale, maxScale)
-    minScale = minScale or 0.45
-    maxScale = maxScale or 1.6
+local function makeScalable(targetFrame, uiScaleElem, gripBtn, baseW, baseH, minScale, maxScale)
+    baseW = baseW or (targetFrame.Size.X.Offset > 0 and targetFrame.Size.X.Offset or 260)
+    baseH = baseH or (targetFrame.Size.Y.Offset > 0 and targetFrame.Size.Y.Offset or 165)
+    minScale = minScale or 0.40
+    maxScale = maxScale or 1.80
 
     local isScaling = false
     local startMousePos = nil
@@ -1011,9 +1013,10 @@ local function makeScalable(targetFrame, uiScaleElem, gripBtn, minScale, maxScal
     trackConnection(UserInputService.InputChanged:Connect(function(input)
         if isScaling and (input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch) then
             local delta = input.Position - startMousePos
-            local scaleChange = (delta.X + delta.Y) / 250
+            local scaleChange = (delta.X + delta.Y) / 240
             local newScale = math.clamp(startScale + scaleChange, minScale, maxScale)
             uiScaleElem.Scale = newScale
+            targetFrame.Size = UDim2.new(0, baseW * newScale, 0, baseH * newScale)
         end
     end))
 
@@ -1124,8 +1127,8 @@ KeybindResizeGrip.MouseLeave:Connect(function()
     smoothTween(KeybindResizeGrip, DUR_FAST, { TextColor3 = Library.Theme.TextDim })
 end)
 
--- Pure Vector Resizing: KeybindHUDFrame (Smart Minimum Limit: 45% Scale)
-makeScalable(KeybindHUDFrame, KeybindHUDUIScale, KeybindResizeGrip, 0.45, 1.6)
+-- Pure Vector Resizing: KeybindHUDFrame (Smart Limits: 40% to 180%)
+makeScalable(KeybindHUDFrame, KeybindHUDUIScale, KeybindResizeGrip, 230, 32, 0.40, 1.80)
 
 function Library:RefreshKeybindHUD()
     for _, child in ipairs(HUDListHolder:GetChildren()) do
@@ -1341,8 +1344,8 @@ RadioResizeGrip.MouseLeave:Connect(function()
     smoothTween(RadioResizeGrip, DUR_FAST, { TextColor3 = Library.Theme.TextDim })
 end)
 
--- Pure Vector Resizing: RadioHUDFrame (Smart Minimum Limit: 45% Scale)
-makeScalable(RadioHUDFrame, RadioHUDUIScale, RadioResizeGrip, 0.45, 1.6)
+-- Pure Vector Resizing: RadioHUDFrame (Smart Limits: 40% to 180%)
+makeScalable(RadioHUDFrame, RadioHUDUIScale, RadioResizeGrip, 260, 165, 0.40, 1.80)
 
 local HUDSoundInputBg = Instance.new("Frame")
 HUDSoundInputBg.Size = UDim2.new(1, -16, 0, 26)
@@ -2672,7 +2675,7 @@ do
     end
 
     local SkyboxCard = Instance.new("Frame")
-    SkyboxCard.Size = UDim2.new(1, 0, 0, 195)
+    SkyboxCard.Size = UDim2.new(1, 0, 0, 255)
     SkyboxCard.Position = UDim2.new(0, 0, 0, 205)
     SkyboxCard.BackgroundColor3 = Library.Theme.Card
     SkyboxCard.BorderSizePixel = 0
@@ -2686,7 +2689,7 @@ do
     SkyTitle.Position = UDim2.new(0, 10, 0, 8)
     SkyTitle.BackgroundTransparency = 1
     SkyTitle.Font = Library.Fonts.Header
-    SkyTitle.Text = "CUSTOM 6-FACE SKYBOX (MANUAL ASSETS)"
+    SkyTitle.Text = "CUSTOM SKYBOX (4-FACE CUBE BOX OR 6-FACE PRO)"
     SkyTitle.TextColor3 = Library.Theme.Accent
     SkyTitle.TextSize = 11
     SkyTitle.TextXAlignment = Enum.TextXAlignment.Left
@@ -2694,10 +2697,12 @@ do
     SkyTitle.Parent = SkyboxCard
 
     local faces = {
-        { Name = "Front Face (Ft)", Key1 = "SkyboxFt", Key2 = "SkyboxFt" },
-        { Name = "Back Face (Bk)", Key1 = "SkyboxBk", Key2 = "SkyboxBk" },
-        { Name = "Left Face (Lf)", Key1 = "SkyboxLf", Key2 = "SkyboxLf" },
-        { Name = "Right Face (Rt)", Key1 = "SkyboxRt", Key2 = "SkyboxRt" }
+        { Name = "Front Face (Ft)", Key = "SkyboxFt" },
+        { Name = "Back Face (Bk)", Key = "SkyboxBk" },
+        { Name = "Left Face (Lf)", Key = "SkyboxLf" },
+        { Name = "Right Face (Rt)", Key = "SkyboxRt" },
+        { Name = "Top Face (Up)", Key = "SkyboxUp" },
+        { Name = "Bottom Face (Dn)", Key = "SkyboxDn" }
     }
 
     local SkyInputs = {}
@@ -2705,7 +2710,7 @@ do
     for i, faceData in ipairs(faces) do
         local InputRow = Instance.new("Frame")
         InputRow.Size = UDim2.new(1, -20, 0, 26)
-        InputRow.Position = UDim2.new(0, 10, 0, 32 + ((i - 1) * 30))
+        InputRow.Position = UDim2.new(0, 10, 0, 30 + ((i - 1) * 28))
         InputRow.BackgroundTransparency = 1
         InputRow.ZIndex = 23
         InputRow.Parent = SkyboxCard
@@ -2747,12 +2752,12 @@ do
         TxtInput.ZIndex = 35
         TxtInput.Parent = BoxBg
 
-        SkyInputs[i] = { Input = TxtInput, Key1 = faceData.Key1, Key2 = faceData.Key2, BoxBg = BoxBg }
+        SkyInputs[i] = { Input = TxtInput, Key = faceData.Key, BoxBg = BoxBg }
     end
 
     local ApplySkyboxBtn = Instance.new("TextButton")
-    ApplySkyboxBtn.Size = UDim2.new(1, -20, 0, 30)
-    ApplySkyboxBtn.Position = UDim2.new(0, 10, 0, 154)
+    ApplySkyboxBtn.Size = UDim2.new(1, -20, 0, 28)
+    ApplySkyboxBtn.Position = UDim2.new(0, 10, 0, 214)
     ApplySkyboxBtn.BackgroundColor3 = Library.Theme.Header
     ApplySkyboxBtn.BorderSizePixel = 0
     ApplySkyboxBtn.Font = Library.Fonts.Header
@@ -2772,12 +2777,31 @@ do
             skyObj.Parent = Lighting
         end
 
-        for idx, item in ipairs(SkyInputs) do
-            local formatted = formatAssetId(item.Input.Text)
-            if formatted ~= "" then
-                if item.Key1 then pcall(function() skyObj[item.Key1] = formatted end) end
-                if item.Key2 then pcall(function() skyObj[item.Key2] = formatted end) end
-            end
+        local ft = formatAssetId(SkyInputs[1].Input.Text)
+        local bk = formatAssetId(SkyInputs[2].Input.Text)
+        local lf = formatAssetId(SkyInputs[3].Input.Text)
+        local rt = formatAssetId(SkyInputs[4].Input.Text)
+        local up = formatAssetId(SkyInputs[5].Input.Text)
+        local dn = formatAssetId(SkyInputs[6].Input.Text)
+
+        if ft ~= "" then skyObj.SkyboxFt = ft end
+        if bk ~= "" then skyObj.SkyboxBk = bk end
+        if lf ~= "" then skyObj.SkyboxLf = lf end
+        if rt ~= "" then skyObj.SkyboxRt = rt end
+
+        -- Smart mode switch: Professional 6-Face if Up/Dn entered; 4-Face Cube Box mode if empty!
+        if up ~= "" then
+            skyObj.SkyboxUp = up
+        elseif ft ~= "" then
+            skyObj.SkyboxUp = ft
+        end
+
+        if dn ~= "" then
+            skyObj.SkyboxDn = dn
+        elseif bk ~= "" then
+            skyObj.SkyboxDn = bk
+        elseif ft ~= "" then
+            skyObj.SkyboxDn = ft
         end
     end)
 end
