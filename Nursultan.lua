@@ -4238,6 +4238,9 @@ function Library:SetVisible(visible)
                 end
             end
         end
+        if WindowInstance and WindowInstance.Frame then
+            WindowInstance.Frame.Visible = true
+        end
     else
         smoothTween(ContainerUIScale, DUR_FAST, { Scale = 0.93 }, EASE_SMOOTH, DIR_OUT)
         smoothTween(MenuBlur, DUR_FAST, { Size = 0 })
@@ -4252,6 +4255,9 @@ function Library:SetVisible(visible)
                 ConfigDropList.Visible = false
                 configDropOpen = false
                 if GearBtnFrame then GearBtnFrame.Visible = false end
+                if WindowInstance and WindowInstance.Frame then
+                    WindowInstance.Frame.Visible = false
+                end
                 for i, blockData in ipairs(Library.Blocks) do
                     if blockData.Frame then blockData.Frame.Visible = false end
                 end
@@ -4282,10 +4288,426 @@ function Library:SetWatermark(text)
     end
 end
 
-function Library:CreateWindow(hubTitle, gameTitle)
-    if hubTitle and hubTitle ~= "" then
-        Library:SetWatermark(hubTitle)
+local function parseElementArgs(arg1, arg2, arg3, arg4, arg5)
+    local name = "Element"
+    local default = nil
+    local callback = function() end
+    local options = {}
+    local min, max = 0, 100
+
+    if type(arg2) == "table" then
+        name = arg2.Text or arg2.Title or tostring(arg1)
+        default = (arg2.Default ~= nil) and arg2.Default or arg2.Val
+        callback = arg2.Callback or arg2.callback or function() end
+        options = arg2.Values or arg2.Options or {}
+        min = arg2.Min or 0
+        max = arg2.Max or 100
+    else
+        name = tostring(arg1)
+        default = arg2
+        if type(arg3) == "function" then
+            callback = arg3
+        elseif type(arg4) == "function" then
+            callback = arg4
+        elseif type(arg5) == "function" then
+            callback = arg5
+        end
+        if type(arg2) == "table" then options = arg2 end
+        if type(arg3) == "table" then options = arg3 end
+        if type(arg2) == "number" then min = arg2 end
+        if type(arg3) == "number" then max = arg3 end
+        if type(arg4) == "number" and default == nil then default = arg4 end
     end
+
+    return {
+        Name = name,
+        Default = default,
+        Callback = callback,
+        Options = options,
+        Min = min,
+        Max = max
+    }
+end
+
+local WindowInstance = nil
+
+local function getOrCreateMainWindow(title)
+    if WindowInstance then
+        if title and title ~= "" and WindowInstance.TitleLabel then
+            WindowInstance.TitleLabel.Text = string.upper(tostring(title))
+        end
+        return WindowInstance
+    end
+
+    local WindowFrame = Instance.new("Frame")
+    WindowFrame.Name = "NursultanMainWindow"
+    WindowFrame.Size = UDim2.new(0, 640, 0, 490)
+    WindowFrame.Position = UDim2.new(0.5, -320, 0.5, -245)
+    WindowFrame.BackgroundColor3 = Library.Theme.Block
+    WindowFrame.BackgroundTransparency = 0.04
+    WindowFrame.BorderSizePixel = 0
+    WindowFrame.ClipsDescendants = false
+    WindowFrame.Visible = Library.Enabled
+    WindowFrame.ZIndex = 10
+    WindowFrame.Parent = Container
+    addCorner(WindowFrame, 8)
+
+    local FrameStroke = Instance.new("UIStroke")
+    FrameStroke.Color = Library.Theme.Stroke
+    FrameStroke.Transparency = 0.3
+    FrameStroke.Thickness = 1.0
+    FrameStroke.Parent = WindowFrame
+
+    local Header = Instance.new("Frame")
+    Header.Name = "WindowHeader"
+    Header.Size = UDim2.new(1, 0, 0, 38)
+    Header.BackgroundColor3 = Library.Theme.Header
+    Header.BackgroundTransparency = 0.08
+    Header.BorderSizePixel = 0
+    Header.ZIndex = 11
+    Header.Parent = WindowFrame
+    addCorner(Header, 8)
+
+    local Dot = Instance.new("Frame")
+    Dot.Size = UDim2.new(0, 6, 0, 6)
+    Dot.Position = UDim2.new(0, 12, 0.5, -3)
+    Dot.BackgroundColor3 = Library.Theme.Accent
+    Dot.BorderSizePixel = 0
+    Dot.ZIndex = 12
+    Dot.Parent = Header
+
+    local TitleLabel = Instance.new("TextLabel")
+    TitleLabel.Size = UDim2.new(1, -70, 1, 0)
+    TitleLabel.Position = UDim2.new(0, 25, 0, 0)
+    TitleLabel.BackgroundTransparency = 1
+    TitleLabel.Font = Library.Fonts.Header
+    TitleLabel.Text = string.upper(title or Library.WatermarkText or "NURSULTAN HUB")
+    TitleLabel.TextColor3 = Library.Theme.Text
+    TitleLabel.TextSize = 12
+    TitleLabel.TextXAlignment = Enum.TextXAlignment.Left
+    TitleLabel.ZIndex = 12
+    TitleLabel.Parent = Header
+
+    makeDraggable(WindowFrame, Header)
+
+    local TabBar = Instance.new("Frame")
+    TabBar.Name = "TabBar"
+    TabBar.Size = UDim2.new(1, -16, 0, 32)
+    TabBar.Position = UDim2.new(0, 8, 0, 42)
+    TabBar.BackgroundColor3 = Library.Theme.Header
+    TabBar.BorderSizePixel = 0
+    TabBar.ZIndex = 11
+    TabBar.Parent = WindowFrame
+    addCorner(TabBar, 6)
+
+    local TabBarLayout = Instance.new("UIListLayout")
+    TabBarLayout.FillDirection = Enum.FillDirection.Horizontal
+    TabBarLayout.SortOrder = Enum.SortOrder.LayoutOrder
+    TabBarLayout.Padding = UDim.new(0, 4)
+    TabBarLayout.Parent = TabBar
+
+    local TabBarPadding = Instance.new("UIPadding")
+    TabBarPadding.PaddingTop = UDim.new(0, 3)
+    TabBarPadding.PaddingBottom = UDim.new(0, 3)
+    TabBarPadding.PaddingLeft = UDim.new(0, 4)
+    TabBarPadding.PaddingRight = UDim.new(0, 4)
+    TabBarPadding.Parent = TabBar
+
+    local TabContent = Instance.new("Frame")
+    TabContent.Name = "TabContent"
+    TabContent.Size = UDim2.new(1, -16, 1, -82)
+    TabContent.Position = UDim2.new(0, 8, 0, 78)
+    TabContent.BackgroundTransparency = 1
+    TabContent.ZIndex = 11
+    TabContent.Parent = WindowFrame
+
+    WindowInstance = {
+        Frame = WindowFrame,
+        Header = Header,
+        TitleLabel = TitleLabel,
+        TabBar = TabBar,
+        TabContent = TabContent,
+        Tabs = {},
+        ActiveTab = nil
+    }
+
+    return WindowInstance
+end
+
+local function createTabObj(tabTitle)
+    local win = getOrCreateMainWindow()
+    local tabTitleStr = tostring(tabTitle)
+
+    local TabPage = Instance.new("ScrollingFrame")
+    TabPage.Name = "TabPage_" .. tabTitleStr
+    TabPage.Size = UDim2.new(1, 0, 1, 0)
+    TabPage.BackgroundTransparency = 1
+    TabPage.BorderSizePixel = 0
+    TabPage.ScrollBarThickness = 3
+    TabPage.ScrollBarImageColor3 = Library.Theme.Accent
+    TabPage.Visible = false
+    TabPage.CanvasSize = UDim2.new(0, 0, 0, 0)
+    TabPage.AutomaticCanvasSize = Enum.AutomaticSize.Y
+    TabPage.ZIndex = 11
+    TabPage.Parent = win.TabContent
+
+    local LeftColumn = Instance.new("Frame")
+    LeftColumn.Name = "LeftColumn"
+    LeftColumn.Size = UDim2.new(0.495, -2, 1, 0)
+    LeftColumn.Position = UDim2.new(0, 0, 0, 0)
+    LeftColumn.BackgroundTransparency = 1
+    LeftColumn.Parent = TabPage
+
+    local LeftLayout = Instance.new("UIListLayout")
+    LeftLayout.SortOrder = Enum.SortOrder.LayoutOrder
+    LeftLayout.Padding = UDim.new(0, 8)
+    LeftLayout.Parent = LeftColumn
+
+    local RightColumn = Instance.new("Frame")
+    RightColumn.Name = "RightColumn"
+    RightColumn.Size = UDim2.new(0.495, -2, 1, 0)
+    RightColumn.Position = UDim2.new(0.505, 2, 0, 0)
+    RightColumn.BackgroundTransparency = 1
+    RightColumn.Parent = TabPage
+
+    local RightLayout = Instance.new("UIListLayout")
+    RightLayout.SortOrder = Enum.SortOrder.LayoutOrder
+    RightLayout.Padding = UDim.new(0, 8)
+    RightLayout.Parent = RightColumn
+
+    local TabBtn = Instance.new("TextButton")
+    TabBtn.Name = "TabBtn_" .. tabTitleStr
+    TabBtn.AutomaticSize = Enum.AutomaticSize.X
+    TabBtn.Size = UDim2.new(0, 80, 1, 0)
+    TabBtn.BackgroundColor3 = Library.Theme.Card
+    TabBtn.BorderSizePixel = 0
+    TabBtn.Font = Library.Fonts.Header
+    TabBtn.Text = "  " .. string.upper(tabTitleStr) .. "  "
+    TabBtn.TextColor3 = Library.Theme.TextDim
+    TabBtn.TextSize = 10.5
+    TabBtn.ZIndex = 12
+    TabBtn.Parent = win.TabBar
+    addCorner(TabBtn, 4)
+
+    local TabIndicator = Instance.new("Frame")
+    TabIndicator.Size = UDim2.new(1, 0, 0, 2)
+    TabIndicator.Position = UDim2.new(0, 0, 1, -2)
+    TabIndicator.BackgroundColor3 = Library.Theme.Accent
+    TabIndicator.BorderSizePixel = 0
+    TabIndicator.Visible = false
+    TabIndicator.ZIndex = 13
+    TabIndicator.Parent = TabBtn
+
+    local TabObj = {
+        Title = tabTitleStr,
+        Page = TabPage,
+        LeftColumn = LeftColumn,
+        RightColumn = RightColumn,
+        TabBtn = TabBtn,
+        TabIndicator = TabIndicator,
+        Groupboxes = {}
+    }
+
+    local function selectTab()
+        for _, t in ipairs(win.Tabs) do
+            local isSel = (t == TabObj)
+            t.Page.Visible = isSel
+            t.TabIndicator.Visible = isSel
+            smoothTween(t.TabBtn, DUR_FAST, {
+                BackgroundColor3 = isSel and Library.Theme.Block or Library.Theme.Card,
+                TextColor3 = isSel and Library.Theme.Accent or Library.Theme.TextDim
+            })
+        end
+        win.ActiveTab = TabObj
+    end
+
+    TabBtn.MouseButton1Click:Connect(selectTab)
+
+    table.insert(win.Tabs, TabObj)
+    if #win.Tabs == 1 then
+        selectTab()
+    end
+
+    function TabObj:AddGroupbox(title, side)
+        side = side or "left"
+        local parentColumn = (string.lower(tostring(side)) == "right") and TabObj.RightColumn or TabObj.LeftColumn
+
+        local GroupFrame = Instance.new("Frame")
+        GroupFrame.Name = "Group_" .. tostring(title)
+        GroupFrame.Size = UDim2.new(1, 0, 0, 32)
+        GroupFrame.AutomaticSize = Enum.AutomaticSize.Y
+        GroupFrame.BackgroundColor3 = Library.Theme.Block
+        GroupFrame.BackgroundTransparency = 0.04
+        GroupFrame.BorderSizePixel = 0
+        GroupFrame.ZIndex = 12
+        GroupFrame.Parent = parentColumn
+        addCorner(GroupFrame, 6)
+
+        local GroupStroke = Instance.new("UIStroke")
+        GroupStroke.Color = Library.Theme.Stroke
+        GroupStroke.Transparency = 0.3
+        GroupStroke.Thickness = 1
+        GroupStroke.Parent = GroupFrame
+
+        local GroupHeader = Instance.new("Frame")
+        GroupHeader.Name = "GroupHeader"
+        GroupHeader.Size = UDim2.new(1, 0, 0, 26)
+        GroupHeader.BackgroundColor3 = Library.Theme.Header
+        GroupHeader.BorderSizePixel = 0
+        GroupHeader.ZIndex = 13
+        GroupHeader.Parent = GroupFrame
+        addCorner(GroupHeader, 6)
+
+        local Dot = Instance.new("Frame")
+        Dot.Size = UDim2.new(0, 5, 0, 5)
+        Dot.Position = UDim2.new(0, 8, 0.5, -2)
+        Dot.BackgroundColor3 = Library.Theme.Accent
+        Dot.BorderSizePixel = 0
+        Dot.ZIndex = 14
+        Dot.Parent = GroupHeader
+
+        local TitleLbl = Instance.new("TextLabel")
+        TitleLbl.Size = UDim2.new(1, -20, 1, 0)
+        TitleLbl.Position = UDim2.new(0, 18, 0, 0)
+        TitleLbl.BackgroundTransparency = 1
+        TitleLbl.Font = Library.Fonts.Header
+        TitleLbl.Text = string.upper(tostring(title))
+        TitleLbl.TextColor3 = Library.Theme.Text
+        TitleLbl.TextSize = 10.5
+        TitleLbl.TextXAlignment = Enum.TextXAlignment.Left
+        TitleLbl.ZIndex = 14
+        TitleLbl.Parent = GroupHeader
+
+        local ContentContainer = Instance.new("Frame")
+        ContentContainer.Name = "ContentContainer"
+        ContentContainer.Size = UDim2.new(1, 0, 0, 0)
+        ContentContainer.Position = UDim2.new(0, 0, 0, 26)
+        ContentContainer.AutomaticSize = Enum.AutomaticSize.Y
+        ContentContainer.BackgroundTransparency = 1
+        ContentContainer.ZIndex = 13
+        ContentContainer.Parent = GroupFrame
+
+        local ContentLayout = Instance.new("UIListLayout")
+        ContentLayout.SortOrder = Enum.SortOrder.LayoutOrder
+        ContentLayout.Padding = UDim.new(0, 5)
+        ContentLayout.Parent = ContentContainer
+
+        local ContentPadding = Instance.new("UIPadding")
+        ContentPadding.PaddingTop = UDim.new(0, 6)
+        ContentPadding.PaddingBottom = UDim.new(0, 6)
+        ContentPadding.PaddingLeft = UDim.new(0, 6)
+        ContentPadding.PaddingRight = UDim.new(0, 6)
+        ContentPadding.Parent = ContentContainer
+
+        local GroupObj = {
+            Frame = GroupFrame,
+            Content = ContentContainer
+        }
+
+        function GroupObj:AddToggle(arg1, arg2, arg3, arg4, arg5)
+            local parsed = parseElementArgs(arg1, arg2, arg3, arg4, arg5)
+            local name = parsed.Name
+            local default = (parsed.Default == true)
+            local callback = parsed.Callback
+
+            local blockObj = Library:CreateBlock(tostring(title))
+            blockObj.Frame.Visible = false
+            local toggleObj = blockObj:AddToggle(name, default, callback)
+            toggleObj.Frame.Parent = ContentContainer
+            toggleObj.Frame.Visible = true
+            return toggleObj
+        end
+        GroupObj.CreateToggle = GroupObj.AddToggle
+
+        function GroupObj:AddSlider(arg1, arg2, arg3, arg4, arg5)
+            local parsed = parseElementArgs(arg1, arg2, arg3, arg4, arg5)
+            local name = parsed.Name
+            local min = parsed.Min
+            local max = parsed.Max
+            local default = parsed.Default or min
+            local callback = parsed.Callback
+
+            local blockObj = Library:CreateBlock(tostring(title))
+            blockObj.Frame.Visible = false
+            local sliderObj = blockObj:AddSlider(name, min, max, default, callback)
+            sliderObj.Frame.Parent = ContentContainer
+            sliderObj.Frame.Visible = true
+            return sliderObj
+        end
+        GroupObj.CreateSlider = GroupObj.AddSlider
+
+        function GroupObj:AddDropdown(arg1, arg2, arg3, arg4, arg5)
+            local parsed = parseElementArgs(arg1, arg2, arg3, arg4, arg5)
+            local name = parsed.Name
+            local options = parsed.Options
+            local default = parsed.Default or options[1]
+            local callback = parsed.Callback
+
+            local blockObj = Library:CreateBlock(tostring(title))
+            blockObj.Frame.Visible = false
+            local dropObj = blockObj:AddDropdown(name, options, default, callback)
+            dropObj.Frame.Parent = ContentContainer
+            dropObj.Frame.Visible = true
+            return dropObj
+        end
+        GroupObj.CreateDropdown = GroupObj.AddDropdown
+
+        function GroupObj:AddButton(arg1, arg2)
+            local name = tostring(arg1)
+            local callback = arg2 or function() end
+            if type(arg1) == "table" then
+                name = arg1.Text or arg1.Title or "Button"
+                callback = arg1.Callback or function() end
+            end
+
+            local blockObj = Library:CreateBlock(tostring(title))
+            blockObj.Frame.Visible = false
+            local btnObj = blockObj:AddButton(name, callback)
+            btnObj.Frame.Parent = ContentContainer
+            btnObj.Frame.Visible = true
+            return btnObj
+        end
+        GroupObj.CreateButton = GroupObj.AddButton
+
+        function GroupObj:AddLabel(text)
+            local blockObj = Library:CreateBlock(tostring(title))
+            blockObj.Frame.Visible = false
+            local lblObj = blockObj:AddLabel(text)
+            lblObj.Frame.Parent = ContentContainer
+            lblObj.Frame.Visible = true
+            return lblObj
+        end
+
+        function GroupObj:AddSection(text)
+            local blockObj = Library:CreateBlock(tostring(title))
+            blockObj.Frame.Visible = false
+            local secObj = blockObj:AddSection(text)
+            secObj.Frame.Parent = ContentContainer
+            secObj.Frame.Visible = true
+            return secObj
+        end
+
+        return GroupObj
+    end
+
+    TabObj.AddLeftGroupbox = function(_, title) return TabObj:AddGroupbox(title, "left") end
+    TabObj.AddRightGroupbox = function(_, title) return TabObj:AddGroupbox(title, "right") end
+    TabObj.CreateWindow = function(_, title) return TabObj:AddGroupbox(title, "left") end
+    TabObj.CreateGroupbox = function(_, title) return TabObj:AddGroupbox(title, "left") end
+
+    return TabObj
+end
+
+function Library:CreateWindow(hubTitle, gameTitle)
+    local hubStr = "NURSULTAN HUB"
+    if type(hubTitle) == "table" then
+        hubStr = hubTitle.Title or hubTitle.Text or "NURSULTAN HUB"
+    elseif type(hubTitle) == "string" and hubTitle ~= "" then
+        hubStr = hubTitle
+    end
+
+    Library:SetWatermark(hubStr)
+    getOrCreateMainWindow(hubStr)
     return Library
 end
 
@@ -4293,12 +4715,11 @@ function Library:Init(...)
     return Library:CreateWindow(...)
 end
 
-function Library:CreateTab(title, pos)
-    return Library:CreateBlock(title, pos)
+function Library:CreateTab(title)
+    return createTabObj(title)
 end
 Library.AddTab = Library.CreateTab
 Library.AddBlock = Library.CreateBlock
-
 
 trackConnection(UserInputService.InputBegan:Connect(function(input, gameProcessed)
     if Library.ListeningKeybind then return end
@@ -4312,6 +4733,7 @@ trackConnection(UserInputService.InputBegan:Connect(function(input, gameProcesse
         end
     end
 end))
+
 
 function Library:CreateBlock(title, defaultPosition)
     local Block = {
