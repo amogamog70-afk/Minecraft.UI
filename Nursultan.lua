@@ -559,7 +559,7 @@ RadioSound.Parent = SoundService
 local MenuBlur = Instance.new("BlurEffect")
 MenuBlur.Name = "NursultanMenuBlur"
 MenuBlur.Size = Library.BlurSize
-MenuBlur.Enabled = false
+MenuBlur.Enabled = Library.BlurEnabled and Library.Enabled
 MenuBlur.Parent = Lighting
 
 local ScreenGui = Instance.new("ScreenGui")
@@ -4210,7 +4210,7 @@ function Library:SetVisible(visible)
 
         if Library.BlurEnabled then
             MenuBlur.Enabled = true
-            smoothTween(MenuBlur, DUR_NORMAL, { Size = Library.BlurSize })
+            MenuBlur.Size = Library.BlurSize
         end
         SnowFolder.Visible = Library.SnowEnabled
         MenuBgImage.Visible = (formatAssetId(Library.MenuBgImage or "") ~= "")
@@ -4218,7 +4218,13 @@ function Library:SetVisible(visible)
         for i, blockData in ipairs(Library.Blocks) do
             local f = blockData.Frame
             if f then
-                f.Visible = visible
+                f.Visible = true
+                if blockData.DefaultPos then
+                    f.Position = blockData.DefaultPos
+                end
+                if blockData.UpdateHeight then
+                    pcall(blockData.UpdateHeight)
+                end
             end
         end
     else
