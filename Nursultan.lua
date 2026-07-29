@@ -512,19 +512,30 @@ pcall(function()
     end
 end)
 
+local CoreGui = game:GetService("CoreGui")
+local Players = game:GetService("Players")
+
 local ParentContainer = nil
 pcall(function()
     if gethui then
-        ParentContainer = gethui()
+        local h = gethui()
+        if h and (h:IsA("ScreenGui") or h:IsA("Folder") or h:IsA("BasePlayerGui")) then
+            ParentContainer = h
+        end
     end
 end)
+if not ParentContainer then
+    pcall(function()
+        if CoreGui then ParentContainer = CoreGui end
+    end)
+end
 if not ParentContainer then
     pcall(function()
         ParentContainer = Players.LocalPlayer:WaitForChild("PlayerGui")
     end)
 end
 if not ParentContainer then
-    pcall(function() ParentContainer = CoreGui end)
+    ParentContainer = CoreGui
 end
 
 pcall(function()
