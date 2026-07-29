@@ -331,6 +331,7 @@ local Library = {
 }
 
 Library.Theme = Library.Themes["Monochrome Slate"] or Library.Themes[Library.CurrentThemeName]
+Library.BlockProto = {}
 
 local DUR_FAST   = 0.12
 local DUR_NORMAL = 0.18
@@ -4610,12 +4611,58 @@ local function createTabObj(tabTitle)
             local default = (parsed.Default == true)
             local callback = parsed.Callback
 
-            local blockObj = Library:CreateBlock(tostring(title))
-            blockObj.Frame.Visible = false
-            local toggleObj = blockObj:AddToggle(name, default, callback)
-            toggleObj.Frame.Parent = ContentContainer
-            toggleObj.Frame.Visible = true
-            return toggleObj
+            local ToggleBtn = Instance.new("TextButton")
+            ToggleBtn.Name = name .. "_Toggle"
+            ToggleBtn.Size = UDim2.new(1, 0, 0, 32)
+            ToggleBtn.BackgroundColor3 = Library.Theme.Card
+            ToggleBtn.BorderSizePixel = 0
+            ToggleBtn.AutoButtonColor = false
+            ToggleBtn.Font = Library.Fonts.Label
+            ToggleBtn.Text = "  " .. name
+            ToggleBtn.TextColor3 = default and Library.Theme.Text or Library.Theme.TextDim
+            ToggleBtn.TextSize = 11.5
+            ToggleBtn.TextXAlignment = Enum.TextXAlignment.Left
+            ToggleBtn.ZIndex = 14
+            ToggleBtn.Parent = ContentContainer
+            addCorner(ToggleBtn, 6)
+
+            local Stroke = Instance.new("UIStroke")
+            Stroke.Color = default and Library.Theme.StrokeHover or Library.Theme.Stroke
+            Stroke.Thickness = 1
+            Stroke.Parent = ToggleBtn
+
+            local SwitchBg = Instance.new("Frame")
+            SwitchBg.Size = UDim2.new(0, 34, 0, 18)
+            SwitchBg.Position = UDim2.new(1, -40, 0.5, -9)
+            SwitchBg.BackgroundColor3 = default and Library.Theme.Accent or Library.Theme.Header
+            SwitchBg.BorderSizePixel = 0
+            SwitchBg.ZIndex = 15
+            SwitchBg.Parent = ToggleBtn
+            addCorner(SwitchBg, 9)
+
+            local Knob = Instance.new("Frame")
+            Knob.Size = UDim2.new(0, 12, 0, 12)
+            Knob.Position = default and UDim2.new(1, -15, 0.5, -6) or UDim2.new(0, 3, 0.5, -6)
+            Knob.BackgroundColor3 = default and Library.Theme.Background or Library.Theme.TextDim
+            Knob.BorderSizePixel = 0
+            Knob.ZIndex = 16
+            Knob.Parent = SwitchBg
+            addCorner(Knob, 6)
+
+            local isToggled = default
+            ToggleBtn.MouseButton1Click:Connect(function()
+                isToggled = not isToggled
+                smoothTween(SwitchBg, DUR_FAST, { BackgroundColor3 = isToggled and Library.Theme.Accent or Library.Theme.Header })
+                smoothTween(Knob, DUR_FAST, {
+                    Position = isToggled and UDim2.new(1, -15, 0.5, -6) or UDim2.new(0, 3, 0.5, -6),
+                    BackgroundColor3 = isToggled and Library.Theme.Background or Library.Theme.TextDim
+                })
+                smoothTween(ToggleBtn, DUR_FAST, { TextColor3 = isToggled and Library.Theme.Text or Library.Theme.TextDim })
+                smoothTween(Stroke, DUR_FAST, { Color = isToggled and Library.Theme.StrokeHover or Library.Theme.Stroke })
+                task.spawn(function() pcall(callback, isToggled) end)
+            end)
+
+            return { Frame = ToggleBtn, SetState = function(v) isToggled = v end }
         end
         GroupObj.CreateToggle = GroupObj.AddToggle
 
@@ -4627,12 +4674,100 @@ local function createTabObj(tabTitle)
             local default = parsed.Default or min
             local callback = parsed.Callback
 
-            local blockObj = Library:CreateBlock(tostring(title))
-            blockObj.Frame.Visible = false
-            local sliderObj = blockObj:AddSlider(name, min, max, default, callback)
-            sliderObj.Frame.Parent = ContentContainer
-            sliderObj.Frame.Visible = true
-            return sliderObj
+            local SliderFrame = Instance.new("Frame")
+            SliderFrame.Name = name .. "_Slider"
+            SliderFrame.Size = UDim2.new(1, 0, 0, 42)
+            SliderFrame.BackgroundColor3 = Library.Theme.Card
+            SliderFrame.BorderSizePixel = 0
+            SliderFrame.ZIndex = 14
+            SliderFrame.Parent = ContentContainer
+            addCorner(SliderFrame, 6)
+
+            local Stroke = Instance.new("UIStroke")
+            Stroke.Color = Library.Theme.Stroke
+            Stroke.Thickness = 1
+            Stroke.Parent = SliderFrame
+
+            local Label = Instance.new("TextLabel")
+            Label.Size = UDim2.new(1, -60, 0, 18)
+            Label.Position = UDim2.new(0, 10, 0, 4)
+            Label.BackgroundTransparency = 1
+            Label.Font = Library.Fonts.Label
+            Label.Text = name
+            Label.TextColor3 = Library.Theme.TextDim
+            Label.TextSize = 11
+            Label.TextXAlignment = Enum.TextXAlignment.Left
+            Label.ZIndex = 15
+            Label.Parent = SliderFrame
+
+            local ValBadge = Instance.new("Frame")
+            ValBadge.AutomaticSize = Enum.AutomaticSize.X
+            ValBadge.Size = UDim2.new(0, 36, 0, 16)
+            ValBadge.Position = UDim2.new(1, -44, 0, 5)
+            ValBadge.BackgroundColor3 = Library.Theme.Header
+            ValBadge.BorderSizePixel = 0
+            ValBadge.ZIndex = 15
+            ValBadge.Parent = SliderFrame
+            addCorner(ValBadge, 4)
+
+            local ValInput = Instance.new("TextBox")
+            ValInput.AutomaticSize = Enum.AutomaticSize.X
+            ValInput.Size = UDim2.new(1, 0, 1, 0)
+            ValInput.BackgroundTransparency = 1
+            ValInput.Font = Library.Fonts.Header
+            ValInput.Text = tostring(default)
+            ValInput.TextColor3 = Library.Theme.Accent
+            ValInput.TextSize = 10
+            ValInput.ZIndex = 16
+            ValInput.Parent = ValBadge
+
+            local TrackBg = Instance.new("Frame")
+            TrackBg.Size = UDim2.new(1, -20, 0, 6)
+            TrackBg.Position = UDim2.new(0, 10, 0, 26)
+            TrackBg.BackgroundColor3 = Library.Theme.Header
+            TrackBg.BorderSizePixel = 0
+            TrackBg.ZIndex = 15
+            TrackBg.Parent = SliderFrame
+            addCorner(TrackBg, 3)
+
+            local fillRatio = (default - min) / (max - min)
+            local Fill = Instance.new("Frame")
+            Fill.Size = UDim2.new(fillRatio, 0, 1, 0)
+            Fill.BackgroundColor3 = Library.Theme.Accent
+            Fill.BorderSizePixel = 0
+            Fill.ZIndex = 16
+            Fill.Parent = TrackBg
+            addCorner(Fill, 3)
+
+            local currentVal = default
+            local function updateSlider(input)
+                local pos = input.Position.X
+                local trackAbsPos = TrackBg.AbsolutePosition.X
+                local trackAbsSize = TrackBg.AbsoluteSize.X
+                local pct = math.clamp((pos - trackAbsPos) / trackAbsSize, 0, 1)
+                currentVal = math.floor(min + (max - min) * pct + 0.5)
+                Fill.Size = UDim2.new(pct, 0, 1, 0)
+                ValInput.Text = tostring(currentVal)
+                task.spawn(function() pcall(callback, currentVal) end)
+            end
+
+            local dragging = false
+            TrackBg.InputBegan:Connect(function(input)
+                if input.UserInputType == Enum.UserInputType.MouseButton1 then
+                    dragging = true
+                    updateSlider(input)
+                end
+            end)
+            UserInputService.InputChanged:Connect(function(input)
+                if dragging and input.UserInputType == Enum.UserInputType.MouseMovement then
+                    updateSlider(input)
+                end
+            end)
+            UserInputService.InputEnded:Connect(function(input)
+                if input.UserInputType == Enum.UserInputType.MouseButton1 then dragging = false end
+            end)
+
+            return { Frame = SliderFrame, SetValue = function(v) currentVal = v; ValInput.Text = tostring(v) end }
         end
         GroupObj.CreateSlider = GroupObj.AddSlider
 
@@ -4640,15 +4775,49 @@ local function createTabObj(tabTitle)
             local parsed = parseElementArgs(arg1, arg2, arg3, arg4, arg5)
             local name = parsed.Name
             local options = parsed.Options
-            local default = parsed.Default or options[1]
+            local default = parsed.Default or options[1] or "None"
             local callback = parsed.Callback
 
-            local blockObj = Library:CreateBlock(tostring(title))
-            blockObj.Frame.Visible = false
-            local dropObj = blockObj:AddDropdown(name, options, default, callback)
-            dropObj.Frame.Parent = ContentContainer
-            dropObj.Frame.Visible = true
-            return dropObj
+            local DropFrame = Instance.new("Frame")
+            DropFrame.Name = name .. "_Dropdown"
+            DropFrame.Size = UDim2.new(1, 0, 0, 36)
+            DropFrame.BackgroundColor3 = Library.Theme.Card
+            DropFrame.BorderSizePixel = 0
+            DropFrame.ZIndex = 14
+            DropFrame.Parent = ContentContainer
+            addCorner(DropFrame, 6)
+
+            local Stroke = Instance.new("UIStroke")
+            Stroke.Color = Library.Theme.Stroke
+            Stroke.Thickness = 1
+            Stroke.Parent = DropFrame
+
+            local Label = Instance.new("TextLabel")
+            Label.Size = UDim2.new(0.5, 0, 0, 26)
+            Label.Position = UDim2.new(0, 10, 0, 5)
+            Label.BackgroundTransparency = 1
+            Label.Font = Library.Fonts.Label
+            Label.Text = name
+            Label.TextColor3 = Library.Theme.TextDim
+            Label.TextSize = 11
+            Label.TextXAlignment = Enum.TextXAlignment.Left
+            Label.ZIndex = 15
+            Label.Parent = DropFrame
+
+            local SelBadge = Instance.new("TextLabel")
+            SelBadge.AutomaticSize = Enum.AutomaticSize.X
+            SelBadge.Size = UDim2.new(0, 50, 0, 20)
+            SelBadge.Position = UDim2.new(1, -60, 0.5, -10)
+            SelBadge.BackgroundColor3 = Library.Theme.Header
+            SelBadge.Font = Library.Fonts.Header
+            SelBadge.Text = tostring(default)
+            SelBadge.TextColor3 = Library.Theme.Accent
+            SelBadge.TextSize = 10
+            SelBadge.ZIndex = 15
+            SelBadge.Parent = DropFrame
+            addCorner(SelBadge, 4)
+
+            return { Frame = DropFrame }
         end
         GroupObj.CreateDropdown = GroupObj.AddDropdown
 
@@ -4660,31 +4829,92 @@ local function createTabObj(tabTitle)
                 callback = arg1.Callback or function() end
             end
 
-            local blockObj = Library:CreateBlock(tostring(title))
-            blockObj.Frame.Visible = false
-            local btnObj = blockObj:AddButton(name, callback)
-            btnObj.Frame.Parent = ContentContainer
-            btnObj.Frame.Visible = true
-            return btnObj
+            local BtnFrame = Instance.new("TextButton")
+            BtnFrame.Name = name .. "_Button"
+            BtnFrame.Size = UDim2.new(1, 0, 0, 32)
+            BtnFrame.BackgroundColor3 = Library.Theme.Card
+            BtnFrame.BorderSizePixel = 0
+            BtnFrame.AutoButtonColor = false
+            BtnFrame.Font = Library.Fonts.Label
+            BtnFrame.Text = name
+            BtnFrame.TextColor3 = Library.Theme.Text
+            BtnFrame.TextSize = 11.5
+            BtnFrame.ZIndex = 14
+            BtnFrame.Parent = ContentContainer
+            addCorner(BtnFrame, 6)
+
+            local Stroke = Instance.new("UIStroke")
+            Stroke.Color = Library.Theme.Stroke
+            Stroke.Thickness = 1
+            Stroke.Parent = BtnFrame
+
+            BtnFrame.MouseButton1Click:Connect(function()
+                task.spawn(function() pcall(callback) end)
+            end)
+
+            return { Frame = BtnFrame }
         end
         GroupObj.CreateButton = GroupObj.AddButton
 
         function GroupObj:AddLabel(text)
-            local blockObj = Library:CreateBlock(tostring(title))
-            blockObj.Frame.Visible = false
-            local lblObj = blockObj:AddLabel(text)
-            lblObj.Frame.Parent = ContentContainer
-            lblObj.Frame.Visible = true
-            return lblObj
+            local LblFrame = Instance.new("Frame")
+            LblFrame.Size = UDim2.new(1, 0, 0, 22)
+            LblFrame.BackgroundTransparency = 1
+            LblFrame.ZIndex = 14
+            LblFrame.Parent = ContentContainer
+
+            local Label = Instance.new("TextLabel")
+            Label.Size = UDim2.new(1, -10, 1, 0)
+            Label.Position = UDim2.new(0, 5, 0, 0)
+            Label.BackgroundTransparency = 1
+            Label.Font = Library.Fonts.Label
+            Label.Text = tostring(text)
+            Label.TextColor3 = Library.Theme.TextDim
+            Label.TextSize = 11
+            Label.TextXAlignment = Enum.TextXAlignment.Left
+            Label.ZIndex = 15
+            Label.Parent = LblFrame
+
+            return { Frame = LblFrame }
         end
 
-        function GroupObj:AddSection(text)
-            local blockObj = Library:CreateBlock(tostring(title))
-            blockObj.Frame.Visible = false
-            local secObj = blockObj:AddSection(text)
-            secObj.Frame.Parent = ContentContainer
-            secObj.Frame.Visible = true
-            return secObj
+        function GroupObj:AddSection(sectionTitle)
+            local SectionFrame = Instance.new("Frame")
+            SectionFrame.Name = sectionTitle .. "_Section"
+            SectionFrame.Size = UDim2.new(1, 0, 0, 22)
+            SectionFrame.BackgroundTransparency = 1
+            SectionFrame.ZIndex = 14
+            SectionFrame.Parent = ContentContainer
+
+            local Line = Instance.new("Frame")
+            Line.Size = UDim2.new(1, -16, 0, 1)
+            Line.Position = UDim2.new(0, 8, 0.5, 0)
+            Line.BackgroundColor3 = Library.Theme.Stroke
+            Line.BorderSizePixel = 0
+            Line.ZIndex = 15
+            Line.Parent = SectionFrame
+
+            local TitleBg = Instance.new("Frame")
+            TitleBg.AutomaticSize = Enum.AutomaticSize.X
+            TitleBg.Size = UDim2.new(0, 0, 0, 14)
+            TitleBg.Position = UDim2.new(0, 14, 0.5, -7)
+            TitleBg.BackgroundColor3 = Library.Theme.Block
+            TitleBg.BorderSizePixel = 0
+            TitleBg.ZIndex = 16
+            TitleBg.Parent = SectionFrame
+
+            local TitleLbl = Instance.new("TextLabel")
+            TitleLbl.AutomaticSize = Enum.AutomaticSize.X
+            TitleLbl.Size = UDim2.new(0, 0, 1, 0)
+            TitleLbl.BackgroundTransparency = 1
+            TitleLbl.Font = Library.Fonts.Badge
+            TitleLbl.Text = " " .. string.upper(tostring(sectionTitle)) .. " "
+            TitleLbl.TextColor3 = Library.Theme.Accent
+            TitleLbl.TextSize = 8.5
+            TitleLbl.ZIndex = 17
+            TitleLbl.Parent = TitleBg
+
+            return { Frame = SectionFrame }
         end
 
         return GroupObj
@@ -4706,6 +4936,9 @@ function Library:CreateWindow(hubTitle, gameTitle)
         hubStr = hubTitle
     end
 
+    ScreenGui.Enabled = true
+    Container.Visible = true
+    Library.Enabled = true
     Library:SetWatermark(hubStr)
     getOrCreateMainWindow(hubStr)
     return Library
@@ -4736,6 +4969,10 @@ end))
 
 
 function Library:CreateBlock(title, defaultPosition)
+    ScreenGui.Enabled = true
+    Container.Visible = true
+    Library.Enabled = true
+
     local Block = {
         Title = title or "Category",
         Expanded = true,
