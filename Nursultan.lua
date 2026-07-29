@@ -4073,9 +4073,11 @@ function Library:SetTheme(themeName)
     st(UI.PresetTitle, { TextColor3 = t.Accent })
     st(UI.SkyboxCard, { BackgroundColor3 = t.Card })
     st(UI.ApplySkyboxBtn, { BackgroundColor3 = t.Header, TextColor3 = t.Accent })
-    for _, item in ipairs(SkyInputs) do
-        if item.BoxBg then st(item.BoxBg, { BackgroundColor3 = t.Header }) end
-        if item.Input then st(item.Input, { TextColor3 = t.Accent }) end
+    if type(SkyInputs) == "table" then
+        for _, item in ipairs(SkyInputs) do
+            if item and item.BoxBg then st(item.BoxBg, { BackgroundColor3 = t.Header }) end
+            if item and item.Input then st(item.Input, { TextColor3 = t.Accent }) end
+        end
     end
 
     st(UI.RadioCard, { BackgroundColor3 = t.Card })
