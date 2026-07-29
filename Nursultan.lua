@@ -1898,16 +1898,15 @@ ModalPageContainer.Active = true
 ModalPageContainer.ZIndex = 62
 ModalPageContainer.Parent = SettingsModal
 
--- MODAL BLOCKER FOR CONFIG SELECTION DROPDOWN
+-- MODAL BLOCKER FOR CONFIG SELECTION DROPDOWN (Click outside to close)
 local ConfigDropBackdrop = Instance.new("TextButton")
 ConfigDropBackdrop.Name = "ConfigDropBackdrop"
 ConfigDropBackdrop.Size = UDim2.new(1, 0, 1, 0)
 ConfigDropBackdrop.Position = UDim2.new(0, 0, 0, 0)
-ConfigDropBackdrop.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
-ConfigDropBackdrop.BackgroundTransparency = 0.55
+ConfigDropBackdrop.BackgroundTransparency = 1
 ConfigDropBackdrop.Text = ""
 ConfigDropBackdrop.AutoButtonColor = false
-ConfigDropBackdrop.Active = true
+ConfigDropBackdrop.Active = false
 ConfigDropBackdrop.Visible = false
 ConfigDropBackdrop.ZIndex = 490
 ConfigDropBackdrop.Parent = SettingsModal
@@ -4301,17 +4300,18 @@ function Library:CreateBlock(title, defaultPosition)
         Elements = {}
     }
 
-    defaultPosition = defaultPosition or UDim2.new(0.02, #Library.Blocks * 258, 0.06, 0)
+    local blockIndex = #Library.Blocks
+    defaultPosition = defaultPosition or UDim2.new(0.02, blockIndex * 255, 0.08, 0)
     Block.DefaultPos = defaultPosition
 
     local Frame = Instance.new("Frame")
     Frame.Name = title .. "_Block"
-    Frame.Size = UDim2.new(0, 240, 0, 42)
+    Frame.Size = UDim2.new(0, 245, 0, 320)
     Frame.Position = defaultPosition
     Frame.BackgroundColor3 = Library.Theme.Block
     Frame.BackgroundTransparency = 0.04
     Frame.BorderSizePixel = 0
-    Frame.ClipsDescendants = true
+    Frame.ClipsDescendants = false
     Frame.Parent = Container
     Block.Frame = Frame
 
@@ -4422,12 +4422,12 @@ function Library:CreateBlock(title, defaultPosition)
         Content.Size = UDim2.new(1, 0, 0, math.max(30, newH - 38))
     end)
 
-    local MAX_CONTENT_HEIGHT = 420
+    local MAX_CONTENT_HEIGHT = 460
 
     local function updateHeight()
         local elemCount = #Block.Elements
         local layoutHeight = UIListLayout.AbsoluteContentSize.Y
-        local contentH = math.max(layoutHeight, elemCount * 36) + 14
+        local contentH = math.max(layoutHeight, elemCount * 36 + 10) + 10
         Content.CanvasSize = UDim2.new(0, 0, 0, contentH)
         local displayH = math.min(contentH, MAX_CONTENT_HEIGHT)
 
@@ -4439,13 +4439,13 @@ function Library:CreateBlock(title, defaultPosition)
                 ResizeGrip.Visible = true
             else
                 Content.Size = UDim2.new(1, 0, 0, displayH)
-                Frame.Size = UDim2.new(0, 240, 0, 38 + displayH)
+                Frame.Size = UDim2.new(0, 245, 0, 38 + displayH)
                 ResizeGrip.Visible = true
             end
         else
             ResizeGrip.Visible = false
             Content.Size = UDim2.new(1, 0, 0, 0)
-            local currW = Block.CustomResized and Block.CustomWidth or 240
+            local currW = Block.CustomResized and Block.CustomWidth or 245
             Frame.Size = UDim2.new(0, currW, 0, 38)
             Content.Visible = false
         end
