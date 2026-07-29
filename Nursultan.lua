@@ -1772,19 +1772,19 @@ local function updateRadioHUDProperties()
     UI.RadioHUDFrame.Visible = Library.RadioHUDVisible
 end
 
--- Modal Backdrop (Blocks clicks/interactions to background UI when Settings is open)
+-- Modal Backdrop (Blocks clicks/interactions behind Settings Modal when open)
 local ModalBackdrop = Instance.new("TextButton")
 ModalBackdrop.Name = "ModalBackdrop"
 ModalBackdrop.Size = UDim2.new(1, 0, 1, 0)
 ModalBackdrop.Position = UDim2.new(0, 0, 0, 0)
 ModalBackdrop.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
-ModalBackdrop.BackgroundTransparency = 1
+ModalBackdrop.BackgroundTransparency = 0.55
 ModalBackdrop.Visible = false
 ModalBackdrop.Text = ""
 ModalBackdrop.AutoButtonColor = false
-ModalBackdrop.Active = true
-ModalBackdrop.Modal = true -- CRITICAL: Unlocks mouse & blocks click-through to UI elements behind modal!
-ModalBackdrop.ZIndex = 50
+ModalBackdrop.Active = false
+ModalBackdrop.Modal = false
+ModalBackdrop.ZIndex = 5
 ModalBackdrop.Parent = ScreenGui
 UI.ModalBackdrop = ModalBackdrop
 
@@ -4304,7 +4304,7 @@ function Library:CreateBlock(title, defaultPosition)
     defaultPosition = defaultPosition or UDim2.new(0.02, blockIndex * 255, 0.08, 0)
     Block.DefaultPos = defaultPosition
 
-    -- Direct Parent to ScreenGui for 100% guaranteed rendering
+    -- Direct Parent to ScreenGui with High ZIndex (10) for 100% guaranteed rendering on top layer
     local Frame = Instance.new("Frame")
     Frame.Name = title .. "_Block"
     Frame.Size = UDim2.new(0, 245, 0, 360)
@@ -4314,6 +4314,7 @@ function Library:CreateBlock(title, defaultPosition)
     Frame.BorderSizePixel = 0
     Frame.ClipsDescendants = false
     Frame.Visible = Library.Enabled
+    Frame.ZIndex = 10
     Frame.Parent = ScreenGui
     Block.Frame = Frame
 
@@ -4333,6 +4334,7 @@ function Library:CreateBlock(title, defaultPosition)
     Header.BackgroundColor3 = Library.Theme.Header
     Header.BackgroundTransparency = 0.08
     Header.BorderSizePixel = 0
+    Header.ZIndex = 11
     Header.Parent = Frame
     Block.Header = Header
     addCorner(Header, 8)
@@ -4342,6 +4344,7 @@ function Library:CreateBlock(title, defaultPosition)
     Dot.Position = UDim2.new(0, 12, 0.5, -3)
     Dot.BackgroundColor3 = Library.Theme.Accent
     Dot.BorderSizePixel = 0
+    Dot.ZIndex = 12
     Dot.Parent = Header
     Block.Dot = Dot
 
@@ -4354,6 +4357,7 @@ function Library:CreateBlock(title, defaultPosition)
     TitleLabel.TextColor3 = Library.Theme.Text
     TitleLabel.TextSize = 12
     TitleLabel.TextXAlignment = Enum.TextXAlignment.Left
+    TitleLabel.ZIndex = 12
     TitleLabel.Parent = Header
     Block.TitleLabel = TitleLabel
 
@@ -4365,6 +4369,7 @@ function Library:CreateBlock(title, defaultPosition)
     CollapseBtn.Text = "-"
     CollapseBtn.TextColor3 = Library.Theme.TextDim
     CollapseBtn.TextSize = 15
+    CollapseBtn.ZIndex = 12
     CollapseBtn.Parent = Header
 
     local Content = Instance.new("ScrollingFrame")
@@ -4379,6 +4384,7 @@ function Library:CreateBlock(title, defaultPosition)
     Content.ScrollBarImageColor3 = Library.Theme.Accent
     Content.CanvasSize = UDim2.new(0, 0, 0, 0)
     Content.AutomaticCanvasSize = Enum.AutomaticSize.Y
+    Content.ZIndex = 11
     Content.Parent = Frame
     Block.Content = Content
 
