@@ -992,9 +992,11 @@ local function makeResizable(targetFrame, gripBtn, minW, minH, maxW, maxH, onRes
     end))
 end
 
-local function makeScalable(targetFrame, uiScaleElem, gripBtn, minScale, maxScale)
-    minScale = minScale or 0.50
-    maxScale = maxScale or 1.60
+local function makeScalable(targetFrame, uiScaleElem, gripBtn, baseW, baseH, minScale, maxScale)
+    baseW = baseW or (targetFrame.Size.X.Offset > 0 and targetFrame.Size.X.Offset or 260)
+    baseH = baseH or (targetFrame.Size.Y.Offset > 0 and targetFrame.Size.Y.Offset or 165)
+    minScale = minScale or 0.35
+    maxScale = maxScale or 1.80
 
     local isScaling = false
     local startMousePos = nil
@@ -1011,8 +1013,9 @@ local function makeScalable(targetFrame, uiScaleElem, gripBtn, minScale, maxScal
     trackConnection(UserInputService.InputChanged:Connect(function(input)
         if isScaling and (input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch) then
             local delta = input.Position - startMousePos
-            local scaleChange = (delta.X + delta.Y) / 300
-            local newScale = math.clamp(startScale + scaleChange, minScale, maxScale)
+            local scaleDelta = (delta.X + delta.Y) / (baseW + baseH)
+            local newScale = math.clamp(startScale + scaleDelta, minScale, maxScale)
+            targetFrame.Size = UDim2.new(0, baseW, 0, baseH)
             uiScaleElem.Scale = newScale
         end
     end))
@@ -1124,8 +1127,8 @@ KeybindResizeGrip.MouseLeave:Connect(function()
     smoothTween(KeybindResizeGrip, DUR_FAST, { TextColor3 = Library.Theme.TextDim })
 end)
 
--- Solid Minimum Boundaries for Keybinds Overlay (Min: 180x36 px)
-makeResizable(KeybindHUDFrame, KeybindResizeGrip, 180, 36, 450, 500)
+-- Vector Anchored Scaling: KeybindHUDFrame (Min Scale: 0.35 | Max Scale: 1.80)
+makeScalable(KeybindHUDFrame, KeybindHUDUIScale, KeybindResizeGrip, 230, 32, 0.35, 1.80)
 
 function Library:RefreshKeybindHUD()
     for _, child in ipairs(HUDListHolder:GetChildren()) do
@@ -1341,8 +1344,8 @@ RadioResizeGrip.MouseLeave:Connect(function()
     smoothTween(RadioResizeGrip, DUR_FAST, { TextColor3 = Library.Theme.TextDim })
 end)
 
--- Solid Minimum Boundaries for Radio Player (Min: 220x140 px)
-makeResizable(RadioHUDFrame, RadioResizeGrip, 220, 140, 500, 350)
+-- Vector Anchored Scaling: RadioHUDFrame (Min Scale: 0.35 | Max Scale: 1.80)
+makeScalable(RadioHUDFrame, RadioHUDUIScale, RadioResizeGrip, 260, 165, 0.35, 1.80)
 
 local HUDSoundInputBg = Instance.new("Frame")
 HUDSoundInputBg.Size = UDim2.new(1, -16, 0, 26)
