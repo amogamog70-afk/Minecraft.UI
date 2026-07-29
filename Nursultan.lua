@@ -527,9 +527,21 @@ if not ParentContainer then
     pcall(function() ParentContainer = CoreGui end)
 end
 
-if ParentContainer:FindFirstChild("NursultanGUI") then
-    ParentContainer.NursultanGUI:Destroy()
-end
+pcall(function()
+    if gethui and gethui():FindFirstChild("NursultanGUI") then
+        gethui().NursultanGUI:Destroy()
+    end
+end)
+pcall(function()
+    if Players.LocalPlayer and Players.LocalPlayer:FindFirstChild("PlayerGui") and Players.LocalPlayer.PlayerGui:FindFirstChild("NursultanGUI") then
+        Players.LocalPlayer.PlayerGui.NursultanGUI:Destroy()
+    end
+end)
+pcall(function()
+    if CoreGui and CoreGui:FindFirstChild("NursultanGUI") then
+        CoreGui.NursultanGUI:Destroy()
+    end
+end)
 if Lighting:FindFirstChild("NursultanMenuBlur") then
     Lighting.NursultanMenuBlur:Destroy()
 end
@@ -1757,10 +1769,7 @@ end
 local function updateRadioHUDProperties()
     if not UI or not UI.RadioHUDFrame then return end
     UI.RadioHUDFrame.BackgroundTransparency = (Library.RadioHUDTransparency or 0) / 100
-    UI.RadioHUDFrame.Visible = Library.RadioHUDVisible and Library.Enabled
-
-    local scaleVal = math.clamp((Library.RadioHUDScale or 100) / 100, 0.60, 1.40)
-    if RadioHUDUIScale then RadioHUDUIScale.Scale = scaleVal end
+    UI.RadioHUDFrame.Visible = Library.RadioHUDVisible
 end
 
 -- Modal Backdrop (Blocks clicks/interactions to background UI when Settings is open)
@@ -4216,6 +4225,9 @@ function Library:SetVisible(visible)
                 end
                 f.BackgroundTransparency = 0.04
                 if blockData.Stroke then blockData.Stroke.Transparency = 0.3 end
+                if blockData.UpdateHeight then
+                    pcall(blockData.UpdateHeight)
+                end
             end
         end
     else
@@ -4411,35 +4423,34 @@ function Library:CreateBlock(title, defaultPosition)
     end)
 
     local MAX_CONTENT_HEIGHT = 420
-    local updateHeightTask = nil
 
     local function updateHeight()
-        if updateHeightTask then task.cancel(updateHeightTask) end
-        updateHeightTask = task.defer(function()
-            local totalContentHeight = UIListLayout.AbsoluteContentSize.Y + 14
-            Content.CanvasSize = UDim2.new(0, 0, 0, totalContentHeight)
-            local displayContentHeight = math.min(totalContentHeight, MAX_CONTENT_HEIGHT)
+        local elemCount = #Block.Elements
+        local layoutHeight = UIListLayout.AbsoluteContentSize.Y
+        local contentH = math.max(layoutHeight, elemCount * 36) + 14
+        Content.CanvasSize = UDim2.new(0, 0, 0, contentH)
+        local displayH = math.min(contentH, MAX_CONTENT_HEIGHT)
 
-            if Block.Expanded then
-                Content.Visible = true
-                if Block.CustomResized and Block.CustomWidth and Block.CustomHeight then
-                    Content.Size = UDim2.new(1, 0, 0, math.max(30, Block.CustomHeight - 38))
-                    Frame.Size = UDim2.new(0, Block.CustomWidth, 0, Block.CustomHeight)
-                    ResizeGrip.Visible = true
-                else
-                    Content.Size = UDim2.new(1, 0, 0, displayContentHeight)
-                    Frame.Size = UDim2.new(0, 240, 0, 38 + displayContentHeight)
-                    ResizeGrip.Visible = true
-                end
+        if Block.Expanded then
+            Content.Visible = true
+            if Block.CustomResized and Block.CustomWidth and Block.CustomHeight then
+                Content.Size = UDim2.new(1, 0, 0, math.max(30, Block.CustomHeight - 38))
+                Frame.Size = UDim2.new(0, Block.CustomWidth, 0, Block.CustomHeight)
+                ResizeGrip.Visible = true
             else
-                ResizeGrip.Visible = false
-                Content.Size = UDim2.new(1, 0, 0, 0)
-                local currW = Block.CustomResized and Block.CustomWidth or 240
-                Frame.Size = UDim2.new(0, currW, 0, 38)
-                Content.Visible = false
+                Content.Size = UDim2.new(1, 0, 0, displayH)
+                Frame.Size = UDim2.new(0, 240, 0, 38 + displayH)
+                ResizeGrip.Visible = true
             end
-        end)
+        else
+            ResizeGrip.Visible = false
+            Content.Size = UDim2.new(1, 0, 0, 0)
+            local currW = Block.CustomResized and Block.CustomWidth or 240
+            Frame.Size = UDim2.new(0, currW, 0, 38)
+            Content.Visible = false
+        end
     end
+    Block.UpdateHeight = updateHeight
 
     UIListLayout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(updateHeight)
 
