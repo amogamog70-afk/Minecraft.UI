@@ -994,9 +994,9 @@ end
 
 local function makeScalable(targetFrame, uiScaleElem, gripBtn, baseW, baseH, minScale, maxScale)
     baseW = baseW or (targetFrame.Size.X.Offset > 0 and targetFrame.Size.X.Offset or 260)
-    baseH = baseH or (targetFrame.Size.Y.Offset > 0 and targetFrame.Size.Y.Offset or 165)
-    minScale = minScale or 0.35
-    maxScale = maxScale or 1.80
+    baseH = baseH or (targetFrame.Size.Y.Offset > 0 and targetFrame.Size.Y.Offset or 168)
+    minScale = minScale or 0.60
+    maxScale = maxScale or 1.40
 
     local isScaling = false
     local startMousePos = nil
@@ -1013,7 +1013,7 @@ local function makeScalable(targetFrame, uiScaleElem, gripBtn, baseW, baseH, min
     trackConnection(UserInputService.InputChanged:Connect(function(input)
         if isScaling and (input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch) then
             local delta = input.Position - startMousePos
-            local scaleDelta = (delta.X + delta.Y) / (baseW + baseH)
+            local scaleDelta = (delta.X + delta.Y) / 250
             local newScale = math.clamp(startScale + scaleDelta, minScale, maxScale)
             targetFrame.Size = UDim2.new(0, baseW, 0, baseH)
             uiScaleElem.Scale = newScale
@@ -1036,7 +1036,7 @@ KeybindHUDFrame.Position = UDim2.new(1, -245, 0.35, 0)
 KeybindHUDFrame.BackgroundColor3 = Library.Theme.Block
 KeybindHUDFrame.BackgroundTransparency = 0.06
 KeybindHUDFrame.BorderSizePixel = 0
-KeybindHUDFrame.ClipsDescendants = true
+KeybindHUDFrame.ClipsDescendants = false
 KeybindHUDFrame.Parent = ScreenGui
 UI.KeybindHUDFrame = KeybindHUDFrame
 
@@ -1127,8 +1127,8 @@ KeybindResizeGrip.MouseLeave:Connect(function()
     smoothTween(KeybindResizeGrip, DUR_FAST, { TextColor3 = Library.Theme.TextDim })
 end)
 
--- Vector Anchored Scaling: KeybindHUDFrame (Min Scale: 0.35 | Max Scale: 1.80)
-makeScalable(KeybindHUDFrame, KeybindHUDUIScale, KeybindResizeGrip, 230, 32, 0.35, 1.80)
+-- Vector Anchored Scaling: KeybindHUDFrame (Min Scale: 0.60 | Max Scale: 1.40)
+makeScalable(KeybindHUDFrame, KeybindHUDUIScale, KeybindResizeGrip, 230, 32, 0.60, 1.40)
 
 function Library:RefreshKeybindHUD()
     for _, child in ipairs(HUDListHolder:GetChildren()) do
@@ -1224,7 +1224,7 @@ RadioHUDFrame.Position = UDim2.new(1, -270, 1, -180)
 RadioHUDFrame.BackgroundColor3 = Library.Theme.Block
 RadioHUDFrame.BackgroundTransparency = 0.06
 RadioHUDFrame.BorderSizePixel = 0
-RadioHUDFrame.ClipsDescendants = true
+RadioHUDFrame.ClipsDescendants = false
 RadioHUDFrame.Parent = ScreenGui
 UI.RadioHUDFrame = RadioHUDFrame
 
@@ -1344,8 +1344,8 @@ RadioResizeGrip.MouseLeave:Connect(function()
     smoothTween(RadioResizeGrip, DUR_FAST, { TextColor3 = Library.Theme.TextDim })
 end)
 
--- Vector Anchored Scaling: RadioHUDFrame (Min Scale: 0.35 | Max Scale: 1.80)
-makeScalable(RadioHUDFrame, RadioHUDUIScale, RadioResizeGrip, 260, 165, 0.35, 1.80)
+-- Vector Anchored Scaling: RadioHUDFrame (Min Scale: 0.60 | Max Scale: 1.40)
+makeScalable(RadioHUDFrame, RadioHUDUIScale, RadioResizeGrip, 260, 168, 0.60, 1.40)
 
 local HUDSoundInputBg = Instance.new("Frame")
 HUDSoundInputBg.Size = UDim2.new(1, -16, 0, 26)
