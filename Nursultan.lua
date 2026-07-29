@@ -1036,7 +1036,7 @@ KeybindHUDFrame.Position = UDim2.new(1, -245, 0.35, 0)
 KeybindHUDFrame.BackgroundColor3 = Library.Theme.Block
 KeybindHUDFrame.BackgroundTransparency = 0.06
 KeybindHUDFrame.BorderSizePixel = 0
-KeybindHUDFrame.ClipsDescendants = false
+KeybindHUDFrame.ClipsDescendants = true
 KeybindHUDFrame.Parent = ScreenGui
 UI.KeybindHUDFrame = KeybindHUDFrame
 
@@ -1127,8 +1127,8 @@ KeybindResizeGrip.MouseLeave:Connect(function()
     smoothTween(KeybindResizeGrip, DUR_FAST, { TextColor3 = Library.Theme.TextDim })
 end)
 
--- Vector Anchored Scaling: KeybindHUDFrame (Min Scale: 0.60 | Max Scale: 1.40)
-makeScalable(KeybindHUDFrame, KeybindHUDUIScale, KeybindResizeGrip, 230, 32, 0.60, 1.40)
+-- Classic Resizing for Keybinds Overlay
+makeResizable(KeybindHUDFrame, KeybindResizeGrip, 180, 36, 450, 500)
 
 function Library:RefreshKeybindHUD()
     for _, child in ipairs(HUDListHolder:GetChildren()) do
