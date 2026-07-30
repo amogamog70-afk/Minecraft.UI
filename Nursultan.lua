@@ -1175,7 +1175,11 @@ KeybindResizeGrip.MouseLeave:Connect(function()
 end)
 
 -- Classic Resizing for Keybinds Overlay
-makeResizable(KeybindHUDFrame, KeybindResizeGrip, 180, 36, 450, 500)
+makeResizable(KeybindHUDFrame, KeybindResizeGrip, 180, 36, 450, 500, function(newW, newH)
+    KeybindHUDFrame.CustomWidth = newW
+    KeybindHUDFrame.CustomHeight = newH
+    KeybindHUDFrame.UserResized = true
+end)
 
 function Library:RefreshKeybindHUD()
     for _, child in ipairs(HUDListHolder:GetChildren()) do
@@ -1264,7 +1268,15 @@ function Library:RefreshKeybindHUD()
 
     local listHeight = HUDListLayout.AbsoluteContentSize.Y
     HUDListHolder.Size = UDim2.new(1, -12, 0, listHeight)
-    smoothTween(KeybindHUDFrame, DUR_NORMAL, { Size = UDim2.new(0, 230, 0, 42 + listHeight) })
+
+    local targetW = KeybindHUDFrame.CustomWidth or KeybindHUDFrame.Size.X.Offset
+    if targetW <= 0 then targetW = 230 end
+
+    local minReqH = 42 + listHeight
+    local targetH = KeybindHUDFrame.UserResized and (KeybindHUDFrame.CustomHeight or KeybindHUDFrame.Size.Y.Offset) or minReqH
+    if targetH < minReqH then targetH = minReqH end
+
+    smoothTween(KeybindHUDFrame, DUR_NORMAL, { Size = UDim2.new(0, targetW, 0, targetH) })
 end
 
 local RadioHUDFrame = Instance.new("Frame")
