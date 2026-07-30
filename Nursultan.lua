@@ -1238,18 +1238,23 @@ function Library:RefreshKeybindHUD()
         local Badge = Instance.new("TextLabel")
         Badge.Size = UDim2.new(0, 95, 0, 18)
         Badge.Position = UDim2.new(1, -98, 0.5, -9)
-        Badge.BackgroundColor3 = isActive and Library.Theme.Accent or Library.Theme.Header
+        Badge.BackgroundColor3 = isActive and Library.Theme.Header or Library.Theme.Block
         Badge.Font = Library.Fonts.Badge
         if modeStr == "Always" or modeStr == "ALWAYS" then
             Badge.Text = "ALWAYS"
         else
             Badge.Text = keyStr .. " [" .. string.upper(tostring(modeStr)) .. "]"
         end
-        Badge.TextColor3 = isActive and Library.Theme.Background or Library.Theme.Accent
+        Badge.TextColor3 = isActive and Library.Theme.Accent or Library.Theme.TextDim
         Badge.TextSize = 8.5
         Badge.BorderSizePixel = 0
         Badge.Parent = Row
         addCorner(Badge, 5)
+
+        local BadgeStroke = Instance.new("UIStroke")
+        BadgeStroke.Color = isActive and Library.Theme.StrokeHover or Library.Theme.Stroke
+        BadgeStroke.Thickness = 1
+        BadgeStroke.Parent = Badge
     end
 
     if totalBinds == 0 then
@@ -1829,9 +1834,9 @@ ModalBackdrop.BackgroundTransparency = 0.55
 ModalBackdrop.Visible = false
 ModalBackdrop.Text = ""
 ModalBackdrop.AutoButtonColor = false
-ModalBackdrop.Active = false
-ModalBackdrop.Modal = false
-ModalBackdrop.ZIndex = 5
+ModalBackdrop.Active = true
+ModalBackdrop.Modal = true
+ModalBackdrop.ZIndex = 50
 ModalBackdrop.Parent = ScreenGui
 UI.ModalBackdrop = ModalBackdrop
 
@@ -4046,9 +4051,14 @@ function Library:SetTheme(themeName)
                 local isSelected = (string.upper(tostring(name)) == string.upper(tostring(block.ActiveSubTab or "")))
                 st(subData.Button, {
                     BackgroundColor3 = isSelected and t.Header or t.Block,
-                    TextColor3 = isSelected and t.Accent or t.TextDim
+                    TextColor3 = isSelected and Color3.fromRGB(225, 235, 250) or Color3.fromRGB(130, 142, 160)
                 })
-                if subData.Stroke then st(subData.Stroke, { Color = isSelected and t.StrokeActive or t.Stroke }) end
+                if subData.Stroke then
+                    st(subData.Stroke, {
+                        Color = isSelected and Color3.fromRGB(90, 110, 140) or t.Stroke,
+                        Transparency = isSelected and 0.2 or 0.6
+                    })
+                end
             end
         end
 
@@ -4275,6 +4285,9 @@ function Library:SetTheme(themeName)
 end
 
 function Library:SetVisible(visible)
+    if not visible and SettingsModal and SettingsModal.Visible then
+        return
+    end
     Library.Enabled = visible
     ScreenGui.Enabled = true
     if GearBtnFrame then GearBtnFrame.Visible = visible end
