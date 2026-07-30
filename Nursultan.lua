@@ -299,6 +299,17 @@ local Library = {
             TextDim      = Color3.fromRGB(145, 165, 210)
         }
     },
+    CategoryIcons = {
+        ["COMBAT"]   = "rbxassetid://111457651714934",
+        ["PLAYER"]   = "rbxassetid://93915156103067",
+        ["VISUALS"]  = "rbxassetid://6851126250",
+        ["ESP"]      = "rbxassetid://6851126250",
+        ["WORLD"]    = "rbxassetid://18870359747",
+        ["WOROLD"]   = "rbxassetid://18870359747",
+        ["MOVEMENT"] = "rbxassetid://13587579249",
+        ["SKINS"]    = "rbxassetid://11955919597",
+        ["SPOOFER"]  = "rbxassetid://122540234795087"
+    },
     CurrentThemeName = "Monochrome Slate",
     ToggleKey = Enum.KeyCode.RightShift,
     Blocks = {},
@@ -1092,12 +1103,24 @@ HUDDot.Size = UDim2.new(0, 6, 0, 6)
 HUDDot.Position = UDim2.new(0, 10, 0.5, -3)
 HUDDot.BackgroundColor3 = Library.Theme.Accent
 HUDDot.BorderSizePixel = 0
+HUDDot.Visible = false
 HUDDot.Parent = KeybindHUDHeader
 UI.HUDDot = HUDDot
 
+local HUDIcon = Instance.new("ImageLabel")
+HUDIcon.Name = "HUDIcon"
+HUDIcon.Size = UDim2.new(0, 16, 0, 16)
+HUDIcon.Position = UDim2.new(0, 10, 0.5, -8)
+HUDIcon.BackgroundTransparency = 1
+HUDIcon.Image = "rbxassetid://11710306232"
+HUDIcon.ImageColor3 = Library.Theme.Accent
+HUDIcon.ZIndex = 12
+HUDIcon.Parent = KeybindHUDHeader
+UI.HUDIcon = HUDIcon
+
 local HUDTitle = Instance.new("TextLabel")
-HUDTitle.Size = UDim2.new(1, -50, 1, 0)
-HUDTitle.Position = UDim2.new(0, 22, 0, 0)
+HUDTitle.Size = UDim2.new(1, -60, 1, 0)
+HUDTitle.Position = UDim2.new(0, 32, 0, 0)
 HUDTitle.BackgroundTransparency = 1
 HUDTitle.Font = Library.Fonts.Header
 HUDTitle.Text = "KEYBINDS"
@@ -3852,6 +3875,7 @@ function Library:SetTheme(themeName)
     st(UI.KeybindHUDHeader, { BackgroundColor3 = t.Header })
     st(UI.KeybindHUDStroke, { Color = t.Stroke })
     st(UI.HUDDot, { BackgroundColor3 = t.Accent })
+    st(UI.HUDIcon, { ImageColor3 = t.Accent })
     st(UI.HUDTitle, { TextColor3 = t.Text })
     st(UI.HUDCountLabel, { TextColor3 = t.Accent })
 
@@ -3918,6 +3942,7 @@ function Library:SetTheme(themeName)
         st(block.Header, { BackgroundColor3 = t.Header })
         st(block.TitleLabel, { TextColor3 = t.Text })
         st(block.Dot, { BackgroundColor3 = t.Accent })
+        if block.HeaderIcon then st(block.HeaderIcon, { ImageColor3 = t.Accent }) end
         st(block.Stroke, { Color = t.Stroke })
 
         if block.SubTabButtons then
@@ -4920,6 +4945,9 @@ function Library:CreateBlock(title, defaultPosition)
     Block.Header = Header
     addCorner(Header, 8)
 
+    local upperTitle = string.upper(tostring(title or ""))
+    local matchedIcon = Library.CategoryIcons[upperTitle]
+
     local Dot = Instance.new("Frame")
     Dot.Size = UDim2.new(0, 6, 0, 6)
     Dot.Position = UDim2.new(0, 12, 0.5, -3)
@@ -4929,9 +4957,23 @@ function Library:CreateBlock(title, defaultPosition)
     Dot.Parent = Header
     Block.Dot = Dot
 
+    if matchedIcon then
+        Dot.Visible = false
+        local HeaderIcon = Instance.new("ImageLabel")
+        HeaderIcon.Name = "HeaderIcon"
+        HeaderIcon.Size = UDim2.new(0, 16, 0, 16)
+        HeaderIcon.Position = UDim2.new(0, 10, 0.5, -8)
+        HeaderIcon.BackgroundTransparency = 1
+        HeaderIcon.Image = matchedIcon
+        HeaderIcon.ImageColor3 = Library.Theme.Accent
+        HeaderIcon.ZIndex = 12
+        HeaderIcon.Parent = Header
+        Block.HeaderIcon = HeaderIcon
+    end
+
     local TitleLabel = Instance.new("TextLabel")
     TitleLabel.Size = UDim2.new(1, -65, 1, 0)
-    TitleLabel.Position = UDim2.new(0, 25, 0, 0)
+    TitleLabel.Position = matchedIcon and UDim2.new(0, 32, 0, 0) or UDim2.new(0, 25, 0, 0)
     TitleLabel.BackgroundTransparency = 1
     TitleLabel.Font = Library.Fonts.Header
     TitleLabel.Text = string.upper(title)
