@@ -4277,7 +4277,7 @@ function Library:SetTheme(themeName)
                 smoothTween(elem.Stroke, DUR_NORMAL, { Color = elem.GetState() and t.StrokeHover or t.Stroke })
                 smoothTween(elem.SwitchBg, DUR_NORMAL, { BackgroundColor3 = elem.GetState() and t.Accent or t.Header })
                 smoothTween(elem.Knob, DUR_NORMAL, { BackgroundColor3 = elem.GetState() and t.Background or t.TextDim })
-                smoothTween(elem.Label, DUR_NORMAL, { TextColor3 = elem.GetState() and t.Text or t.TextDim })
+                smoothTween(elem.Label, DUR_NORMAL, { TextColor3 = elem.GetState() and Color3.fromRGB(225, 235, 250) or t.TextDim })
                 if elem.KeyBadgeBtn then smoothTween(elem.KeyBadgeBtn, DUR_NORMAL, { BackgroundColor3 = t.Header, TextColor3 = t.Accent }) end
                 if elem.ModePopup then smoothTween(elem.ModePopup, DUR_NORMAL, { BackgroundColor3 = t.Block }) end
                 if elem.PopupStroke then smoothTween(elem.PopupStroke, DUR_NORMAL, { Color = t.StrokeActive }) end
@@ -4286,19 +4286,19 @@ function Library:SetTheme(themeName)
                 smoothTween(elem.Stroke, DUR_NORMAL, { Color = t.Stroke })
                 smoothTween(elem.Label, DUR_NORMAL, { TextColor3 = t.TextDim })
                 smoothTween(elem.ValBadge, DUR_NORMAL, { BackgroundColor3 = t.Header })
-                smoothTween(elem.ValInput, DUR_NORMAL, { TextColor3 = t.Accent })
+                smoothTween(elem.ValInput, DUR_NORMAL, { TextColor3 = Color3.fromRGB(225, 235, 250) })
                 smoothTween(elem.TrackBg, DUR_NORMAL, { BackgroundColor3 = t.Header })
                 smoothTween(elem.Fill, DUR_NORMAL, { BackgroundColor3 = t.Accent })
                 smoothTween(elem.Handle, DUR_NORMAL, { BackgroundColor3 = t.Accent })
             elseif elem.Type == "Button" then
-                smoothTween(elem.Frame, DUR_NORMAL, { BackgroundColor3 = t.Card, TextColor3 = t.Text })
+                smoothTween(elem.Frame, DUR_NORMAL, { BackgroundColor3 = t.Card, TextColor3 = Color3.fromRGB(225, 235, 250) })
                 smoothTween(elem.Stroke, DUR_NORMAL, { Color = t.Stroke })
             elseif elem.Type == "Dropdown" then
                 smoothTween(elem.Frame, DUR_NORMAL, { BackgroundColor3 = t.Card })
                 smoothTween(elem.Stroke, DUR_NORMAL, { Color = t.Stroke })
                 smoothTween(elem.Label, DUR_NORMAL, { TextColor3 = t.TextDim })
-                if elem.SelBadge then smoothTween(elem.SelBadge, DUR_NORMAL, { BackgroundColor3 = t.Header, TextColor3 = t.Accent }) end
-                if elem.DropdownBtn then smoothTween(elem.DropdownBtn, DUR_NORMAL, { BackgroundColor3 = t.Header, TextColor3 = t.Accent }) end
+                if elem.SelBadge then smoothTween(elem.SelBadge, DUR_NORMAL, { BackgroundColor3 = t.Header, TextColor3 = Color3.fromRGB(225, 235, 250) }) end
+                if elem.DropdownBtn then smoothTween(elem.DropdownBtn, DUR_NORMAL, { BackgroundColor3 = t.Header, TextColor3 = Color3.fromRGB(225, 235, 250) }) end
             elseif elem.Type == "Keybind" then
                 smoothTween(elem.Frame, DUR_NORMAL, { BackgroundColor3 = t.Card })
                 smoothTween(elem.Stroke, DUR_NORMAL, { Color = t.Stroke })
@@ -5983,8 +5983,8 @@ function Library:CreateBlock(title, defaultPosition)
         BtnFrame.AutoButtonColor = false
         BtnFrame.Font = Library.Fonts.Label
         BtnFrame.Text = name
-        BtnFrame.TextColor3 = Library.Theme.Text
-        BtnFrame.TextSize = 12
+        BtnFrame.TextColor3 = Color3.fromRGB(225, 235, 250)
+        BtnFrame.TextSize = 10.5
         BtnFrame.Parent = Content
         addCorner(BtnFrame, 6)
 
@@ -6067,10 +6067,10 @@ function Library:CreateBlock(title, defaultPosition)
         local ValInput = Instance.new("TextBox")
         ValInput.Size = UDim2.new(1, 0, 1, 0)
         ValInput.BackgroundTransparency = 1
-        ValInput.Font = Library.Fonts.Badge
+        ValInput.Font = Library.Fonts.Label
         ValInput.Text = tostring(value)
-        ValInput.TextColor3 = Library.Theme.Accent
-        ValInput.TextSize = 11
+        ValInput.TextColor3 = Color3.fromRGB(225, 235, 250)
+        ValInput.TextSize = 10
         ValInput.TextXAlignment = Enum.TextXAlignment.Center
         ValInput.Active = true
         ValInput.Selectable = true
