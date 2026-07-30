@@ -1349,6 +1349,7 @@ HUDPrevBtn.TextColor3 = Library.Theme.Accent
 HUDPrevBtn.TextSize = 9
 HUDPrevBtn.Parent = RadioHeader
 addCorner(HUDPrevBtn, 4)
+UI.HUDPrevBtn = HUDPrevBtn
 
 local HUDNextBtn = Instance.new("TextButton")
 HUDNextBtn.Size = UDim2.new(0, 22, 0, 20)
@@ -1361,6 +1362,7 @@ HUDNextBtn.TextColor3 = Library.Theme.Accent
 HUDNextBtn.TextSize = 9
 HUDNextBtn.Parent = RadioHeader
 addCorner(HUDNextBtn, 4)
+UI.HUDNextBtn = HUDNextBtn
 
 local HUDPlayBtn = Instance.new("TextButton")
 HUDPlayBtn.Size = UDim2.new(0, 58, 0, 20)
@@ -1641,6 +1643,7 @@ local speeds = {
     { Text = "2.0x", Val = 2.0 }
 }
 
+UI.SpeedButtons = {}
 for i, spData in ipairs(speeds) do
     local SpBtn = Instance.new("TextButton")
     SpBtn.Size = UDim2.new(0, 36, 0, 18)
@@ -1652,6 +1655,7 @@ for i, spData in ipairs(speeds) do
     SpBtn.TextColor3 = (spData.Val == RadioSound.PlaybackSpeed) and Library.Theme.Accent or Library.Theme.TextDim
     SpBtn.TextSize = 9
     SpBtn.Parent = SpeedRow
+    UI.SpeedButtons[spData.Val] = SpBtn
 
     SpBtn.MouseButton1Click:Connect(function()
         RadioSound.PlaybackSpeed = spData.Val
@@ -4186,6 +4190,8 @@ function Library:SetTheme(themeName)
     st(UI.RadioHeader, { BackgroundColor3 = t.Header })
     st(UI.MusicIcon, { ImageColor3 = t.Accent })
     st(UI.RHTitle, { TextColor3 = t.Text })
+    st(UI.HUDPrevBtn, { BackgroundColor3 = t.Card, TextColor3 = t.Accent })
+    st(UI.HUDNextBtn, { BackgroundColor3 = t.Card, TextColor3 = t.Accent })
     st(UI.HUDPlayBtn, { BackgroundColor3 = t.Card, TextColor3 = t.Accent })
     st(UI.HUDSoundInputBg, { BackgroundColor3 = t.Header })
     st(UI.HUDSoundInput, { TextColor3 = t.Accent })
@@ -4198,6 +4204,16 @@ function Library:SetTheme(themeName)
     st(UI.VolTrackBg, { BackgroundColor3 = t.Header })
     st(UI.VolFill, { BackgroundColor3 = t.Accent })
     st(UI.VolHandle, { BackgroundColor3 = t.Accent })
+
+    if UI.SpeedButtons then
+        for speedVal, sBtn in pairs(UI.SpeedButtons) do
+            local isSel = (math.abs((RadioSound.PlaybackSpeed or 1.0) - speedVal) < 0.05)
+            st(sBtn, {
+                BackgroundColor3 = isSel and t.Card or t.Header,
+                TextColor3 = isSel and t.Accent or t.TextDim
+            })
+        end
+    end
 
     for _, block in ipairs(Library.Blocks) do
         if block.Frame then smoothTween(block.Frame, DUR_NORMAL, { BackgroundColor3 = t.Block }) end
@@ -4269,7 +4285,8 @@ function Library:SetTheme(themeName)
                 smoothTween(elem.Frame, DUR_NORMAL, { BackgroundColor3 = t.Card })
                 smoothTween(elem.Stroke, DUR_NORMAL, { Color = t.Stroke })
                 smoothTween(elem.Label, DUR_NORMAL, { TextColor3 = t.TextDim })
-                smoothTween(elem.SelBadge, DUR_NORMAL, { BackgroundColor3 = t.Header, TextColor3 = t.Accent })
+                if elem.SelBadge then smoothTween(elem.SelBadge, DUR_NORMAL, { BackgroundColor3 = t.Header, TextColor3 = t.Accent }) end
+                if elem.DropdownBtn then smoothTween(elem.DropdownBtn, DUR_NORMAL, { BackgroundColor3 = t.Header, TextColor3 = t.Accent }) end
             elseif elem.Type == "Keybind" then
                 smoothTween(elem.Frame, DUR_NORMAL, { BackgroundColor3 = t.Card })
                 smoothTween(elem.Stroke, DUR_NORMAL, { Color = t.Stroke })
