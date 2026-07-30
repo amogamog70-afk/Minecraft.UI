@@ -4083,6 +4083,13 @@ function Library:SetTheme(themeName)
     st(UI.PartTexInput, { TextColor3 = t.Accent })
     st(UI.ApplyPartTexBtn, { BackgroundColor3 = t.Header, TextColor3 = t.Accent })
 
+    st(UI.KeybindHUDFrame, { BackgroundColor3 = t.Block })
+    st(UI.KeybindHUDHeader, { BackgroundColor3 = t.Header })
+    st(UI.KeybindHUDStroke, { Color = t.Stroke })
+    st(UI.HUDIcon, { ImageColor3 = t.Accent })
+    st(UI.HUDTitle, { TextColor3 = t.Text })
+    st(UI.HUDCountLabel, { TextColor3 = t.Accent })
+
     st(UI.RadioHUDFrame, { BackgroundColor3 = t.Block })
     st(UI.RadioHUDStroke, { Color = t.Stroke })
     st(UI.RadioHeader, { BackgroundColor3 = t.Header })
