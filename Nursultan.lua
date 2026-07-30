@@ -1799,9 +1799,14 @@ local function updateRadioHUDProperties()
     local alpha = math.clamp((Library.RadioHUDTransparency or 0) / 100, 0, 0.95)
 
     RadioHUDFrame.BackgroundTransparency = math.max(0.06, alpha)
-    RadioHUDHeader.BackgroundTransparency = math.max(0.10, alpha)
+    if RadioHeader then RadioHeader.BackgroundTransparency = math.max(0.10, alpha) end
 
     for _, desc in ipairs(RadioHUDFrame:GetDescendants()) do
+        if desc:IsA("Frame") or desc:IsA("TextButton") or desc:IsA("TextBox") then
+            if desc ~= RadioHUDFrame and desc ~= RadioHeader then
+                desc.BackgroundTransparency = math.max(desc.BackgroundTransparency, alpha)
+            end
+        end
         if desc:IsA("TextLabel") or desc:IsA("TextButton") or desc:IsA("TextBox") then
             desc.TextTransparency = alpha
         end
@@ -4078,6 +4083,24 @@ function Library:SetTheme(themeName)
     st(UI.PartTexInput, { TextColor3 = t.Accent })
     st(UI.ApplyPartTexBtn, { BackgroundColor3 = t.Header, TextColor3 = t.Accent })
 
+    st(UI.RadioHUDFrame, { BackgroundColor3 = t.Block })
+    st(UI.RadioHUDStroke, { Color = t.Stroke })
+    st(UI.RadioHeader, { BackgroundColor3 = t.Header })
+    st(UI.MusicIcon, { ImageColor3 = t.Accent })
+    st(UI.RHTitle, { TextColor3 = t.Text })
+    st(UI.HUDPlayBtn, { BackgroundColor3 = t.Card, TextColor3 = t.Accent })
+    st(UI.HUDSoundInputBg, { BackgroundColor3 = t.Header })
+    st(UI.HUDSoundInput, { TextColor3 = t.Accent })
+    st(UI.RadioTrackLabel, { TextColor3 = t.TextDim })
+    st(UI.SeekTimeLabel, { TextColor3 = t.Accent })
+    st(UI.SeekTrackBg, { BackgroundColor3 = t.Header })
+    st(UI.SeekFill, { BackgroundColor3 = t.Accent })
+    st(UI.SeekHandle, { BackgroundColor3 = t.Accent })
+    st(UI.VolLbl, { TextColor3 = t.Accent })
+    st(UI.VolTrackBg, { BackgroundColor3 = t.Header })
+    st(UI.VolFill, { BackgroundColor3 = t.Accent })
+    st(UI.VolHandle, { BackgroundColor3 = t.Accent })
+
     for _, block in ipairs(Library.Blocks) do
         if block.Frame then smoothTween(block.Frame, DUR_NORMAL, { BackgroundColor3 = t.Block }) end
         if block.Stroke then smoothTween(block.Stroke, DUR_NORMAL, { Color = t.Stroke }) end
@@ -4086,6 +4109,24 @@ function Library:SetTheme(themeName)
         if block.Dot then smoothTween(block.Dot, DUR_NORMAL, { BackgroundColor3 = t.Accent }) end
         if block.TitleLabel then smoothTween(block.TitleLabel, DUR_NORMAL, { TextColor3 = t.Text }) end
         if block.Content then smoothTween(block.Content, DUR_NORMAL, { ScrollBarImageColor3 = t.Accent }) end
+
+        if block.SubTabButtons then
+            for name, data in pairs(block.SubTabButtons) do
+                local sel = (string.upper(tostring(name)) == string.upper(tostring(block.ActiveSubTab or "")))
+                if data.Button then
+                    smoothTween(data.Button, DUR_NORMAL, {
+                        BackgroundColor3 = sel and t.Header or t.Block,
+                        TextColor3 = sel and Color3.fromRGB(225, 235, 250) or Color3.fromRGB(130, 142, 160)
+                    })
+                end
+                if data.Stroke then
+                    smoothTween(data.Stroke, DUR_NORMAL, {
+                        Color = sel and Color3.fromRGB(90, 110, 140) or t.Stroke,
+                        Transparency = sel and 0.2 or 0.6
+                    })
+                end
+            end
+        end
 
         for _, elem in ipairs(block.Elements) do
             if elem.Type == "Section" then
