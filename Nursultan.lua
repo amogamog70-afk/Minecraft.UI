@@ -2114,7 +2114,7 @@ do
     ConfigNameInput.Font = Library.Fonts.Badge
     ConfigNameInput.PlaceholderText = "Config Name (e.g. Rage)..."
     ConfigNameInput.PlaceholderColor3 = Library.Theme.TextDim
-    ConfigNameInput.Text = "default"
+    ConfigNameInput.Text = ""
     ConfigNameInput.TextColor3 = Library.Theme.Accent
     ConfigNameInput.TextSize = 11
     ConfigNameInput.TextXAlignment = Enum.TextXAlignment.Left
@@ -2123,6 +2123,18 @@ do
     ConfigNameInput.ClearTextOnFocus = false
     ConfigNameInput.ZIndex = 25
     ConfigNameInput.Parent = ConfigNameBg
+
+    local ConfigDropBackdrop = Instance.new("TextButton")
+    ConfigDropBackdrop.Name = "ConfigDropBackdrop"
+    ConfigDropBackdrop.Size = UDim2.new(1, 0, 1, 0)
+    ConfigDropBackdrop.Position = UDim2.new(0, 0, 0, 0)
+    ConfigDropBackdrop.BackgroundTransparency = 1
+    ConfigDropBackdrop.Visible = false
+    ConfigDropBackdrop.Text = ""
+    ConfigDropBackdrop.Active = true
+    ConfigDropBackdrop.Modal = true
+    ConfigDropBackdrop.ZIndex = 499
+    ConfigDropBackdrop.Parent = ScreenGui
 
     local SaveCreateBtn = Instance.new("TextButton")
     SaveCreateBtn.Size = UDim2.new(0, 120, 0, 30)
@@ -6420,6 +6432,340 @@ function Library:CreateBlock(title, defaultPosition)
             end
         end))
     end
+    -- 1. MULTI-SELECT COMPONENT
+    function Block:AddMultiSelect(name, options, defaultSelected, callback)
+        options = options or {}
+        defaultSelected = defaultSelected or {}
+        callback = callback or function() end
+
+        local selectedMap = {}
+        if type(defaultSelected) == "table" then
+            for k, v in pairs(defaultSelected) do
+                if type(k) == "number" then
+                    selectedMap[v] = true
+                elseif v == true then
+                    selectedMap[k] = true
+                end
+            end
+        end
+
+        local MultiFrame = Instance.new("Frame")
+        MultiFrame.Name = name .. "_MultiSelect"
+        MultiFrame.Size = UDim2.new(1, 0, 0, 36)
+        MultiFrame.BackgroundColor3 = Library.Theme.Card
+        MultiFrame.BorderSizePixel = 0
+        MultiFrame.ClipsDescendants = true
+        MultiFrame.ZIndex = 5
+        MultiFrame.Parent = Content
+        addCorner(MultiFrame, 6)
+
+        local Stroke = Instance.new("UIStroke")
+        Stroke.Color = Library.Theme.Stroke
+        Stroke.Thickness = 1
+        Stroke.Parent = MultiFrame
+
+        local HeaderBtn = Instance.new("TextButton")
+        HeaderBtn.Size = UDim2.new(1, 0, 0, 36)
+        HeaderBtn.BackgroundTransparency = 1
+        HeaderBtn.Text = ""
+        HeaderBtn.ZIndex = 6
+        HeaderBtn.Parent = MultiFrame
+
+        local Label = Instance.new("TextLabel")
+        Label.Size = UDim2.new(1, -125, 1, 0)
+        Label.Position = UDim2.new(0, 10, 0, 0)
+        Label.BackgroundTransparency = 1
+        Label.Font = Library.Fonts.Label
+        Label.Text = name
+        Label.TextColor3 = Library.Theme.TextDim
+        Label.TextSize = 11
+        Label.TextXAlignment = Enum.TextXAlignment.Left
+        Label.ZIndex = 6
+        Label.Parent = HeaderBtn
+
+        local SelBadge = Instance.new("TextLabel")
+        SelBadge.Size = UDim2.new(0, 110, 0, 20)
+        SelBadge.Position = UDim2.new(1, -115, 0.5, -10)
+        SelBadge.BackgroundColor3 = Library.Theme.Header
+        SelBadge.BorderSizePixel = 0
+        SelBadge.Font = Library.Fonts.Badge
+        SelBadge.Text = "0 Selected"
+        SelBadge.TextColor3 = Library.Theme.Accent
+        SelBadge.TextSize = 9.5
+        SelBadge.ZIndex = 6
+        SelBadge.Parent = HeaderBtn
+        addCorner(SelBadge, 4)
+
+        local OptionContainer = Instance.new("Frame")
+        OptionContainer.Size = UDim2.new(1, -16, 0, 0)
+        OptionContainer.Position = UDim2.new(0, 8, 0, 36)
+        OptionContainer.BackgroundTransparency = 1
+        OptionContainer.ClipsDescendants = true
+        OptionContainer.ZIndex = 7
+        OptionContainer.Parent = MultiFrame
+
+        local OptionLayout = Instance.new("UIListLayout")
+        OptionLayout.SortOrder = Enum.SortOrder.LayoutOrder
+        OptionLayout.Padding = UDim.new(0, 3)
+        OptionLayout.Parent = OptionContainer
+
+        local isOpen = false
+        local function updateBadge()
+            local selectedList = {}
+            for _, opt in ipairs(options) do
+                if selectedMap[opt] then table.insert(selectedList, opt) end
+            end
+            if #selectedList == 0 then
+                SelBadge.Text = "None"
+            elseif #selectedList == 1 then
+                SelBadge.Text = selectedList[1]
+            else
+                SelBadge.Text = #selectedList .. " Selected"
+            end
+            task.spawn(function() pcall(callback, selectedMap, selectedList) end)
+        end
+
+        local function buildOptions()
+            for _, child in ipairs(OptionContainer:GetChildren()) do
+                if child:IsA("TextButton") then child:Destroy() end
+            end
+            for _, opt in ipairs(options) do
+                local OptBtn = Instance.new("TextButton")
+                OptBtn.Size = UDim2.new(1, 0, 0, 22)
+                OptBtn.BackgroundColor3 = selectedMap[opt] and Library.Theme.Header or Library.Theme.Card
+                OptBtn.BorderSizePixel = 0
+                OptBtn.Font = Library.Fonts.Badge
+                OptBtn.Text = (selectedMap[opt] and "[✓] " or "[   ] ") .. opt
+                OptBtn.TextColor3 = selectedMap[opt] and Library.Theme.Accent or Library.Theme.TextDim
+                OptBtn.TextSize = 9.5
+                OptBtn.TextXAlignment = Enum.TextXAlignment.Left
+                OptBtn.ZIndex = 8
+                OptBtn.Parent = OptionContainer
+                addCorner(OptBtn, 4)
+
+                OptBtn.MouseButton1Click:Connect(function()
+                    selectedMap[opt] = not selectedMap[opt]
+                    OptBtn.BackgroundColor3 = selectedMap[opt] and Library.Theme.Header or Library.Theme.Card
+                    OptBtn.Text = (selectedMap[opt] and "[✓] " or "[   ] ") .. opt
+                    OptBtn.TextColor3 = selectedMap[opt] and Library.Theme.Accent or Library.Theme.TextDim
+                    updateBadge()
+                end)
+            end
+        end
+
+        HeaderBtn.MouseButton1Click:Connect(function()
+            isOpen = not isOpen
+            if isOpen then
+                buildOptions()
+                local targetH = 36 + (#options * 25) + 6
+                smoothTween(OptionContainer, DUR_NORMAL, { Size = UDim2.new(1, -16, 0, #options * 25) })
+                smoothTween(MultiFrame, DUR_NORMAL, { Size = UDim2.new(1, 0, 0, targetH) })
+                smoothTween(Stroke, DUR_FAST, { Color = Library.Theme.StrokeActive })
+            else
+                smoothTween(OptionContainer, DUR_NORMAL, { Size = UDim2.new(1, -16, 0, 0) })
+                smoothTween(MultiFrame, DUR_NORMAL, { Size = UDim2.new(1, 0, 0, 36) })
+                smoothTween(Stroke, DUR_FAST, { Color = Library.Theme.Stroke })
+            end
+            updateHeight()
+        end)
+
+        updateBadge()
+        registerElement({
+            Type = "MultiSelect",
+            Frame = MultiFrame,
+            Stroke = Stroke,
+            Label = Label,
+            SelBadge = SelBadge
+        })
+        return {
+            GetSelected = function() return selectedMap end
+        }
+    end
+    Block.AddMultiDropdown = Block.AddMultiSelect
+
+    -- 2. MODERN COLORPIXEL (COLOR PICKER) WITH LEFT / RIGHT POSITIONING
+    function Block:AddColorPixel(name, defaultColor, position, callback)
+        if type(position) == "function" then
+            callback = position
+            position = "right"
+        end
+        position = tostring(position or "right"):lower()
+        defaultColor = defaultColor or Color3.fromRGB(0, 235, 255)
+        callback = callback or function() end
+
+        local currentColor = defaultColor
+
+        local PixelFrame = Instance.new("Frame")
+        PixelFrame.Name = name .. "_ColorPixel"
+        PixelFrame.Size = UDim2.new(1, 0, 0, 32)
+        PixelFrame.BackgroundColor3 = Library.Theme.Card
+        PixelFrame.BorderSizePixel = 0
+        PixelFrame.ZIndex = 5
+        PixelFrame.Parent = Content
+        addCorner(PixelFrame, 6)
+
+        local Stroke = Instance.new("UIStroke")
+        Stroke.Color = Library.Theme.Stroke
+        Stroke.Thickness = 1
+        Stroke.Parent = PixelFrame
+
+        local ColorPreview = Instance.new("TextButton")
+        ColorPreview.Size = UDim2.new(0, 20, 0, 20)
+        if position == "left" then
+            ColorPreview.Position = UDim2.new(0, 8, 0.5, -10)
+        else
+            ColorPreview.Position = UDim2.new(1, -28, 0.5, -10)
+        end
+        ColorPreview.BackgroundColor3 = currentColor
+        ColorPreview.BorderSizePixel = 0
+        ColorPreview.Text = ""
+        ColorPreview.ZIndex = 6
+        ColorPreview.Parent = PixelFrame
+        addCorner(ColorPreview, 6)
+
+        local PreviewStroke = Instance.new("UIStroke")
+        PreviewStroke.Color = Library.Theme.StrokeActive
+        PreviewStroke.Thickness = 1
+        PreviewStroke.Parent = ColorPreview
+
+        local Label = Instance.new("TextLabel")
+        Label.Size = UDim2.new(1, -45, 1, 0)
+        if position == "left" then
+            Label.Position = UDim2.new(0, 34, 0, 0)
+            Label.TextXAlignment = Enum.TextXAlignment.Left
+        else
+            Label.Position = UDim2.new(0, 10, 0, 0)
+            Label.TextXAlignment = Enum.TextXAlignment.Left
+        end
+        Label.BackgroundTransparency = 1
+        Label.Font = Library.Fonts.Label
+        Label.Text = name
+        Label.TextColor3 = Library.Theme.Text
+        Label.TextSize = 10.5
+        Label.ZIndex = 6
+        Label.Parent = PixelFrame
+
+        local swatches = {
+            Color3.fromRGB(255, 60, 60),
+            Color3.fromRGB(60, 255, 120),
+            Color3.fromRGB(60, 160, 255),
+            Color3.fromRGB(255, 220, 60),
+            Color3.fromRGB(220, 80, 255),
+            Color3.fromRGB(255, 120, 220),
+            Color3.fromRGB(255, 255, 255)
+        }
+        local swatchIdx = 1
+
+        ColorPreview.MouseButton1Click:Connect(function()
+            swatchIdx = (swatchIdx % #swatches) + 1
+            currentColor = swatches[swatchIdx]
+            ColorPreview.BackgroundColor3 = currentColor
+            task.spawn(function() pcall(callback, currentColor) end)
+        end)
+
+        registerElement({
+            Type = "ColorPixel",
+            Frame = PixelFrame,
+            Stroke = Stroke,
+            Label = Label,
+            ColorPreview = ColorPreview
+        })
+
+        return {
+            SetColor = function(_, newColor)
+                currentColor = newColor
+                ColorPreview.BackgroundColor3 = currentColor
+                task.spawn(function() pcall(callback, currentColor) end)
+            end,
+            GetColor = function() return currentColor end
+        }
+    end
+    Block.AddColorPicker = Block.AddColorPixel
+
+    -- 3. TEXTBAR (SIMPLE TEXT INPUT)
+    function Block:AddTextBar(name, defaultText, placeholder, callback)
+        if type(placeholder) == "function" then
+            callback = placeholder
+            placeholder = "Enter text..."
+        end
+        defaultText = defaultText or ""
+        placeholder = placeholder or "Enter text..."
+        callback = callback or function() end
+
+        local TextFrame = Instance.new("Frame")
+        TextFrame.Name = name .. "_TextBar"
+        TextFrame.Size = UDim2.new(1, 0, 0, 34)
+        TextFrame.BackgroundColor3 = Library.Theme.Card
+        TextFrame.BorderSizePixel = 0
+        TextFrame.ZIndex = 5
+        TextFrame.Parent = Content
+        addCorner(TextFrame, 6)
+
+        local Stroke = Instance.new("UIStroke")
+        Stroke.Color = Library.Theme.Stroke
+        Stroke.Thickness = 1
+        Stroke.Parent = TextFrame
+
+        local Label = Instance.new("TextLabel")
+        Label.Size = UDim2.new(0.4, 0, 1, 0)
+        Label.Position = UDim2.new(0, 10, 0, 0)
+        Label.BackgroundTransparency = 1
+        Label.Font = Library.Fonts.Label
+        Label.Text = name
+        Label.TextColor3 = Library.Theme.TextDim
+        Label.TextSize = 10.5
+        Label.TextXAlignment = Enum.TextXAlignment.Left
+        Label.ZIndex = 6
+        Label.Parent = TextFrame
+
+        local InputBg = Instance.new("Frame")
+        InputBg.Size = UDim2.new(0.55, -5, 0, 22)
+        InputBg.Position = UDim2.new(0.45, 0, 0.5, -11)
+        InputBg.BackgroundColor3 = Library.Theme.Header
+        InputBg.BorderSizePixel = 0
+        InputBg.ZIndex = 6
+        InputBg.Parent = TextFrame
+        addCorner(InputBg, 4)
+
+        local TextInput = Instance.new("TextBox")
+        TextInput.Size = UDim2.new(1, -8, 1, 0)
+        TextInput.Position = UDim2.new(0, 4, 0, 0)
+        TextInput.BackgroundTransparency = 1
+        TextInput.Font = Library.Fonts.Badge
+        TextInput.PlaceholderText = placeholder
+        TextInput.PlaceholderColor3 = Library.Theme.TextDim
+        TextInput.Text = defaultText
+        TextInput.TextColor3 = Library.Theme.Accent
+        TextInput.TextSize = 10
+        TextInput.TextXAlignment = Enum.TextXAlignment.Left
+        TextInput.ClearTextOnFocus = false
+        TextInput.ZIndex = 7
+        TextInput.Parent = InputBg
+
+        TextInput.FocusLost:Connect(function(enterPressed)
+            task.spawn(function() pcall(callback, TextInput.Text, enterPressed) end)
+        end)
+
+        registerElement({
+            Type = "TextBar",
+            Frame = TextFrame,
+            Stroke = Stroke,
+            Label = Label,
+            InputBg = InputBg,
+            TextInput = TextInput
+        })
+
+        return {
+            SetText = function(_, txt)
+                TextInput.Text = tostring(txt or "")
+                task.spawn(function() pcall(callback, TextInput.Text, false) end)
+            end,
+            GetText = function() return TextInput.Text end
+        }
+    end
+    Block.AddInput = Block.AddTextBar
+    Block.AddTextBox = Block.AddTextBar
+
     function Block:AddSection(sectionTitle, subTab)
         local SectionFrame = Instance.new("Frame")
         SectionFrame.Name = sectionTitle .. "_Section"
