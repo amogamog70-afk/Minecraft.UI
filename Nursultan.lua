@@ -5512,6 +5512,12 @@ function Library:CreateBlock(title, defaultPosition)
             if not state then smoothTween(Label, DUR_FAST, { TextColor3 = Library.Theme.TextDim }) end
         end)
 
+        ToggleBtn.MouseButton1Click:Connect(function()
+            if listening then return end
+            state = not state
+            updateToggle(true)
+        end)
+
         KeyBadgeBtn.MouseButton1Click:Connect(function()
             listening = true
             Library.ListeningKeybind = true
