@@ -1212,7 +1212,7 @@ function Library:RefreshKeybindHUD()
         addCorner(Row, 6)
 
         local RowStroke = Instance.new("UIStroke")
-        RowStroke.Color = isActive and Color3.fromRGB(45, 58, 75) or Library.Theme.Stroke
+        RowStroke.Color = Library.Theme.Stroke
         RowStroke.Thickness = 1
         RowStroke.Parent = Row
 
@@ -1245,16 +1245,11 @@ function Library:RefreshKeybindHUD()
         else
             Badge.Text = keyStr .. " [" .. string.upper(tostring(modeStr)) .. "]"
         end
-        Badge.TextColor3 = isActive and Color3.fromRGB(0, 210, 255) or Library.Theme.TextDim
-        Badge.TextSize = 9
+        Badge.TextColor3 = isActive and Color3.fromRGB(225, 235, 250) or Library.Theme.TextDim
+        Badge.TextSize = 9.5
         Badge.BorderSizePixel = 0
         Badge.Parent = Row
         addCorner(Badge, 5)
-
-        local BadgeStroke = Instance.new("UIStroke")
-        BadgeStroke.Color = isActive and Color3.fromRGB(0, 150, 190) or Library.Theme.Stroke
-        BadgeStroke.Thickness = 1
-        BadgeStroke.Parent = Badge
     end
 
     if totalBinds == 0 then
@@ -5542,8 +5537,8 @@ function Library:CreateBlock(title, defaultPosition)
         KeyBadgeBtn.BorderSizePixel = 0
         KeyBadgeBtn.Font = Library.Fonts.Label
         KeyBadgeBtn.Text = "NONE"
-        KeyBadgeBtn.TextColor3 = Color3.fromRGB(0, 210, 255)
-        KeyBadgeBtn.TextSize = 9
+        KeyBadgeBtn.TextColor3 = Color3.fromRGB(225, 235, 250)
+        KeyBadgeBtn.TextSize = 9.5
         KeyBadgeBtn.ZIndex = 6
         KeyBadgeBtn.Visible = hasKeybind
         KeyBadgeBtn.Parent = ToggleBtn
