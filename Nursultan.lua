@@ -302,8 +302,8 @@ local Library = {
     CategoryIcons = {
         ["COMBAT"]   = "rbxassetid://111457651714934",
         ["PLAYER"]   = "rbxassetid://93915156103067",
-        ["VISUALS"]  = "rbxassetid://6851126250",
-        ["ESP"]      = "rbxassetid://6851126250",
+        ["VISUALS"]  = "rbxassetid://102976018150012",
+        ["ESP"]      = "rbxassetid://102976018150012",
         ["WORLD"]    = "rbxassetid://18870359747",
         ["WOROLD"]   = "rbxassetid://18870359747",
         ["MOVEMENT"] = "rbxassetid://13587579249",
@@ -4091,7 +4091,7 @@ function Library:SetTheme(themeName)
                         local sel = (btnTextUpper == blockTabUpper)
                         smoothTween(btn, DUR_NORMAL, {
                             BackgroundColor3 = sel and t.Block or t.Header,
-                            TextColor3 = sel and t.Accent or t.TextDim
+                            TextColor3 = sel and Color3.fromRGB(225, 235, 250) or Color3.fromRGB(130, 142, 160)
                         })
                     end
                 end
@@ -4157,8 +4157,9 @@ function Library:SetVisible(visible)
             local f = blockData.Frame
             if f then
                 f.Visible = true
-                if blockData.DefaultPos then
+                if blockData.DefaultPos and not blockData.HasBeenShown then
                     f.Position = blockData.DefaultPos
+                    blockData.HasBeenShown = true
                 end
                 if blockData.UpdateHeight then
                     pcall(blockData.UpdateHeight)
@@ -5283,7 +5284,7 @@ function Library:CreateBlock(title, defaultPosition)
     function Block:AddToggle(name, default, callback, defaultKey, defaultMode)
         callback = callback or function() end
         local state = default or false
-        local boundKey = defaultKey or Enum.KeyCode.Unknown
+        local boundInput = defaultKey or Enum.KeyCode.Unknown
         local mode = defaultMode or "Toggle"
         local listening = false
 
@@ -5391,18 +5392,34 @@ function Library:CreateBlock(title, defaultPosition)
         local modes = { "Toggle", "Hold", "Always" }
         local modeBtns = {}
 
+        local function getKeyName(inp)
+            if not inp or inp == Enum.KeyCode.Unknown then return "NONE" end
+            if typeof(inp) == "EnumItem" then
+                if inp.EnumType == Enum.UserInputType then
+                    if inp == Enum.UserInputType.MouseButton1 then return "MB1"
+                    elseif inp == Enum.UserInputType.MouseButton2 then return "MB2"
+                    elseif inp == Enum.UserInputType.MouseButton3 then return "MB3"
+                    else return string.upper(inp.Name) end
+                elseif inp.EnumType == Enum.KeyCode then
+                    return string.upper(inp.Name)
+                end
+            end
+            return "NONE"
+        end
+
         local function updateKeyDisplay()
-            if boundKey == Enum.KeyCode.Unknown and mode ~= "Always" then
+            local keyStr = getKeyName(boundInput)
+            if keyStr == "NONE" and mode ~= "Always" then
                 KeyBadgeBtn.Text = "NONE"
             elseif mode == "Always" then
                 KeyBadgeBtn.Text = "ALWAYS"
             else
-                KeyBadgeBtn.Text = string.upper(boundKey.Name) .. " [" .. string.upper(tostring(mode)) .. "]"
+                KeyBadgeBtn.Text = keyStr .. " [" .. string.upper(tostring(mode)) .. "]"
             end
 
-            if boundKey ~= Enum.KeyCode.Unknown or mode == "Always" then
+            if keyStr ~= "NONE" or mode == "Always" then
                 Library.KeybindList[name] = {
-                    Key = (mode == "Always" and "ALWAYS" or string.upper(boundKey.Name)),
+                    Key = (mode == "Always" and "ALWAYS" or keyStr),
                     Mode = mode,
                     Active = state
                 }
@@ -5479,6 +5496,7 @@ function Library:CreateBlock(title, defaultPosition)
         end)
 
         KeyBadgeBtn.MouseButton1Click:Connect(function()
+            if listening then return end
             listening = true
             Library.ListeningKeybind = true
             KeyBadgeBtn.Text = "..."
@@ -5487,6 +5505,7 @@ function Library:CreateBlock(title, defaultPosition)
         end)
 
         KeyBadgeBtn.MouseButton2Click:Connect(function()
+            if listening then return end
             ModePopup.Visible = not ModePopup.Visible
             if ModePopup.Visible then
                 local btnPos = KeyBadgeBtn.AbsolutePosition
@@ -5511,22 +5530,47 @@ function Library:CreateBlock(title, defaultPosition)
             end
         end))
 
+        local function isInputMatch(inp)
+            if not boundInput or boundInput == Enum.KeyCode.Unknown then return false end
+            if typeof(boundInput) == "EnumItem" then
+                if boundInput.EnumType == Enum.KeyCode then
+                    return inp.UserInputType == Enum.UserInputType.Keyboard and inp.KeyCode == boundInput
+                elseif boundInput.EnumType == Enum.UserInputType then
+                    return inp.UserInputType == boundInput
+                end
+            end
+            return false
+        end
+
         trackConnection(UserInputService.InputBegan:Connect(function(input, gpe)
             if listening then
+                local validBind = nil
                 if input.UserInputType == Enum.UserInputType.Keyboard then
                     if input.KeyCode == Enum.KeyCode.Escape or input.KeyCode == Enum.KeyCode.Backspace then
-                        boundKey = Enum.KeyCode.Unknown
+                        validBind = Enum.KeyCode.Unknown
                     else
-                        boundKey = input.KeyCode
+                        validBind = input.KeyCode
                     end
-                    listening = false
-                    Library.ListeningKeybind = false
+                elseif input.UserInputType == Enum.UserInputType.MouseButton1 then
+                    validBind = Enum.UserInputType.MouseButton1
+                elseif input.UserInputType == Enum.UserInputType.MouseButton2 then
+                    validBind = Enum.UserInputType.MouseButton2
+                elseif input.UserInputType == Enum.UserInputType.MouseButton3 then
+                    validBind = Enum.UserInputType.MouseButton3
+                end
+
+                if validBind ~= nil then
+                    boundInput = validBind
+                    task.delay(0.05, function()
+                        listening = false
+                        Library.ListeningKeybind = false
+                    end)
                     KeyBadgeBtn.TextColor3 = Library.Theme.Accent
                     smoothTween(Stroke, DUR_FAST, { Color = Library.Theme.Stroke })
                     updateKeyDisplay()
                 end
-            elseif not gpe and boundKey ~= Enum.KeyCode.Unknown then
-                if input.UserInputType == Enum.UserInputType.Keyboard and input.KeyCode == boundKey then
+            elseif not gpe and boundInput ~= Enum.KeyCode.Unknown then
+                if isInputMatch(input) then
                     if mode == "Toggle" then
                         state = not state
                         updateToggle(true)
@@ -5539,8 +5583,8 @@ function Library:CreateBlock(title, defaultPosition)
         end))
 
         trackConnection(UserInputService.InputEnded:Connect(function(input, gpe)
-            if not gpe and boundKey ~= Enum.KeyCode.Unknown then
-                if input.UserInputType == Enum.UserInputType.Keyboard and input.KeyCode == boundKey then
+            if not gpe and boundInput ~= Enum.KeyCode.Unknown then
+                if isInputMatch(input) then
                     if mode == "Hold" then
                         state = false
                         updateToggle(true)
