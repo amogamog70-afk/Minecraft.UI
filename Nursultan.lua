@@ -25,12 +25,12 @@ local Library = {
             Card         = Color3.fromRGB(34, 40, 50),
             CardHover    = Color3.fromRGB(48, 58, 72),
             Stroke       = Color3.fromRGB(60, 72, 88),
-            StrokeHover  = Color3.fromRGB(140, 160, 190),
-            StrokeActive = Color3.fromRGB(255, 255, 255),
-            Accent       = Color3.fromRGB(245, 248, 252),
-            AccentDim    = Color3.fromRGB(170, 182, 200),
-            Text         = Color3.fromRGB(255, 255, 255),
-            TextDim      = Color3.fromRGB(150, 160, 180)
+            StrokeHover  = Color3.fromRGB(110, 132, 162),
+            StrokeActive = Color3.fromRGB(175, 198, 225),
+            Accent       = Color3.fromRGB(175, 210, 245),
+            AccentDim    = Color3.fromRGB(135, 162, 195),
+            Text         = Color3.fromRGB(220, 230, 242),
+            TextDim      = Color3.fromRGB(145, 158, 175)
         },
         ["Lavender Mist"] = {
             Background   = Color3.fromRGB(20, 16, 32),
@@ -1206,20 +1206,20 @@ function Library:RefreshKeybindHUD()
 
         local Row = Instance.new("Frame")
         Row.Size = UDim2.new(1, 0, 0, 24)
-        Row.BackgroundColor3 = isActive and Library.Theme.CardHover or Library.Theme.Card
+        Row.BackgroundColor3 = isActive and Color3.fromRGB(26, 32, 42) or Color3.fromRGB(18, 22, 28)
         Row.BorderSizePixel = 0
         Row.Parent = HUDListHolder
         addCorner(Row, 6)
 
         local RowStroke = Instance.new("UIStroke")
-        RowStroke.Color = Library.Theme.Stroke
+        RowStroke.Color = isActive and Color3.fromRGB(48, 62, 82) or Color3.fromRGB(36, 44, 56)
         RowStroke.Thickness = 1
         RowStroke.Parent = Row
 
         local ActiveBar = Instance.new("Frame")
-        ActiveBar.Size = UDim2.new(0, 3, 1, -6)
-        ActiveBar.Position = UDim2.new(0, 3, 0.5, -9)
-        ActiveBar.BackgroundColor3 = isActive and Color3.fromRGB(0, 210, 255) or Library.Theme.Header
+        ActiveBar.Size = UDim2.new(0, 3, 1, -4)
+        ActiveBar.Position = UDim2.new(0, 2, 0.5, -10)
+        ActiveBar.BackgroundColor3 = isActive and Color3.fromRGB(80, 190, 240) or Color3.fromRGB(35, 45, 58)
         ActiveBar.BorderSizePixel = 0
         ActiveBar.Parent = Row
         addCorner(ActiveBar, 2)
@@ -1230,7 +1230,7 @@ function Library:RefreshKeybindHUD()
         NameLbl.BackgroundTransparency = 1
         NameLbl.Font = Library.Fonts.Label
         NameLbl.Text = featName
-        NameLbl.TextColor3 = isActive and Color3.fromRGB(225, 235, 250) or Library.Theme.TextDim
+        NameLbl.TextColor3 = isActive and Color3.fromRGB(220, 230, 242) or Color3.fromRGB(145, 158, 175)
         NameLbl.TextSize = 10.5
         NameLbl.TextXAlignment = Enum.TextXAlignment.Left
         NameLbl.Parent = Row
@@ -1238,18 +1238,23 @@ function Library:RefreshKeybindHUD()
         local Badge = Instance.new("TextLabel")
         Badge.Size = UDim2.new(0, 95, 0, 18)
         Badge.Position = UDim2.new(1, -98, 0.5, -9)
-        Badge.BackgroundColor3 = isActive and Library.Theme.Header or Library.Theme.Block
-        Badge.Font = Library.Fonts.Label
+        Badge.BackgroundColor3 = isActive and Color3.fromRGB(32, 40, 52) or Color3.fromRGB(22, 28, 36)
+        Badge.Font = Library.Fonts.Badge
         if modeStr == "Always" or modeStr == "ALWAYS" then
             Badge.Text = "ALWAYS"
         else
             Badge.Text = keyStr .. " [" .. string.upper(tostring(modeStr)) .. "]"
         end
-        Badge.TextColor3 = isActive and Color3.fromRGB(225, 235, 250) or Library.Theme.TextDim
-        Badge.TextSize = 9.5
+        Badge.TextColor3 = isActive and Color3.fromRGB(180, 205, 235) or Color3.fromRGB(135, 148, 165)
+        Badge.TextSize = 8.5
         Badge.BorderSizePixel = 0
         Badge.Parent = Row
         addCorner(Badge, 5)
+
+        local BadgeStroke = Instance.new("UIStroke")
+        BadgeStroke.Color = isActive and Color3.fromRGB(52, 68, 90) or Color3.fromRGB(32, 40, 52)
+        BadgeStroke.Thickness = 1
+        BadgeStroke.Parent = Badge
     end
 
     if totalBinds == 0 then
@@ -5535,10 +5540,10 @@ function Library:CreateBlock(title, defaultPosition)
         KeyBadgeBtn.Position = UDim2.new(1, -129, 0.5, -9)
         KeyBadgeBtn.BackgroundColor3 = Library.Theme.Header
         KeyBadgeBtn.BorderSizePixel = 0
-        KeyBadgeBtn.Font = Library.Fonts.Label
+        KeyBadgeBtn.Font = Library.Fonts.Badge
         KeyBadgeBtn.Text = "NONE"
-        KeyBadgeBtn.TextColor3 = Color3.fromRGB(225, 235, 250)
-        KeyBadgeBtn.TextSize = 9.5
+        KeyBadgeBtn.TextColor3 = Library.Theme.Accent
+        KeyBadgeBtn.TextSize = 8.5
         KeyBadgeBtn.ZIndex = 6
         KeyBadgeBtn.Visible = hasKeybind
         KeyBadgeBtn.Parent = ToggleBtn
