@@ -6732,6 +6732,8 @@ function Library:CreateBlock(title, defaultPosition)
         CloseBtn.Size = UDim2.new(0, 12, 0, 12)
         CloseBtn.Position = UDim2.new(1, -18, 0.5, -6)
         CloseBtn.BackgroundTransparency = 1
+        CloseBtn.BorderSizePixel = 0
+        CloseBtn.AutoButtonColor = false
         CloseBtn.Image = "rbxassetid://75193153566467"
         CloseBtn.ImageColor3 = Library.Theme.TextDim
         CloseBtn.ZIndex = 604
