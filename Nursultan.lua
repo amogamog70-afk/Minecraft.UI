@@ -1176,9 +1176,9 @@ end)
 
 -- Classic Resizing for Keybinds Overlay
 makeResizable(KeybindHUDFrame, KeybindResizeGrip, 180, 36, 450, 500, function(newW, newH)
-    KeybindHUDFrame.CustomWidth = newW
-    KeybindHUDFrame.CustomHeight = newH
-    KeybindHUDFrame.UserResized = true
+    UI.KeybindHUDCustomWidth = newW
+    UI.KeybindHUDCustomHeight = newH
+    UI.KeybindHUDUserResized = true
 end)
 
 function Library:RefreshKeybindHUD()
@@ -1269,11 +1269,9 @@ function Library:RefreshKeybindHUD()
     local listHeight = HUDListLayout.AbsoluteContentSize.Y
     HUDListHolder.Size = UDim2.new(1, -12, 0, listHeight)
 
-    local targetW = KeybindHUDFrame.CustomWidth or KeybindHUDFrame.Size.X.Offset
-    if targetW <= 0 then targetW = 230 end
-
+    local targetW = UI.KeybindHUDCustomWidth or 230
     local minReqH = 42 + listHeight
-    local targetH = KeybindHUDFrame.UserResized and (KeybindHUDFrame.CustomHeight or KeybindHUDFrame.Size.Y.Offset) or minReqH
+    local targetH = UI.KeybindHUDUserResized and (UI.KeybindHUDCustomHeight or minReqH) or minReqH
     if targetH < minReqH then targetH = minReqH end
 
     smoothTween(KeybindHUDFrame, DUR_NORMAL, { Size = UDim2.new(0, targetW, 0, targetH) })
