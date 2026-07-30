@@ -1212,14 +1212,14 @@ function Library:RefreshKeybindHUD()
         addCorner(Row, 6)
 
         local RowStroke = Instance.new("UIStroke")
-        RowStroke.Color = Library.Theme.Stroke
+        RowStroke.Color = isActive and Color3.fromRGB(45, 58, 75) or Library.Theme.Stroke
         RowStroke.Thickness = 1
         RowStroke.Parent = Row
 
         local ActiveBar = Instance.new("Frame")
         ActiveBar.Size = UDim2.new(0, 3, 1, -6)
         ActiveBar.Position = UDim2.new(0, 3, 0.5, -9)
-        ActiveBar.BackgroundColor3 = isActive and Library.Theme.Accent or Library.Theme.Header
+        ActiveBar.BackgroundColor3 = isActive and Color3.fromRGB(0, 210, 255) or Library.Theme.Header
         ActiveBar.BorderSizePixel = 0
         ActiveBar.Parent = Row
         addCorner(ActiveBar, 2)
@@ -1245,16 +1245,14 @@ function Library:RefreshKeybindHUD()
         else
             Badge.Text = keyStr .. " [" .. string.upper(tostring(modeStr)) .. "]"
         end
-        Badge.TextColor3 = isActive and Color3.fromRGB(225, 235, 250) or Library.Theme.TextDim
+        Badge.TextColor3 = isActive and Color3.fromRGB(0, 210, 255) or Library.Theme.TextDim
         Badge.TextSize = 9
         Badge.BorderSizePixel = 0
         Badge.Parent = Row
         addCorner(Badge, 5)
 
         local BadgeStroke = Instance.new("UIStroke")
-        BadgeStroke.Color = isActive and Library.Theme.Accent or Library.Theme.Stroke
-        BadgeStroke.Thickness = 1
-        BadgeStroke.Parent = Badge
+        BadgeStroke.Color = isActive and Color3.fromRGB(0, 150, 190) or Library.Theme.Stroke
         BadgeStroke.Thickness = 1
         BadgeStroke.Parent = Badge
     end
@@ -5542,10 +5540,10 @@ function Library:CreateBlock(title, defaultPosition)
         KeyBadgeBtn.Position = UDim2.new(1, -129, 0.5, -9)
         KeyBadgeBtn.BackgroundColor3 = Library.Theme.Header
         KeyBadgeBtn.BorderSizePixel = 0
-        KeyBadgeBtn.Font = Library.Fonts.Badge
+        KeyBadgeBtn.Font = Library.Fonts.Label
         KeyBadgeBtn.Text = "NONE"
-        KeyBadgeBtn.TextColor3 = Library.Theme.Accent
-        KeyBadgeBtn.TextSize = 8.5
+        KeyBadgeBtn.TextColor3 = Color3.fromRGB(0, 210, 255)
+        KeyBadgeBtn.TextSize = 9
         KeyBadgeBtn.ZIndex = 6
         KeyBadgeBtn.Visible = hasKeybind
         KeyBadgeBtn.Parent = ToggleBtn
@@ -6692,7 +6690,7 @@ function Library:CreateBlock(title, defaultPosition)
         -- HSV Color Picker Popup Window
         local PickerPopup = Instance.new("Frame")
         PickerPopup.Name = "ColorPicker_" .. name
-        PickerPopup.Size = UDim2.new(0, 210, 0, 185)
+        PickerPopup.Size = UDim2.new(0, 210, 0, 205)
         PickerPopup.BackgroundColor3 = Library.Theme.Block
         PickerPopup.BorderSizePixel = 0
         PickerPopup.Visible = false
@@ -6706,10 +6704,55 @@ function Library:CreateBlock(title, defaultPosition)
         PickerStroke.ZIndex = 601
         PickerStroke.Parent = PickerPopup
 
+        -- Top Integrated Header Bar
+        local PickerHeader = Instance.new("Frame")
+        PickerHeader.Name = "PickerHeader"
+        PickerHeader.Size = UDim2.new(1, 0, 0, 24)
+        PickerHeader.BackgroundColor3 = Library.Theme.Header
+        PickerHeader.BorderSizePixel = 0
+        PickerHeader.ZIndex = 602
+        PickerHeader.Parent = PickerPopup
+        addCorner(PickerHeader, 8)
+
+        local HeaderTitle = Instance.new("TextLabel")
+        HeaderTitle.Size = UDim2.new(1, -30, 1, 0)
+        HeaderTitle.Position = UDim2.new(0, 8, 0, 0)
+        HeaderTitle.BackgroundTransparency = 1
+        HeaderTitle.Font = Library.Fonts.Badge
+        HeaderTitle.Text = "COLOR PICKER"
+        HeaderTitle.TextColor3 = Library.Theme.TextDim
+        HeaderTitle.TextSize = 9
+        HeaderTitle.TextXAlignment = Enum.TextXAlignment.Left
+        HeaderTitle.ZIndex = 603
+        HeaderTitle.Parent = PickerHeader
+
+        -- Built-in Header Close Button (X)
+        local CloseBtn = Instance.new("TextButton")
+        CloseBtn.Name = "CloseBtn"
+        CloseBtn.Size = UDim2.new(0, 24, 1, 0)
+        CloseBtn.Position = UDim2.new(1, -24, 0, 0)
+        CloseBtn.BackgroundTransparency = 1
+        CloseBtn.Font = Library.Fonts.Badge
+        CloseBtn.Text = "✕"
+        CloseBtn.TextColor3 = Library.Theme.TextDim
+        CloseBtn.TextSize = 11
+        CloseBtn.ZIndex = 604
+        CloseBtn.Parent = PickerHeader
+
+        CloseBtn.MouseEnter:Connect(function()
+            smoothTween(CloseBtn, DUR_FAST, { TextColor3 = Color3.fromRGB(255, 80, 80) })
+        end)
+        CloseBtn.MouseLeave:Connect(function()
+            smoothTween(CloseBtn, DUR_FAST, { TextColor3 = Library.Theme.TextDim })
+        end)
+        CloseBtn.MouseButton1Click:Connect(function()
+            PickerPopup.Visible = false
+        end)
+
         -- Saturation/Value Main Box Canvas
         local SatValBox = Instance.new("ImageLabel")
         SatValBox.Size = UDim2.new(0, 155, 0, 125)
-        SatValBox.Position = UDim2.new(0, 8, 0, 8)
+        SatValBox.Position = UDim2.new(0, 8, 0, 30)
         SatValBox.BackgroundColor3 = Color3.fromHSV(h, 1, 1)
         SatValBox.BorderSizePixel = 0
         SatValBox.Image = "rbxassetid://4155801252"
@@ -6733,7 +6776,7 @@ function Library:CreateBlock(title, defaultPosition)
         -- Vertical Rainbow Hue Slider (Right Bar)
         local HueBar = Instance.new("Frame")
         HueBar.Size = UDim2.new(0, 24, 0, 125)
-        HueBar.Position = UDim2.new(0, 172, 0, 8)
+        HueBar.Position = UDim2.new(0, 172, 0, 30)
         HueBar.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
         HueBar.BorderSizePixel = 0
         HueBar.ZIndex = 602
@@ -6765,7 +6808,7 @@ function Library:CreateBlock(title, defaultPosition)
         -- Bottom Value / Brightness Bar
         local ValBar = Instance.new("Frame")
         ValBar.Size = UDim2.new(0, 155, 0, 18)
-        ValBar.Position = UDim2.new(0, 8, 0, 140)
+        ValBar.Position = UDim2.new(0, 8, 0, 160)
         ValBar.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
         ValBar.BorderSizePixel = 0
         ValBar.ZIndex = 602
@@ -6792,7 +6835,7 @@ function Library:CreateBlock(title, defaultPosition)
         -- Live Hex Text Input Box & Small Preview Badge
         local HexBoxBg = Instance.new("Frame")
         HexBoxBg.Size = UDim2.new(0, 155, 0, 18)
-        HexBoxBg.Position = UDim2.new(0, 8, 0, 162)
+        HexBoxBg.Position = UDim2.new(0, 8, 0, 180)
         HexBoxBg.BackgroundColor3 = Library.Theme.Header
         HexBoxBg.BorderSizePixel = 0
         HexBoxBg.ZIndex = 602
@@ -6812,8 +6855,8 @@ function Library:CreateBlock(title, defaultPosition)
         HexInput.Parent = HexBoxBg
 
         local PickerPreview = Instance.new("Frame")
-        PickerPreview.Size = UDim2.new(0, 24, 0, 40)
-        PickerPreview.Position = UDim2.new(0, 172, 0, 140)
+        PickerPreview.Size = UDim2.new(0, 24, 0, 38)
+        PickerPreview.Position = UDim2.new(0, 172, 0, 160)
         PickerPreview.BackgroundColor3 = currentColor
         PickerPreview.BorderSizePixel = 0
         PickerPreview.ZIndex = 602
