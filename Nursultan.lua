@@ -1766,12 +1766,9 @@ local function updateRadioHUDProperties()
     local alpha = math.clamp((Library.RadioHUDTransparency or 0) / 100, 0, 0.95)
 
     RadioHUDFrame.BackgroundTransparency = math.max(0.06, alpha)
+    RadioHUDHeader.BackgroundTransparency = math.max(0.10, alpha)
+
     for _, desc in ipairs(RadioHUDFrame:GetDescendants()) do
-        if desc:IsA("Frame") or desc:IsA("TextButton") or desc:IsA("TextBox") then
-            if desc ~= RadioHUDFrame then
-                desc.BackgroundTransparency = math.max(alpha, 0.1)
-            end
-        end
         if desc:IsA("TextLabel") or desc:IsA("TextButton") or desc:IsA("TextBox") then
             desc.TextTransparency = alpha
         end
@@ -5272,8 +5269,10 @@ function Library:CreateBlock(title, defaultPosition)
             smoothTween(Stroke, DUR_FAST, { Color = Library.Theme.Stroke })
         end)
 
+        ToggleBtn.ClipsDescendants = true
+
         local Label = Instance.new("TextLabel")
-        Label.Size = UDim2.new(1, -142, 1, 0)
+        Label.Size = UDim2.new(1, -135, 1, 0)
         Label.Position = UDim2.new(0, 10, 0, 0)
         Label.BackgroundTransparency = 1
         Label.Font = Library.Fonts.Label
@@ -5281,6 +5280,7 @@ function Library:CreateBlock(title, defaultPosition)
         Label.TextColor3 = state and Library.Theme.Text or Library.Theme.TextDim
         Label.TextSize = 11.5
         Label.TextXAlignment = Enum.TextXAlignment.Left
+        Label.TextTruncate = Enum.TextTruncate.AtEnd
         Label.Parent = ToggleBtn
 
         local KeyBadgeBtn = Instance.new("TextButton")
