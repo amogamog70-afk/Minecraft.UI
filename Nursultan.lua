@@ -6726,24 +6726,41 @@ function Library:CreateBlock(title, defaultPosition)
         HeaderTitle.ZIndex = 603
         HeaderTitle.Parent = PickerHeader
 
-        -- Built-in Header Close Button (X Image Icon)
-        local CloseBtn = Instance.new("ImageButton")
+        -- Built-in Header Close Button (Vector Cross)
+        local CloseBtn = Instance.new("TextButton")
         CloseBtn.Name = "CloseBtn"
-        CloseBtn.Size = UDim2.new(0, 12, 0, 12)
-        CloseBtn.Position = UDim2.new(1, -18, 0.5, -6)
+        CloseBtn.Size = UDim2.new(0, 16, 0, 16)
+        CloseBtn.Position = UDim2.new(1, -20, 0.5, -8)
         CloseBtn.BackgroundTransparency = 1
-        CloseBtn.BorderSizePixel = 0
-        CloseBtn.AutoButtonColor = false
-        CloseBtn.Image = "rbxassetid://75193153566467"
-        CloseBtn.ImageColor3 = Library.Theme.TextDim
+        CloseBtn.Text = ""
         CloseBtn.ZIndex = 604
         CloseBtn.Parent = PickerHeader
 
+        local Line1 = Instance.new("Frame")
+        Line1.Size = UDim2.new(0, 11, 0, 1.8)
+        Line1.Position = UDim2.new(0.5, -5.5, 0.5, -0.9)
+        Line1.BackgroundColor3 = Library.Theme.TextDim
+        Line1.Rotation = 45
+        Line1.BorderSizePixel = 0
+        Line1.ZIndex = 605
+        Line1.Parent = CloseBtn
+
+        local Line2 = Instance.new("Frame")
+        Line2.Size = UDim2.new(0, 11, 0, 1.8)
+        Line2.Position = UDim2.new(0.5, -5.5, 0.5, -0.9)
+        Line2.BackgroundColor3 = Library.Theme.TextDim
+        Line2.Rotation = -45
+        Line2.BorderSizePixel = 0
+        Line2.ZIndex = 605
+        Line2.Parent = CloseBtn
+
         CloseBtn.MouseEnter:Connect(function()
-            smoothTween(CloseBtn, DUR_FAST, { ImageColor3 = Color3.fromRGB(255, 80, 80) })
+            smoothTween(Line1, DUR_FAST, { BackgroundColor3 = Color3.fromRGB(255, 80, 80) })
+            smoothTween(Line2, DUR_FAST, { BackgroundColor3 = Color3.fromRGB(255, 80, 80) })
         end)
         CloseBtn.MouseLeave:Connect(function()
-            smoothTween(CloseBtn, DUR_FAST, { ImageColor3 = Library.Theme.TextDim })
+            smoothTween(Line1, DUR_FAST, { BackgroundColor3 = Library.Theme.TextDim })
+            smoothTween(Line2, DUR_FAST, { BackgroundColor3 = Library.Theme.TextDim })
         end)
         CloseBtn.MouseButton1Click:Connect(function()
             PickerPopup.Visible = false
