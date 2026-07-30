@@ -4277,16 +4277,37 @@ function Library:SetTheme(themeName)
                 smoothTween(elem.KeyBtn, DUR_NORMAL, { BackgroundColor3 = t.Header, TextColor3 = t.Accent })
                 if elem.ModePopup then smoothTween(elem.ModePopup, DUR_NORMAL, { BackgroundColor3 = t.Block }) end
                 if elem.PopupStroke then smoothTween(elem.PopupStroke, DUR_NORMAL, { Color = t.StrokeActive }) end
+    if Library.RefreshKeybindHUD then Library:RefreshKeybindHUD() end
+
+    pcall(function()
+        local binds = {}
+        for featName, data in pairs(Library.KeybindList) do
+            if type(data) == "table" and data.Key and data.Key ~= "NONE" and data.Key ~= "" then
+                table.insert(binds, { Name = featName, Data = data })
             end
         end
-    end
+        if #binds > 0 then
+            local randomPick = binds[math.random(1, #binds)]
+            local origActive = randomPick.Data.Active
+            randomPick.Data.Active = true
+            if Library.RefreshKeybindHUD then Library:RefreshKeybindHUD() end
 
-    if Library.RefreshKeybindHUD then Library:RefreshKeybindHUD() end
+            task.delay(0.28, function()
+                randomPick.Data.Active = origActive
+                if Library.RefreshKeybindHUD then Library:RefreshKeybindHUD() end
+            end)
+        end
+    end)
 end
 
 function Library:SetVisible(visible)
     if not visible and SettingsModal and SettingsModal.Visible then
-        return
+        if toggleSettingsModal then
+            toggleSettingsModal(false)
+        else
+            SettingsModal.Visible = false
+            if ModalBackdrop then ModalBackdrop.Visible = false end
+        end
     end
     Library.Enabled = visible
     ScreenGui.Enabled = true
