@@ -1182,6 +1182,7 @@ function Library:RefreshKeybindHUD()
         Row.BackgroundColor3 = isActive and Library.Theme.CardHover or Library.Theme.Card
         Row.BorderSizePixel = 0
         Row.Parent = HUDListHolder
+        addCorner(Row, 6)
 
         local RowStroke = Instance.new("UIStroke")
         RowStroke.Color = isActive and Library.Theme.StrokeHover or Library.Theme.Stroke
@@ -1189,15 +1190,16 @@ function Library:RefreshKeybindHUD()
         RowStroke.Parent = Row
 
         local ActiveBar = Instance.new("Frame")
-        ActiveBar.Size = UDim2.new(0, 3, 1, 0)
-        ActiveBar.Position = UDim2.new(0, 0, 0, 0)
+        ActiveBar.Size = UDim2.new(0, 3, 1, -4)
+        ActiveBar.Position = UDim2.new(0, 2, 0.5, -10)
         ActiveBar.BackgroundColor3 = isActive and Library.Theme.Accent or Library.Theme.Header
         ActiveBar.BorderSizePixel = 0
         ActiveBar.Parent = Row
+        addCorner(ActiveBar, 2)
 
         local NameLbl = Instance.new("TextLabel")
-        NameLbl.Size = UDim2.new(1, -90, 1, 0)
-        NameLbl.Position = UDim2.new(0, 10, 0, 0)
+        NameLbl.Size = UDim2.new(1, -115, 1, 0)
+        NameLbl.Position = UDim2.new(0, 12, 0, 0)
         NameLbl.BackgroundTransparency = 1
         NameLbl.Font = Library.Fonts.Label
         NameLbl.Text = featName
@@ -1207,19 +1209,20 @@ function Library:RefreshKeybindHUD()
         NameLbl.Parent = Row
 
         local Badge = Instance.new("TextLabel")
-        Badge.Size = UDim2.new(0, 75, 0, 18)
-        Badge.Position = UDim2.new(1, -78, 0.5, -9)
+        Badge.Size = UDim2.new(0, 95, 0, 18)
+        Badge.Position = UDim2.new(1, -98, 0.5, -9)
         Badge.BackgroundColor3 = isActive and Library.Theme.Accent or Library.Theme.Header
         Badge.Font = Library.Fonts.Badge
-        if modeStr == "Always" then
+        if modeStr == "Always" or modeStr == "ALWAYS" then
             Badge.Text = "ALWAYS"
         else
-            Badge.Text = keyStr .. " [" .. string.sub(string.upper(modeStr), 1, 1) .. "]"
+            Badge.Text = keyStr .. " [" .. string.upper(tostring(modeStr)) .. "]"
         end
         Badge.TextColor3 = isActive and Library.Theme.Background or Library.Theme.Accent
         Badge.TextSize = 8.5
         Badge.BorderSizePixel = 0
         Badge.Parent = Row
+        addCorner(Badge, 5)
     end
 
     if totalBinds == 0 then
@@ -1758,13 +1761,16 @@ end)
 
 -- FULL TRANSPARENCY & PERFECT PROPORTIONAL SCALING (ROBLOX UISCALE)
 local function updateRadioHUDProperties()
+    if not RadioHUDFrame then return end
     RadioHUDFrame.Visible = Library.RadioHUDVisible
     local alpha = math.clamp((Library.RadioHUDTransparency or 0) / 100, 0, 0.95)
 
     RadioHUDFrame.BackgroundTransparency = math.max(0.06, alpha)
     for _, desc in ipairs(RadioHUDFrame:GetDescendants()) do
         if desc:IsA("Frame") or desc:IsA("TextButton") or desc:IsA("TextBox") then
-            desc.BackgroundTransparency = math.max(desc.BackgroundTransparency, alpha)
+            if desc ~= RadioHUDFrame then
+                desc.BackgroundTransparency = math.max(alpha, 0.1)
+            end
         end
         if desc:IsA("TextLabel") or desc:IsA("TextButton") or desc:IsA("TextBox") then
             desc.TextTransparency = alpha
@@ -1773,15 +1779,9 @@ local function updateRadioHUDProperties()
             desc.ImageTransparency = alpha
         end
         if desc:IsA("UIStroke") then
-            desc.Transparency = math.max(desc.Transparency, alpha)
+            desc.Transparency = math.max(0.3, alpha)
         end
     end
-end
-
-local function updateRadioHUDProperties()
-    if not UI or not UI.RadioHUDFrame then return end
-    UI.RadioHUDFrame.BackgroundTransparency = (Library.RadioHUDTransparency or 0) / 100
-    UI.RadioHUDFrame.Visible = Library.RadioHUDVisible
 end
 
 -- Modal Backdrop (Blocks clicks/interactions behind Settings Modal when open)
@@ -3038,104 +3038,7 @@ do
     end)
 
 -- End of Radio Card Settings
-
-    -- Radio Sound Volume Slider (0% to 100%)
-    local VolCardRow = Instance.new("Frame")
-    VolCardRow.Size = UDim2.new(1, -20, 0, 40)
-    VolCardRow.Position = UDim2.new(0, 10, 0, 118)
-    VolCardRow.BackgroundColor3 = Library.Theme.Block
-    VolCardRow.BorderSizePixel = 0
-    VolCardRow.ZIndex = 65
-    VolCardRow.Parent = RadioCard
-    addCorner(VolCardRow, 5)
-
-    local VolCardStroke = Instance.new("UIStroke")
-    VolCardStroke.Color = Library.Theme.Stroke
-    VolCardStroke.Thickness = 1
-    VolCardStroke.Parent = VolCardRow
-
-    local VolCardLbl = Instance.new("TextLabel")
-    VolCardLbl.Size = UDim2.new(0, 130, 0, 18)
-    VolCardLbl.Position = UDim2.new(0, 10, 0, 3)
-    VolCardLbl.BackgroundTransparency = 1
-    VolCardLbl.Font = Library.Fonts.Label
-    VolCardLbl.Text = "Radio Sound Volume (%)"
-    VolCardLbl.TextColor3 = Library.Theme.TextDim
-    VolCardLbl.TextSize = 10
-    VolCardLbl.TextXAlignment = Enum.TextXAlignment.Left
-    VolCardLbl.ZIndex = 66
-    VolCardLbl.Parent = VolCardRow
-
-    local VolCardBadge = Instance.new("Frame")
-    VolCardBadge.Size = UDim2.new(0, 36, 0, 16)
-    VolCardBadge.Position = UDim2.new(1, -46, 0, 3)
-    VolCardBadge.BackgroundColor3 = Library.Theme.Header
-    VolCardBadge.BorderSizePixel = 0
-    VolCardBadge.ZIndex = 66
-    VolCardBadge.Parent = VolCardRow
-    addCorner(VolCardBadge, 4)
-
-    local VolCardValInput = Instance.new("TextBox")
-    VolCardValInput.Size = UDim2.new(1, 0, 1, 0)
-    VolCardValInput.BackgroundTransparency = 1
-    VolCardValInput.Font = Library.Fonts.Badge
-    VolCardValInput.Text = tostring(math.floor(RadioSound.Volume * 100 + 0.5))
-    VolCardValInput.TextColor3 = Library.Theme.Accent
-    VolCardValInput.TextSize = 9.5
-    VolCardValInput.ZIndex = 67
-    VolCardValInput.Parent = VolCardBadge
-
-    local VolCardTrackBg = Instance.new("TextButton")
-    VolCardTrackBg.Size = UDim2.new(1, -20, 0, 6)
-    VolCardTrackBg.Position = UDim2.new(0, 10, 0, 26)
-    VolCardTrackBg.BackgroundColor3 = Library.Theme.Header
-    VolCardTrackBg.BorderSizePixel = 0
-    VolCardTrackBg.AutoButtonColor = false
-    VolCardTrackBg.Text = ""
-    VolCardTrackBg.ZIndex = 66
-    VolCardTrackBg.Parent = VolCardRow
-    addCorner(VolCardTrackBg, 3)
-
-    local VolCardFill = Instance.new("Frame")
-    VolCardFill.Size = UDim2.new(RadioSound.Volume, 0, 1, 0)
-    VolCardFill.BackgroundColor3 = Library.Theme.Accent
-    VolCardFill.BorderSizePixel = 0
-    VolCardFill.ZIndex = 67
-    VolCardFill.Parent = VolCardTrackBg
-
-    local isDraggingVolCard = false
-    local function updateVolCardPosition(inputX)
-        local width = VolCardTrackBg.AbsoluteSize.X
-        if width <= 0 then return end
-        local relX = math.clamp((inputX - VolCardTrackBg.AbsolutePosition.X) / width, 0, 1)
-        RadioSound.Volume = relX
-        VolCardValInput.Text = tostring(math.floor(relX * 100 + 0.5))
-        VolCardFill.Size = UDim2.new(relX, 0, 1, 0)
-        if VolLbl then VolLbl.Text = string.format("VOL %d%%", math.floor(relX * 100 + 0.5)) end
-        if VolFill then VolFill.Size = UDim2.new(relX, 0, 1, 0) end
-        if VolHandle then VolHandle.Position = UDim2.new(relX, -4, 0.5, -5) end
-    end
-
-    trackConnection(VolCardTrackBg.InputBegan:Connect(function(input)
-        if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
-            isDraggingVolCard = true
-            updateVolCardPosition(input.Position.X)
-        end
-    end))
-
-    trackConnection(UserInputService.InputEnded:Connect(function(input)
-        if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
-            isDraggingVolCard = false
-        end
-    end))
-
-    trackConnection(UserInputService.InputChanged:Connect(function(input)
-        if isDraggingVolCard and (input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch) then
-            updateVolCardPosition(input.Position.X)
-        end
-    end))
-
--- End of Radio Card Settings
+end
 end
 
 -- 5. VISUALS TAB PAGE (ADVANCED BLUR & WALLPAPER IMAGE CONTROL)
@@ -5214,20 +5117,35 @@ function Library:CreateBlock(title, defaultPosition)
             TabBtn.Size = UDim2.new(1 / numTabs, -(math.floor((numTabs - 1) * 3 / numTabs)), 1, 0)
             TabBtn.BackgroundColor3 = (i == 1) and Library.Theme.Header or Library.Theme.Block
             TabBtn.BorderSizePixel = 0
-            TabBtn.Font = Library.Fonts.Badge
+            TabBtn.Font = Library.Fonts.Label
             TabBtn.Text = strTabName
-            TabBtn.TextColor3 = (i == 1) and Library.Theme.Accent or Library.Theme.TextDim
+            TabBtn.TextColor3 = (i == 1) and Color3.fromRGB(225, 235, 250) or Color3.fromRGB(130, 142, 160)
             TabBtn.TextSize = 10
             TabBtn.ZIndex = 13
             TabBtn.Parent = SubTabHolder
-            addCorner(TabBtn, 4)
+            addCorner(TabBtn, 5)
 
             local TabBtnStroke = Instance.new("UIStroke")
-            TabBtnStroke.Color = (i == 1) and Library.Theme.StrokeActive or Library.Theme.Stroke
+            TabBtnStroke.Color = (i == 1) and Color3.fromRGB(90, 110, 140) or Library.Theme.Stroke
+            TabBtnStroke.Transparency = (i == 1) and 0.2 or 0.6
             TabBtnStroke.Thickness = 1
             TabBtnStroke.Parent = TabBtn
 
             Block.SubTabButtons[strTabName] = { Button = TabBtn, Stroke = TabBtnStroke }
+
+            TabBtn.MouseEnter:Connect(function()
+                local isSel = (string.upper(tostring(strTabName)) == string.upper(tostring(Block.ActiveSubTab or "")))
+                if not isSel then
+                    smoothTween(TabBtn, DUR_FAST, { BackgroundColor3 = Library.Theme.CardHover, TextColor3 = Color3.fromRGB(180, 195, 215) })
+                end
+            end)
+
+            TabBtn.MouseLeave:Connect(function()
+                local isSel = (string.upper(tostring(strTabName)) == string.upper(tostring(Block.ActiveSubTab or "")))
+                if not isSel then
+                    smoothTween(TabBtn, DUR_FAST, { BackgroundColor3 = Library.Theme.Block, TextColor3 = Color3.fromRGB(130, 142, 160) })
+                end
+            end)
 
             TabBtn.MouseButton1Click:Connect(function()
                 Block:SetCurrentSubTab(strTabName)
@@ -5273,10 +5191,11 @@ function Library:CreateBlock(title, defaultPosition)
             local isSelected = (string.upper(tostring(name)) == targetName)
             smoothTween(data.Button, DUR_FAST, {
                 BackgroundColor3 = isSelected and Library.Theme.Header or Library.Theme.Block,
-                TextColor3 = isSelected and Library.Theme.Accent or Library.Theme.TextDim
+                TextColor3 = isSelected and Color3.fromRGB(225, 235, 250) or Color3.fromRGB(130, 142, 160)
             })
             smoothTween(data.Stroke, DUR_FAST, {
-                Color = isSelected and Library.Theme.StrokeActive or Library.Theme.Stroke
+                Color = isSelected and Color3.fromRGB(90, 110, 140) or Library.Theme.Stroke,
+                Transparency = isSelected and 0.2 or 0.6
             })
         end
 
@@ -5355,7 +5274,7 @@ function Library:CreateBlock(title, defaultPosition)
         end)
 
         local Label = Instance.new("TextLabel")
-        Label.Size = UDim2.new(1, -125, 1, 0)
+        Label.Size = UDim2.new(1, -142, 1, 0)
         Label.Position = UDim2.new(0, 10, 0, 0)
         Label.BackgroundTransparency = 1
         Label.Font = Library.Fonts.Label
@@ -5367,8 +5286,8 @@ function Library:CreateBlock(title, defaultPosition)
 
         local KeyBadgeBtn = Instance.new("TextButton")
         KeyBadgeBtn.Name = "KeyBadge"
-        KeyBadgeBtn.Size = UDim2.new(0, 68, 0, 18)
-        KeyBadgeBtn.Position = UDim2.new(1, -112, 0.5, -9)
+        KeyBadgeBtn.Size = UDim2.new(0, 85, 0, 18)
+        KeyBadgeBtn.Position = UDim2.new(1, -129, 0.5, -9)
         KeyBadgeBtn.BackgroundColor3 = Library.Theme.Header
         KeyBadgeBtn.BorderSizePixel = 0
         KeyBadgeBtn.Font = Library.Fonts.Badge
@@ -5437,7 +5356,7 @@ function Library:CreateBlock(title, defaultPosition)
             elseif mode == "Always" then
                 KeyBadgeBtn.Text = "ALWAYS"
             else
-                KeyBadgeBtn.Text = string.upper(boundKey.Name) .. " [" .. string.sub(string.upper(mode), 1, 1) .. "]"
+                KeyBadgeBtn.Text = string.upper(boundKey.Name) .. " [" .. string.upper(tostring(mode)) .. "]"
             end
 
             if boundKey ~= Enum.KeyCode.Unknown or mode == "Always" then
