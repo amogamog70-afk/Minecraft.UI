@@ -3039,7 +3039,6 @@ do
 
 -- End of Radio Card Settings
 end
-end
 
 -- 5. VISUALS TAB PAGE (ADVANCED BLUR & WALLPAPER IMAGE CONTROL)
 do
