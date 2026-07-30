@@ -1212,13 +1212,13 @@ function Library:RefreshKeybindHUD()
         addCorner(Row, 6)
 
         local RowStroke = Instance.new("UIStroke")
-        RowStroke.Color = isActive and Library.Theme.StrokeHover or Library.Theme.Stroke
+        RowStroke.Color = Library.Theme.Stroke
         RowStroke.Thickness = 1
         RowStroke.Parent = Row
 
         local ActiveBar = Instance.new("Frame")
-        ActiveBar.Size = UDim2.new(0, 3, 1, -4)
-        ActiveBar.Position = UDim2.new(0, 2, 0.5, -10)
+        ActiveBar.Size = UDim2.new(0, 3, 1, -6)
+        ActiveBar.Position = UDim2.new(0, 3, 0.5, -9)
         ActiveBar.BackgroundColor3 = isActive and Library.Theme.Accent or Library.Theme.Header
         ActiveBar.BorderSizePixel = 0
         ActiveBar.Parent = Row
@@ -1230,7 +1230,7 @@ function Library:RefreshKeybindHUD()
         NameLbl.BackgroundTransparency = 1
         NameLbl.Font = Library.Fonts.Label
         NameLbl.Text = featName
-        NameLbl.TextColor3 = isActive and Library.Theme.Text or Library.Theme.TextDim
+        NameLbl.TextColor3 = isActive and Color3.fromRGB(225, 235, 250) or Library.Theme.TextDim
         NameLbl.TextSize = 10.5
         NameLbl.TextXAlignment = Enum.TextXAlignment.Left
         NameLbl.Parent = Row
@@ -1239,20 +1239,22 @@ function Library:RefreshKeybindHUD()
         Badge.Size = UDim2.new(0, 95, 0, 18)
         Badge.Position = UDim2.new(1, -98, 0.5, -9)
         Badge.BackgroundColor3 = isActive and Library.Theme.Header or Library.Theme.Block
-        Badge.Font = Library.Fonts.Badge
+        Badge.Font = Library.Fonts.Label
         if modeStr == "Always" or modeStr == "ALWAYS" then
             Badge.Text = "ALWAYS"
         else
             Badge.Text = keyStr .. " [" .. string.upper(tostring(modeStr)) .. "]"
         end
-        Badge.TextColor3 = isActive and Library.Theme.Accent or Library.Theme.TextDim
-        Badge.TextSize = 8.5
+        Badge.TextColor3 = isActive and Color3.fromRGB(225, 235, 250) or Library.Theme.TextDim
+        Badge.TextSize = 9
         Badge.BorderSizePixel = 0
         Badge.Parent = Row
         addCorner(Badge, 5)
 
         local BadgeStroke = Instance.new("UIStroke")
-        BadgeStroke.Color = isActive and Library.Theme.StrokeHover or Library.Theme.Stroke
+        BadgeStroke.Color = isActive and Library.Theme.Accent or Library.Theme.Stroke
+        BadgeStroke.Thickness = 1
+        BadgeStroke.Parent = Badge
         BadgeStroke.Thickness = 1
         BadgeStroke.Parent = Badge
     end
@@ -6538,11 +6540,7 @@ function Library:CreateBlock(title, defaultPosition)
                 OptBtn.Size = UDim2.new(1, 0, 0, 24)
                 OptBtn.BackgroundColor3 = isSel and Library.Theme.Header or Library.Theme.Card
                 OptBtn.BorderSizePixel = 0
-                OptBtn.Font = Library.Fonts.Label
-                OptBtn.Text = (isSel and "  [✓]  " or "  [   ]  ") .. opt
-                OptBtn.TextColor3 = isSel and Color3.fromRGB(225, 235, 250) or Library.Theme.TextDim
-                OptBtn.TextSize = 10
-                OptBtn.TextXAlignment = Enum.TextXAlignment.Left
+                OptBtn.Text = ""
                 OptBtn.ZIndex = 8
                 OptBtn.Parent = OptionContainer
                 addCorner(OptBtn, 4)
@@ -6551,6 +6549,44 @@ function Library:CreateBlock(title, defaultPosition)
                 OptStroke.Color = isSel and Library.Theme.Accent or Library.Theme.Stroke
                 OptStroke.Thickness = 1
                 OptStroke.Parent = OptBtn
+
+                local CheckSquare = Instance.new("Frame")
+                CheckSquare.Size = UDim2.new(0, 14, 0, 14)
+                CheckSquare.Position = UDim2.new(0, 7, 0.5, -7)
+                CheckSquare.BackgroundColor3 = isSel and Library.Theme.Header or Library.Theme.Block
+                CheckSquare.BorderSizePixel = 0
+                CheckSquare.ZIndex = 9
+                CheckSquare.Parent = OptBtn
+                addCorner(CheckSquare, 3)
+
+                local SquareStroke = Instance.new("UIStroke")
+                SquareStroke.Color = isSel and Library.Theme.Accent or Library.Theme.Stroke
+                SquareStroke.Thickness = 1
+                SquareStroke.Parent = CheckSquare
+
+                if isSel then
+                    local CheckMark = Instance.new("TextLabel")
+                    CheckMark.Size = UDim2.new(1, 0, 1, 0)
+                    CheckMark.BackgroundTransparency = 1
+                    CheckMark.Font = Library.Fonts.Badge
+                    CheckMark.Text = "✓"
+                    CheckMark.TextColor3 = Library.Theme.Accent
+                    CheckMark.TextSize = 10
+                    CheckMark.ZIndex = 10
+                    CheckMark.Parent = CheckSquare
+                end
+
+                local OptLabel = Instance.new("TextLabel")
+                OptLabel.Size = UDim2.new(1, -30, 1, 0)
+                OptLabel.Position = UDim2.new(0, 28, 0, 0)
+                OptLabel.BackgroundTransparency = 1
+                OptLabel.Font = Library.Fonts.Label
+                OptLabel.Text = opt
+                OptLabel.TextColor3 = isSel and Color3.fromRGB(225, 235, 250) or Library.Theme.TextDim
+                OptLabel.TextSize = 10.5
+                OptLabel.TextXAlignment = Enum.TextXAlignment.Left
+                OptLabel.ZIndex = 9
+                OptLabel.Parent = OptBtn
 
                 OptBtn.MouseButton1Click:Connect(function()
                     selectedMap[opt] = not selectedMap[opt]
@@ -6864,6 +6900,45 @@ function Library:CreateBlock(title, defaultPosition)
             end
         end)
 
+        -- Close Button (X)
+        local CloseBtn = Instance.new("TextButton")
+        CloseBtn.Name = "CloseBtn"
+        CloseBtn.Size = UDim2.new(0, 16, 0, 16)
+        CloseBtn.Position = UDim2.new(1, -20, 0, 4)
+        CloseBtn.BackgroundTransparency = 1
+        CloseBtn.Font = Library.Fonts.Badge
+        CloseBtn.Text = "✕"
+        CloseBtn.TextColor3 = Library.Theme.TextDim
+        CloseBtn.TextSize = 11
+        CloseBtn.ZIndex = 605
+        CloseBtn.Parent = PickerPopup
+
+        CloseBtn.MouseEnter:Connect(function()
+            smoothTween(CloseBtn, DUR_FAST, { TextColor3 = Color3.fromRGB(255, 80, 80) })
+        end)
+        CloseBtn.MouseLeave:Connect(function()
+            smoothTween(CloseBtn, DUR_FAST, { TextColor3 = Library.Theme.TextDim })
+        end)
+        CloseBtn.MouseButton1Click:Connect(function()
+            PickerPopup.Visible = false
+        end)
+
+        trackConnection(UserInputService.InputBegan:Connect(function(input)
+            if PickerPopup.Visible and (input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.MouseButton2 or input.UserInputType == Enum.UserInputType.Touch) then
+                if draggingSatVal or draggingHue or draggingVal then return end
+                local mousePos = UserInputService:GetMouseLocation()
+                local popPos = PickerPopup.AbsolutePosition
+                local popSize = PickerPopup.AbsoluteSize
+                if mousePos.X < popPos.X or mousePos.X > popPos.X + popSize.X or (mousePos.Y - 36) < popPos.Y or (mousePos.Y - 36) > popPos.Y + popSize.Y then
+                    local btnPos = ColorPreview.AbsolutePosition
+                    local btnSize = ColorPreview.AbsoluteSize
+                    if not (mousePos.X >= btnPos.X and mousePos.X <= btnPos.X + btnSize.X and (mousePos.Y - 36) >= btnPos.Y and (mousePos.Y - 36) <= btnPos.Y + btnSize.Y) then
+                        PickerPopup.Visible = false
+                    end
+                end
+            end
+        end))
+
         ColorPreview.MouseButton1Click:Connect(function()
             PickerPopup.Visible = not PickerPopup.Visible
             if PickerPopup.Visible then
@@ -6884,8 +6959,8 @@ function Library:CreateBlock(title, defaultPosition)
         return {
             SetColor = function(_, newColor)
                 currentColor = newColor
-                ColorPreview.BackgroundColor3 = currentColor
-                task.spawn(function() pcall(callback, currentColor) end)
+                h, s, v = Color3.toHSV(currentColor)
+                updateColor(true)
             end,
             GetColor = function() return currentColor end
         }
