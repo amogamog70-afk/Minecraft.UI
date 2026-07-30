@@ -6805,7 +6805,7 @@ function Library:CreateBlock(title, defaultPosition)
 
         -- Bottom Value / Brightness Bar
         local ValBar = Instance.new("Frame")
-        ValBar.Size = UDim2.new(0, 155, 0, 18)
+        ValBar.Size = UDim2.new(0, 188, 0, 18)
         ValBar.Position = UDim2.new(0, 8, 0, 160)
         ValBar.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
         ValBar.BorderSizePixel = 0
@@ -6830,10 +6830,10 @@ function Library:CreateBlock(title, defaultPosition)
         ValCursor.Parent = ValBar
         addCorner(ValCursor, 2)
 
-        -- Live Hex Text Input Box & Small Preview Badge
+        -- Live Hex Text Input Box
         local HexBoxBg = Instance.new("Frame")
-        HexBoxBg.Size = UDim2.new(0, 155, 0, 18)
-        HexBoxBg.Position = UDim2.new(0, 8, 0, 180)
+        HexBoxBg.Size = UDim2.new(0, 188, 0, 18)
+        HexBoxBg.Position = UDim2.new(0, 8, 0, 182)
         HexBoxBg.BackgroundColor3 = Library.Theme.Header
         HexBoxBg.BorderSizePixel = 0
         HexBoxBg.ZIndex = 602
@@ -6852,19 +6852,10 @@ function Library:CreateBlock(title, defaultPosition)
         HexInput.ZIndex = 603
         HexInput.Parent = HexBoxBg
 
-        local PickerPreview = Instance.new("Frame")
-        PickerPreview.Size = UDim2.new(0, 24, 0, 38)
-        PickerPreview.Position = UDim2.new(0, 172, 0, 160)
-        PickerPreview.BackgroundColor3 = currentColor
-        PickerPreview.BorderSizePixel = 0
-        PickerPreview.ZIndex = 602
-        PickerPreview.Parent = PickerPopup
-        addCorner(PickerPreview, 4)
-
         local function updateColor(fireCallback)
             currentColor = Color3.fromHSV(h, s, v)
             ColorPreview.BackgroundColor3 = currentColor
-            PickerPreview.BackgroundColor3 = currentColor
+            SatValBox.BackgroundColor3 = Color3.fromHSV(h, 1, 1)
             SatValBox.BackgroundColor3 = Color3.fromHSV(h, 1, 1)
             ValGrad.Color = ColorSequence.new({
                 ColorSequenceKeypoint.new(0, Color3.fromRGB(0, 0, 0)),
