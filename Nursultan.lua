@@ -6726,24 +6726,22 @@ function Library:CreateBlock(title, defaultPosition)
         HeaderTitle.ZIndex = 603
         HeaderTitle.Parent = PickerHeader
 
-        -- Built-in Header Close Button (X)
-        local CloseBtn = Instance.new("TextButton")
+        -- Built-in Header Close Button (X Image Icon)
+        local CloseBtn = Instance.new("ImageButton")
         CloseBtn.Name = "CloseBtn"
-        CloseBtn.Size = UDim2.new(0, 24, 1, 0)
-        CloseBtn.Position = UDim2.new(1, -24, 0, 0)
+        CloseBtn.Size = UDim2.new(0, 12, 0, 12)
+        CloseBtn.Position = UDim2.new(1, -18, 0.5, -6)
         CloseBtn.BackgroundTransparency = 1
-        CloseBtn.Font = Library.Fonts.Badge
-        CloseBtn.Text = "✕"
-        CloseBtn.TextColor3 = Library.Theme.TextDim
-        CloseBtn.TextSize = 11
+        CloseBtn.Image = "rbxassetid://75193153566467"
+        CloseBtn.ImageColor3 = Library.Theme.TextDim
         CloseBtn.ZIndex = 604
         CloseBtn.Parent = PickerHeader
 
         CloseBtn.MouseEnter:Connect(function()
-            smoothTween(CloseBtn, DUR_FAST, { TextColor3 = Color3.fromRGB(255, 80, 80) })
+            smoothTween(CloseBtn, DUR_FAST, { ImageColor3 = Color3.fromRGB(255, 80, 80) })
         end)
         CloseBtn.MouseLeave:Connect(function()
-            smoothTween(CloseBtn, DUR_FAST, { TextColor3 = Library.Theme.TextDim })
+            smoothTween(CloseBtn, DUR_FAST, { ImageColor3 = Library.Theme.TextDim })
         end)
         CloseBtn.MouseButton1Click:Connect(function()
             PickerPopup.Visible = false
