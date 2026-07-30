@@ -4277,6 +4277,10 @@ function Library:SetTheme(themeName)
                 smoothTween(elem.KeyBtn, DUR_NORMAL, { BackgroundColor3 = t.Header, TextColor3 = t.Accent })
                 if elem.ModePopup then smoothTween(elem.ModePopup, DUR_NORMAL, { BackgroundColor3 = t.Block }) end
                 if elem.PopupStroke then smoothTween(elem.PopupStroke, DUR_NORMAL, { Color = t.StrokeActive }) end
+            end
+        end
+    end
+
     if Library.RefreshKeybindHUD then Library:RefreshKeybindHUD() end
 
     pcall(function()
