@@ -1201,23 +1201,23 @@ function Library:RefreshKeybindHUD()
         end
 
         if isActive then activeCount = activeCount + 1 end
-
+        local t = Library.Theme
         local Row = Instance.new("Frame")
         Row.Size = UDim2.new(1, 0, 0, 24)
-        Row.BackgroundColor3 = isActive and Color3.fromRGB(26, 32, 42) or Color3.fromRGB(18, 22, 28)
+        Row.BackgroundColor3 = isActive and t.Card or t.Header
         Row.BorderSizePixel = 0
         Row.Parent = HUDListHolder
         addCorner(Row, 6)
 
         local RowStroke = Instance.new("UIStroke")
-        RowStroke.Color = isActive and Color3.fromRGB(48, 62, 82) or Color3.fromRGB(36, 44, 56)
+        RowStroke.Color = isActive and t.StrokeActive or t.Stroke
         RowStroke.Thickness = 1
         RowStroke.Parent = Row
 
         local ActiveBar = Instance.new("Frame")
         ActiveBar.Size = UDim2.new(0, 3, 1, -4)
         ActiveBar.Position = UDim2.new(0, 2, 0.5, -10)
-        ActiveBar.BackgroundColor3 = isActive and Color3.fromRGB(80, 190, 240) or Color3.fromRGB(35, 45, 58)
+        ActiveBar.BackgroundColor3 = isActive and t.Accent or t.Stroke
         ActiveBar.BorderSizePixel = 0
         ActiveBar.Parent = Row
         addCorner(ActiveBar, 2)
@@ -1228,7 +1228,7 @@ function Library:RefreshKeybindHUD()
         NameLbl.BackgroundTransparency = 1
         NameLbl.Font = Library.Fonts.Label
         NameLbl.Text = featName
-        NameLbl.TextColor3 = isActive and Color3.fromRGB(220, 230, 242) or Color3.fromRGB(145, 158, 175)
+        NameLbl.TextColor3 = isActive and t.Text or t.TextDim
         NameLbl.TextSize = 10.5
         NameLbl.TextXAlignment = Enum.TextXAlignment.Left
         NameLbl.Parent = Row
@@ -1236,22 +1236,18 @@ function Library:RefreshKeybindHUD()
         local Badge = Instance.new("TextLabel")
         Badge.Size = UDim2.new(0, 95, 0, 18)
         Badge.Position = UDim2.new(1, -98, 0.5, -9)
-        Badge.BackgroundColor3 = isActive and Color3.fromRGB(32, 40, 52) or Color3.fromRGB(22, 28, 36)
+        Badge.BackgroundColor3 = isActive and t.Header or t.Block
         Badge.Font = Library.Fonts.Badge
-        if modeStr == "Always" or modeStr == "ALWAYS" then
-            Badge.Text = "ALWAYS"
-        else
-            Badge.Text = keyStr .. " [" .. string.upper(tostring(modeStr)) .. "]"
-        end
-        Badge.TextColor3 = isActive and Color3.fromRGB(180, 205, 235) or Color3.fromRGB(135, 148, 165)
-        Badge.TextSize = 8.5
-        Badge.BorderSizePixel = 0
+        Badge.Text = keyStr .. " [" .. string.upper(modeStr) .. "]"
+        Badge.TextColor3 = isActive and t.Accent or t.TextDim
+        Badge.TextSize = 9.5
+        Badge.ZIndex = 12
         Badge.Parent = Row
-        addCorner(Badge, 5)
+        addCorner(Badge, 4)
 
         local BadgeStroke = Instance.new("UIStroke")
-        BadgeStroke.Color = isActive and Color3.fromRGB(52, 68, 90) or Color3.fromRGB(32, 40, 52)
-        BadgeStroke.Thickness = 1
+        BadgeStroke.Color = isActive and t.StrokeActive or t.Stroke
+        BadgeStroke.Thickness = 0.8
         BadgeStroke.Parent = Badge
     end
 
@@ -4254,18 +4250,55 @@ function Library:SetTheme(themeName)
                 if elem.Label then st(elem.Label, { TextColor3 = t.TextDim }) end
                 if elem.DropdownBtn then st(elem.DropdownBtn, { BackgroundColor3 = t.Header, TextColor3 = t.Accent }) end
                 if elem.DropList then st(elem.DropList, { BackgroundColor3 = t.Block }) end
-            elseif elem.Type == "Button" then
-                st(elem.Btn, { BackgroundColor3 = t.Header, TextColor3 = t.Accent })
+                if elem.BuildOptions then pcall(elem.BuildOptions) end
+            elseif elem.Type == "MultiSelect" then
+                st(elem.Frame, { BackgroundColor3 = t.Card })
                 if elem.Stroke then st(elem.Stroke, { Color = t.Stroke }) end
+                if elem.Label then st(elem.Label, { TextColor3 = t.TextDim }) end
+                if elem.SelBadge then st(elem.SelBadge, { BackgroundColor3 = t.Header, TextColor3 = t.Accent }) end
+                if elem.BuildOptions then pcall(elem.BuildOptions) end
+            elseif elem.Type == "ColorPixel" then
+                st(elem.Frame, { BackgroundColor3 = t.Card })
+                if elem.Stroke then st(elem.Stroke, { Color = t.Stroke }) end
+                if elem.Label then st(elem.Label, { TextColor3 = t.Text }) end
+                if elem.ColorPreview then
+                    local pStroke = elem.ColorPreview:FindFirstChildOfClass("UIStroke")
+                    if pStroke then st(pStroke, { Color = t.StrokeActive }) end
+                end
+                if elem.PickerPopup then st(elem.PickerPopup, { BackgroundColor3 = t.Block }) end
+                if elem.PickerHeader then st(elem.PickerHeader, { BackgroundColor3 = t.Header }) end
+                if elem.HeaderTitle then st(elem.HeaderTitle, { TextColor3 = t.TextDim }) end
+                if elem.CloseBtn then st(elem.CloseBtn, { ImageColor3 = t.TextDim }) end
+                if elem.HexBoxBg then st(elem.HexBoxBg, { BackgroundColor3 = t.Header }) end
+                if elem.HexInput then st(elem.HexInput, { TextColor3 = t.Accent }) end
+            elseif elem.Type == "TextBar" then
+                st(elem.Frame, { BackgroundColor3 = t.Card })
+                if elem.Stroke then st(elem.Stroke, { Color = t.Stroke }) end
+                if elem.Label then st(elem.Label, { TextColor3 = t.TextDim }) end
+                if elem.InputBg then st(elem.InputBg, { BackgroundColor3 = t.Header }) end
+                if elem.TextInput then st(elem.TextInput, { TextColor3 = t.Accent, PlaceholderColor3 = t.TextDim }) end
+            elseif elem.Type == "Button" then
+                st(elem.Frame, { BackgroundColor3 = t.Card })
+                if elem.Stroke then st(elem.Stroke, { Color = t.Stroke }) end
+                if elem.Btn then st(elem.Btn, { BackgroundColor3 = t.Header, TextColor3 = t.Accent }) end
             elseif elem.Type == "Keybind" then
                 st(elem.Frame, { BackgroundColor3 = t.Card })
+                if elem.Stroke then st(elem.Stroke, { Color = t.Stroke }) end
                 if elem.Label then st(elem.Label, { TextColor3 = t.TextDim }) end
                 if elem.KeyBtn then st(elem.KeyBtn, { BackgroundColor3 = t.Header, TextColor3 = t.Accent }) end
+            elseif elem.Type == "Section" then
+                if elem.Line then st(elem.Line, { BackgroundColor3 = t.Stroke }) end
+                if elem.TitleBg then st(elem.TitleBg, { BackgroundColor3 = t.Block }) end
+                if elem.TitleLbl then st(elem.TitleLbl, { TextColor3 = t.Accent }) end
             elseif elem.Type == "Label" then
                 if elem.TextLabel then st(elem.TextLabel, { TextColor3 = t.AccentDim }) end
                 if elem.Dot then st(elem.Dot, { BackgroundColor3 = t.Accent }) end
             end
         end
+    end
+
+    if Library.RefreshKeybindHUD then
+        pcall(function() Library:RefreshKeybindHUD() end)
     end
 
     st(UI.SkyPresetCard, { BackgroundColor3 = t.Card })
@@ -6080,7 +6113,9 @@ function Library:CreateBlock(title, defaultPosition)
             Frame = DropFrame,
             Stroke = Stroke,
             Label = Label,
-            SelBadge = SelBadge
+            DropdownBtn = SelBadge,
+            DropList = OptionContainer,
+            BuildOptions = refreshDropdown
         })
 
         local function refreshDropdown()
@@ -6769,7 +6804,8 @@ function Library:CreateBlock(title, defaultPosition)
             Frame = MultiFrame,
             Stroke = Stroke,
             Label = Label,
-            SelBadge = SelBadge
+            SelBadge = SelBadge,
+            BuildOptions = buildOptions
         })
         return {
             GetSelected = function() return selectedMap end
