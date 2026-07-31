@@ -1276,6 +1276,51 @@ function Library:RefreshKeybindHUD()
     smoothTween(KeybindHUDFrame, DUR_NORMAL, { Size = UDim2.new(0, targetW, 0, targetH) })
 end
 
+local Playlist = {}
+local CurrentTrackIndex = 1
+local RadioTrackLabel = nil
+local HUDPlayBtn = nil
+
+local function playWorkspaceTrack(target, customTitle)
+    if type(target) == "number" then
+        if #Playlist == 0 then return end
+        CurrentTrackIndex = math.clamp(target, 1, #Playlist)
+        local item = Playlist[CurrentTrackIndex]
+        if not item then return end
+        target = item.Path
+        customTitle = customTitle or item.Name
+    end
+
+    if not target or target == "" then return end
+    customTitle = customTitle or ("Track " .. tostring(CurrentTrackIndex))
+
+    local resolved = target
+    if isfile and getcustomasset and isfile(target) then
+        local s, uri = pcall(function() return getcustomasset(target) end)
+        if s and uri then resolved = uri end
+    elseif isfile and getcustomasset and isfile("Nursultan/Music/" .. target) then
+        local s, uri = pcall(function() return getcustomasset("Nursultan/Music/" .. target) end)
+        if s and uri then resolved = uri end
+    elseif tonumber(target) then
+        resolved = "rbxassetid://" .. target
+    elseif not string.match(target, "^rbxassetid://") and not string.match(target, "^http") and not string.match(target, "^rbxasset://") then
+        resolved = formatAssetId(target)
+    end
+
+    pcall(function()
+        RadioSound.SoundId = resolved
+        RadioSound.TimePosition = 0
+        RadioSound:Play()
+    end)
+
+    if RadioTrackLabel then
+        RadioTrackLabel.Text = "Playing: " .. tostring(customTitle)
+    end
+    if HUDPlayBtn then
+        HUDPlayBtn.Text = "PAUSE"
+    end
+end
+
 local RadioHUDFrame = Instance.new("Frame")
 RadioHUDFrame.Name = "RadioHUDOverlay"
 RadioHUDFrame.Size = UDim2.new(0, 260, 0, 165)
@@ -1358,7 +1403,7 @@ HUDNextBtn.Parent = RadioHeader
 addCorner(HUDNextBtn, 4)
 UI.HUDNextBtn = HUDNextBtn
 
-local HUDPlayBtn = Instance.new("TextButton")
+HUDPlayBtn = Instance.new("TextButton")
 HUDPlayBtn.Size = UDim2.new(0, 58, 0, 20)
 HUDPlayBtn.Position = UDim2.new(1, -60, 0.5, -10)
 HUDPlayBtn.BackgroundColor3 = Library.Theme.Card
@@ -1381,6 +1426,20 @@ HUDNextBtn.MouseButton1Click:Connect(function()
     if #Playlist > 0 then
         local nextIndex = CurrentTrackIndex < #Playlist and CurrentTrackIndex + 1 or 1
         playWorkspaceTrack(nextIndex)
+    end
+end)
+
+HUDPlayBtn.MouseButton1Click:Connect(function()
+    if RadioSound.IsPlaying then
+        RadioSound:Pause()
+        HUDPlayBtn.Text = "PLAY"
+    else
+        if RadioSound.SoundId ~= "" then
+            RadioSound:Play()
+            HUDPlayBtn.Text = "PAUSE"
+        elseif #Playlist > 0 then
+            playWorkspaceTrack(CurrentTrackIndex)
+        end
     end
 end)
 
@@ -1434,7 +1493,13 @@ HUDSoundInput.ZIndex = 15
 HUDSoundInput.Parent = HUDSoundInputBg
 UI.HUDSoundInput = HUDSoundInput
 
-local RadioTrackLabel = Instance.new("TextLabel")
+HUDSoundInput.FocusLost:Connect(function(enterPressed)
+    if HUDSoundInput.Text ~= "" then
+        playWorkspaceTrack(HUDSoundInput.Text, "Custom Track")
+    end
+end)
+
+RadioTrackLabel = Instance.new("TextLabel")
 RadioTrackLabel.Size = UDim2.new(1, -16, 0, 14)
 RadioTrackLabel.Position = UDim2.new(0, 8, 0, 61)
 RadioTrackLabel.BackgroundTransparency = 1
@@ -3409,7 +3474,7 @@ do
 -- End of Radio Card Settings
     -- Card 2: Custom Music & Workspace Playlist Manager
     local MusicManagerCard = Instance.new("Frame")
-    MusicManagerCard.Size = UDim2.new(1, 0, 0, 245)
+    MusicManagerCard.Size = UDim2.new(1, 0, 0, 275)
     MusicManagerCard.Position = UDim2.new(0, 0, 0, 180)
     MusicManagerCard.BackgroundColor3 = Library.Theme.Card
     MusicManagerCard.BorderSizePixel = 0
@@ -3486,7 +3551,7 @@ do
     SaveSongBtn.BackgroundColor3 = Library.Theme.Header
     SaveSongBtn.BorderSizePixel = 0
     SaveSongBtn.Font = Library.Fonts.Header
-    SaveSongBtn.Text = "SAVE SONG TO WORKSPACE PLAYLIST"
+    SaveSongBtn.Text = "➕ ADD SONG TO WORKSPACE PLAYLIST"
     SaveSongBtn.TextColor3 = Library.Theme.Text
     SaveSongBtn.TextSize = 10
     SaveSongBtn.ZIndex = 23
@@ -3499,7 +3564,7 @@ do
     PlaylistLbl.Position = UDim2.new(0, 10, 0, 126)
     PlaylistLbl.BackgroundTransparency = 1
     PlaylistLbl.Font = Library.Fonts.Label
-    PlaylistLbl.Text = "SAVED WORKSPACE SONGS:"
+    PlaylistLbl.Text = "SAVED WORKSPACE SONGS (Nursultan/Music/):"
     PlaylistLbl.TextColor3 = Library.Theme.TextDim
     PlaylistLbl.TextSize = 9.5
     PlaylistLbl.TextXAlignment = Enum.TextXAlignment.Left
@@ -3508,7 +3573,7 @@ do
 
     -- Saved Songs Scroll List
     local MusicScroll = Instance.new("ScrollingFrame")
-    MusicScroll.Size = UDim2.new(1, -20, 0, 54)
+    MusicScroll.Size = UDim2.new(1, -20, 0, 85)
     MusicScroll.Position = UDim2.new(0, 10, 0, 144)
     MusicScroll.BackgroundColor3 = Library.Theme.Block
     MusicScroll.BorderSizePixel = 0
@@ -3520,64 +3585,86 @@ do
 
     local MusicListLayout = Instance.new("UIListLayout")
     MusicListLayout.SortOrder = Enum.SortOrder.LayoutOrder
-    MusicListLayout.Padding = UDim.new(0, 2)
+    MusicListLayout.Padding = UDim.new(0, 3)
     MusicListLayout.Parent = MusicScroll
 
-    -- Action Bar: PLAY / DELETE / REFRESH
+    -- Action Bar: PLAY / DELETE / LOAD CONFIG / REFRESH
     local ActionRow = Instance.new("Frame")
     ActionRow.Size = UDim2.new(1, -20, 0, 26)
-    ActionRow.Position = UDim2.new(0, 10, 0, 204)
+    ActionRow.Position = UDim2.new(0, 10, 0, 235)
     ActionRow.BackgroundTransparency = 1
     ActionRow.ZIndex = 23
     ActionRow.Parent = MusicManagerCard
 
     local PlaySavedBtn = Instance.new("TextButton")
-    PlaySavedBtn.Size = UDim2.new(0.32, 0, 1, 0)
+    PlaySavedBtn.Size = UDim2.new(0.23, 0, 1, 0)
     PlaySavedBtn.Position = UDim2.new(0, 0, 0, 0)
     PlaySavedBtn.BackgroundColor3 = Library.Theme.Header
     PlaySavedBtn.BorderSizePixel = 0
     PlaySavedBtn.Font = Library.Fonts.Header
-    PlaySavedBtn.Text = "PLAY"
+    PlaySavedBtn.Text = "▶ PLAY"
     PlaySavedBtn.TextColor3 = Library.Theme.Text
-    PlaySavedBtn.TextSize = 9.5
+    PlaySavedBtn.TextSize = 9
     PlaySavedBtn.ZIndex = 24
     PlaySavedBtn.Parent = ActionRow
     addCorner(PlaySavedBtn, 4)
 
     local DeleteSavedBtn = Instance.new("TextButton")
-    DeleteSavedBtn.Size = UDim2.new(0.32, 0, 1, 0)
-    DeleteSavedBtn.Position = UDim2.new(0.34, 0, 0, 0)
+    DeleteSavedBtn.Size = UDim2.new(0.23, 0, 1, 0)
+    DeleteSavedBtn.Position = UDim2.new(0.25, 0, 0, 0)
     DeleteSavedBtn.BackgroundColor3 = Library.Theme.Header
     DeleteSavedBtn.BorderSizePixel = 0
     DeleteSavedBtn.Font = Library.Fonts.Header
-    DeleteSavedBtn.Text = "DELETE"
+    DeleteSavedBtn.Text = "🗑 DELETE"
     DeleteSavedBtn.TextColor3 = Library.Theme.Text
-    DeleteSavedBtn.TextSize = 9.5
+    DeleteSavedBtn.TextSize = 9
     DeleteSavedBtn.ZIndex = 24
     DeleteSavedBtn.Parent = ActionRow
     addCorner(DeleteSavedBtn, 4)
 
+    local LoadPlaylistBtn = Instance.new("TextButton")
+    LoadPlaylistBtn.Size = UDim2.new(0.25, 0, 1, 0)
+    LoadPlaylistBtn.Position = UDim2.new(0.50, 0, 0, 0)
+    LoadPlaylistBtn.BackgroundColor3 = Library.Theme.Header
+    LoadPlaylistBtn.BorderSizePixel = 0
+    LoadPlaylistBtn.Font = Library.Fonts.Header
+    LoadPlaylistBtn.Text = "📂 LOAD CONFIG"
+    LoadPlaylistBtn.TextColor3 = Library.Theme.Text
+    LoadPlaylistBtn.TextSize = 9
+    LoadPlaylistBtn.ZIndex = 24
+    LoadPlaylistBtn.Parent = ActionRow
+    addCorner(LoadPlaylistBtn, 4)
+
     local RefreshSavedBtn = Instance.new("TextButton")
-    RefreshSavedBtn.Size = UDim2.new(0.32, 0, 1, 0)
-    RefreshSavedBtn.Position = UDim2.new(0.68, 0, 0, 0)
+    RefreshSavedBtn.Size = UDim2.new(0.23, 0, 1, 0)
+    RefreshSavedBtn.Position = UDim2.new(0.77, 0, 0, 0)
     RefreshSavedBtn.BackgroundColor3 = Library.Theme.Header
     RefreshSavedBtn.BorderSizePixel = 0
     RefreshSavedBtn.Font = Library.Fonts.Header
-    RefreshSavedBtn.Text = "REFRESH"
+    RefreshSavedBtn.Text = "🔄 REFRESH"
     RefreshSavedBtn.TextColor3 = Library.Theme.Text
-    RefreshSavedBtn.TextSize = 9.5
+    RefreshSavedBtn.TextSize = 9
     RefreshSavedBtn.ZIndex = 24
     RefreshSavedBtn.Parent = ActionRow
     addCorner(RefreshSavedBtn, 4)
 
     local MUSIC_FOLDER = "Nursultan/Music"
     local PLAYLIST_FILE = "Nursultan/Music/playlist.json"
-    local SelectedSavedTrack = nil
+    local SelectedSavedIndex = nil
     local SavedTracksList = {}
 
     -- Ensure workspace folder exists
     if makefolder and not (isfolder and isfolder(MUSIC_FOLDER)) then
         pcall(function() makefolder(MUSIC_FOLDER) end)
+    end
+
+    local function saveWorkspacePlaylistFile()
+        if writefile then
+            local s, encoded = pcall(function() return HttpService:JSONEncode(SavedTracksList) end)
+            if s and encoded then
+                pcall(function() writefile(PLAYLIST_FILE, encoded) end)
+            end
+        end
     end
 
     local function loadWorkspacePlaylist()
@@ -3614,11 +3701,15 @@ do
             end
         end
 
+        -- Sync global Playlist array with Radio HUD
+        Playlist = SavedTracksList
+
         for _, child in ipairs(MusicScroll:GetChildren()) do
-            if child:IsA("TextButton") or child:IsA("TextLabel") then child:Destroy() end
+            if child:IsA("Frame") or child:IsA("TextLabel") then child:Destroy() end
         end
 
         if #SavedTracksList == 0 then
+            SelectedSavedIndex = nil
             local emptyLbl = Instance.new("TextLabel")
             emptyLbl.Size = UDim2.new(1, 0, 0, 24)
             emptyLbl.BackgroundTransparency = 1
@@ -3629,37 +3720,88 @@ do
             emptyLbl.TextXAlignment = Enum.TextXAlignment.Left
             emptyLbl.Parent = MusicScroll
         else
+            if SelectedSavedIndex == nil or SelectedSavedIndex < 1 or SelectedSavedIndex > #SavedTracksList then
+                SelectedSavedIndex = 1
+            end
+
             for idx, track in ipairs(SavedTracksList) do
+                local isSel = (SelectedSavedIndex == idx)
+                local ItemRow = Instance.new("Frame")
+                ItemRow.Size = UDim2.new(1, -6, 0, 24)
+                ItemRow.BackgroundColor3 = isSel and Library.Theme.Header or Library.Theme.Card
+                ItemRow.BorderSizePixel = 0
+                ItemRow.ZIndex = 24
+                ItemRow.Parent = MusicScroll
+                addCorner(ItemRow, 4)
+
+                local ItemStroke = Instance.new("UIStroke")
+                ItemStroke.Color = isSel and Library.Theme.StrokeActive or Library.Theme.Stroke
+                ItemStroke.Thickness = isSel and 1 or 0.8
+                ItemStroke.Parent = ItemRow
+
                 local ItemBtn = Instance.new("TextButton")
-                ItemBtn.Size = UDim2.new(1, 0, 0, 22)
-                ItemBtn.BackgroundColor3 = (SelectedSavedTrack == track) and Library.Theme.Header or Library.Theme.Card
-                ItemBtn.BorderSizePixel = 0
+                ItemBtn.Size = UDim2.new(1, -54, 1, 0)
+                ItemBtn.Position = UDim2.new(0, 0, 0, 0)
+                ItemBtn.BackgroundTransparency = 1
                 ItemBtn.Font = Library.Fonts.Badge
-                ItemBtn.Text = "  " .. tostring(track.Name) .. " [" .. tostring(track.Path) .. "]"
-                ItemBtn.TextColor3 = (SelectedSavedTrack == track) and Library.Theme.Accent or Library.Theme.Text
+                ItemBtn.Text = "  " .. idx .. ". " .. tostring(track.Name) .. " [" .. tostring(track.Path) .. "]"
+                ItemBtn.TextColor3 = isSel and Library.Theme.Accent or Library.Theme.Text
                 ItemBtn.TextSize = 9.5
                 ItemBtn.TextXAlignment = Enum.TextXAlignment.Left
                 ItemBtn.TextTruncate = Enum.TextTruncate.AtEnd
-                ItemBtn.ZIndex = 24
-                ItemBtn.Parent = MusicScroll
-                addCorner(ItemBtn, 4)
+                ItemBtn.ZIndex = 25
+                ItemBtn.Parent = ItemRow
+
+                -- Quick Play Button (▶)
+                local QPlayBtn = Instance.new("TextButton")
+                QPlayBtn.Size = UDim2.new(0, 22, 0, 18)
+                QPlayBtn.Position = UDim2.new(1, -48, 0.5, -9)
+                QPlayBtn.BackgroundColor3 = Library.Theme.Card
+                QPlayBtn.BorderSizePixel = 0
+                QPlayBtn.Font = Library.Fonts.Badge
+                QPlayBtn.Text = "▶"
+                QPlayBtn.TextColor3 = Library.Theme.Accent
+                QPlayBtn.TextSize = 9
+                QPlayBtn.ZIndex = 26
+                QPlayBtn.Parent = ItemRow
+                addCorner(QPlayBtn, 3)
+
+                -- Quick Delete Button (🗑)
+                local QDelBtn = Instance.new("TextButton")
+                QDelBtn.Size = UDim2.new(0, 22, 0, 18)
+                QDelBtn.Position = UDim2.new(1, -24, 0.5, -9)
+                QDelBtn.BackgroundColor3 = Library.Theme.Card
+                QDelBtn.BorderSizePixel = 0
+                QDelBtn.Font = Library.Fonts.Badge
+                QDelBtn.Text = "🗑"
+                QDelBtn.TextColor3 = Library.Theme.TextDim
+                QDelBtn.TextSize = 9
+                QDelBtn.ZIndex = 26
+                QDelBtn.Parent = ItemRow
+                addCorner(QDelBtn, 3)
 
                 ItemBtn.MouseButton1Click:Connect(function()
-                    SelectedSavedTrack = track
+                    SelectedSavedIndex = idx
+                    loadWorkspacePlaylist()
+                end)
+
+                QPlayBtn.MouseButton1Click:Connect(function()
+                    SelectedSavedIndex = idx
+                    playWorkspaceTrack(idx, track.Name)
+                    loadWorkspacePlaylist()
+                end)
+
+                QDelBtn.MouseButton1Click:Connect(function()
+                    table.remove(SavedTracksList, idx)
+                    if SelectedSavedIndex and SelectedSavedIndex >= idx then
+                        SelectedSavedIndex = math.max(1, SelectedSavedIndex - 1)
+                    end
+                    saveWorkspacePlaylistFile()
                     loadWorkspacePlaylist()
                 end)
             end
         end
-        MusicScroll.CanvasSize = UDim2.new(0, 0, 0, #SavedTracksList * 24)
-    end
-
-    local function saveWorkspacePlaylistFile()
-        if writefile then
-            local s, encoded = pcall(function() return HttpService:JSONEncode(SavedTracksList) end)
-            if s and encoded then
-                pcall(function() writefile(PLAYLIST_FILE, encoded) end)
-            end
-        end
+        MusicScroll.CanvasSize = UDim2.new(0, 0, 0, #SavedTracksList * 27)
     end
 
     SaveSongBtn.MouseButton1Click:Connect(function()
@@ -3672,41 +3814,32 @@ do
         saveWorkspacePlaylistFile()
         SongNameInput.Text = ""
         SongPathInput.Text = ""
+        SelectedSavedIndex = #SavedTracksList
         loadWorkspacePlaylist()
     end)
 
     PlaySavedBtn.MouseButton1Click:Connect(function()
-        if SelectedSavedTrack and SelectedSavedTrack.Path then
-            local src = SelectedSavedTrack.Path
-            if isfile and getcustomasset and isfile(src) then
-                local s, uri = pcall(function() return getcustomasset(src) end)
-                if s and uri then src = uri end
-            elseif tonumber(src) then
-                src = "rbxassetid://" .. src
-            elseif not string.match(src, "^rbxassetid://") and not string.match(src, "^http") then
-                src = formatAssetId(src)
-            end
-            playWorkspaceTrack(src, SelectedSavedTrack.Name)
+        if SelectedSavedIndex and SavedTracksList[SelectedSavedIndex] then
+            playWorkspaceTrack(SelectedSavedIndex, SavedTracksList[SelectedSavedIndex].Name)
         end
     end)
 
     DeleteSavedBtn.MouseButton1Click:Connect(function()
-        if SelectedSavedTrack then
-            for i, track in ipairs(SavedTracksList) do
-                if track == SelectedSavedTrack then
-                    table.remove(SavedTracksList, i)
-                    break
-                end
+        if SelectedSavedIndex and SavedTracksList[SelectedSavedIndex] then
+            table.remove(SavedTracksList, SelectedSavedIndex)
+            if SelectedSavedIndex > #SavedTracksList then
+                SelectedSavedIndex = #SavedTracksList
             end
-            SelectedSavedTrack = nil
             saveWorkspacePlaylistFile()
             loadWorkspacePlaylist()
         end
     end)
 
+    LoadPlaylistBtn.MouseButton1Click:Connect(loadWorkspacePlaylist)
     RefreshSavedBtn.MouseButton1Click:Connect(loadWorkspacePlaylist)
 
     task.defer(loadWorkspacePlaylist)
+end
 end
 
 -- 5. VISUALS TAB PAGE (ADVANCED BLUR & WALLPAPER IMAGE CONTROL)
