@@ -6685,10 +6685,10 @@ function Library:CreateBlock(title, defaultPosition)
         Label.ZIndex = 6
         Label.Parent = PixelFrame
 
-        -- HSV Color Picker Popup Window (Compact Sleek Design)
+        -- HSV Color Picker Popup Window (Sleek Redesigned Compact UI)
         local PickerPopup = Instance.new("Frame")
         PickerPopup.Name = "ColorPicker_" .. name
-        PickerPopup.Size = UDim2.new(0, 175, 0, 172)
+        PickerPopup.Size = UDim2.new(0, 168, 0, 178)
         PickerPopup.BackgroundColor3 = Library.Theme.Block
         PickerPopup.BorderSizePixel = 0
         PickerPopup.Visible = false
@@ -6750,7 +6750,7 @@ function Library:CreateBlock(title, defaultPosition)
 
         -- Saturation/Value Main Box Canvas
         local SatValBox = Instance.new("ImageLabel")
-        SatValBox.Size = UDim2.new(0, 132, 0, 104)
+        SatValBox.Size = UDim2.new(0, 126, 0, 100)
         SatValBox.Position = UDim2.new(0, 6, 0, 26)
         SatValBox.BackgroundColor3 = Color3.fromHSV(h, 1, 1)
         SatValBox.BorderSizePixel = 0
@@ -6774,8 +6774,8 @@ function Library:CreateBlock(title, defaultPosition)
 
         -- Vertical Rainbow Hue Slider (Right Bar)
         local HueBar = Instance.new("Frame")
-        HueBar.Size = UDim2.new(0, 22, 0, 104)
-        HueBar.Position = UDim2.new(0, 145, 0, 26)
+        HueBar.Size = UDim2.new(0, 22, 0, 100)
+        HueBar.Position = UDim2.new(0, 138, 0, 26)
         HueBar.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
         HueBar.BorderSizePixel = 0
         HueBar.ZIndex = 602
@@ -6806,8 +6806,8 @@ function Library:CreateBlock(title, defaultPosition)
 
         -- Bottom Value / Brightness Bar
         local ValBar = Instance.new("Frame")
-        ValBar.Size = UDim2.new(0, 161, 0, 15)
-        ValBar.Position = UDim2.new(0, 6, 0, 134)
+        ValBar.Size = UDim2.new(0, 108, 0, 16)
+        ValBar.Position = UDim2.new(0, 6, 0, 130)
         ValBar.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
         ValBar.BorderSizePixel = 0
         ValBar.ZIndex = 602
@@ -6833,8 +6833,8 @@ function Library:CreateBlock(title, defaultPosition)
 
         -- Live Hex Text Input Box
         local HexBoxBg = Instance.new("Frame")
-        HexBoxBg.Size = UDim2.new(0, 161, 0, 16)
-        HexBoxBg.Position = UDim2.new(0, 6, 0, 152)
+        HexBoxBg.Size = UDim2.new(0, 44, 0, 16)
+        HexBoxBg.Position = UDim2.new(0, 118, 0, 130)
         HexBoxBg.BackgroundColor3 = Library.Theme.Header
         HexBoxBg.BorderSizePixel = 0
         HexBoxBg.ZIndex = 602
@@ -6842,8 +6842,8 @@ function Library:CreateBlock(title, defaultPosition)
         addCorner(HexBoxBg, 4)
 
         local HexInput = Instance.new("TextBox")
-        HexInput.Size = UDim2.new(1, -6, 1, 0)
-        HexInput.Position = UDim2.new(0, 3, 0, 0)
+        HexInput.Size = UDim2.new(1, 0, 1, 0)
+        HexInput.Position = UDim2.new(0, 0, 0, 0)
         HexInput.BackgroundTransparency = 1
         HexInput.Font = Library.Fonts.Badge
         HexInput.Text = "#" .. currentColor:ToHex()
@@ -6853,6 +6853,30 @@ function Library:CreateBlock(title, defaultPosition)
         HexInput.ZIndex = 603
         HexInput.Parent = HexBoxBg
 
+        -- Quick Color Swatches Row (6 Preset Colors)
+        local PresetColors = {
+            Color3.fromRGB(255, 60, 60),   -- Red
+            Color3.fromRGB(255, 160, 40),  -- Orange
+            Color3.fromRGB(255, 220, 50),  -- Yellow
+            Color3.fromRGB(60, 230, 110),  -- Green
+            Color3.fromRGB(0, 210, 255),   -- Cyan
+            Color3.fromRGB(180, 90, 255)   -- Purple
+        }
+
+        local SwatchContainer = Instance.new("Frame")
+        SwatchContainer.Size = UDim2.new(1, -12, 0, 20)
+        SwatchContainer.Position = UDim2.new(0, 6, 0, 151)
+        SwatchContainer.BackgroundTransparency = 1
+        SwatchContainer.ZIndex = 602
+        SwatchContainer.Parent = PickerPopup
+
+        local SwatchLayout = Instance.new("UIListLayout")
+        SwatchLayout.FillDirection = Enum.FillDirection.Horizontal
+        SwatchLayout.HorizontalAlignment = Enum.HorizontalAlignment.Center
+        SwatchLayout.VerticalAlignment = Enum.VerticalAlignment.Center
+        SwatchLayout.Padding = UDim.new(0, 6)
+        SwatchLayout.Parent = SwatchContainer
+
         local function updateColor(fireCallback)
             currentColor = Color3.fromHSV(h, s, v)
             ColorPreview.BackgroundColor3 = currentColor
@@ -6861,13 +6885,34 @@ function Library:CreateBlock(title, defaultPosition)
                 ColorSequenceKeypoint.new(0, Color3.fromRGB(0, 0, 0)),
                 ColorSequenceKeypoint.new(1, Color3.fromHSV(h, s, 1))
             })
-            SatValCursor.Position = UDim2.new(s, -5, 1 - v, -5)
-            HueCursor.Position = UDim2.new(0, -2, h, -2)
-            ValCursor.Position = UDim2.new(v, -2, 0, -2)
+            SatValCursor.Position = UDim2.new(s, -4, 1 - v, -4)
+            HueCursor.Position = UDim2.new(0, -2, h, -1.5)
+            ValCursor.Position = UDim2.new(v, -1.5, 0, -2)
             HexInput.Text = "#" .. currentColor:ToHex()
             if fireCallback then
                 task.spawn(function() pcall(callback, currentColor) end)
             end
+        end
+
+        for _, pColor in ipairs(PresetColors) do
+            local SwatchBtn = Instance.new("TextButton")
+            SwatchBtn.Size = UDim2.new(0, 20, 0, 16)
+            SwatchBtn.BackgroundColor3 = pColor
+            SwatchBtn.BorderSizePixel = 0
+            SwatchBtn.Text = ""
+            SwatchBtn.ZIndex = 603
+            SwatchBtn.Parent = SwatchContainer
+            addCorner(SwatchBtn, 4)
+
+            local SwatchStroke = Instance.new("UIStroke")
+            SwatchStroke.Color = Library.Theme.Stroke
+            SwatchStroke.Thickness = 0.8
+            SwatchStroke.Parent = SwatchBtn
+
+            SwatchBtn.MouseButton1Click:Connect(function()
+                h, s, v = Color3.toHSV(pColor)
+                updateColor(true)
+            end)
         end
 
         local draggingSatVal = false
@@ -6930,29 +6975,6 @@ function Library:CreateBlock(title, defaultPosition)
                 h, s, v = Color3.toHSV(parsed)
                 updateColor(true)
             end
-        end)
-
-        -- Close Button (X)
-        local CloseBtn = Instance.new("TextButton")
-        CloseBtn.Name = "CloseBtn"
-        CloseBtn.Size = UDim2.new(0, 16, 0, 16)
-        CloseBtn.Position = UDim2.new(1, -20, 0, 4)
-        CloseBtn.BackgroundTransparency = 1
-        CloseBtn.Font = Library.Fonts.Badge
-        CloseBtn.Text = "✕"
-        CloseBtn.TextColor3 = Library.Theme.TextDim
-        CloseBtn.TextSize = 11
-        CloseBtn.ZIndex = 605
-        CloseBtn.Parent = PickerPopup
-
-        CloseBtn.MouseEnter:Connect(function()
-            smoothTween(CloseBtn, DUR_FAST, { TextColor3 = Color3.fromRGB(255, 80, 80) })
-        end)
-        CloseBtn.MouseLeave:Connect(function()
-            smoothTween(CloseBtn, DUR_FAST, { TextColor3 = Library.Theme.TextDim })
-        end)
-        CloseBtn.MouseButton1Click:Connect(function()
-            PickerPopup.Visible = false
         end)
 
         trackConnection(UserInputService.InputBegan:Connect(function(input)
