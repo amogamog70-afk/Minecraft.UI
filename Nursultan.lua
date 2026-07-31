@@ -4219,7 +4219,7 @@ function Library:SetTheme(themeName)
                 local isSelected = (string.upper(tostring(name)) == string.upper(tostring(block.ActiveSubTab or "")))
                 st(subData.Button, {
                     BackgroundColor3 = isSelected and t.Card or t.Header,
-                    TextColor3 = isSelected and t.Accent or t.TextDim
+                    TextColor3 = isSelected and t.Text or t.TextDim
                 })
                 if subData.Stroke then
                     st(subData.Stroke, {
@@ -5556,7 +5556,7 @@ function Library:CreateBlock(title, defaultPosition)
             TabBtn.BorderSizePixel = 0
             TabBtn.Font = Library.Fonts.Label
             TabBtn.Text = strTabName
-            TabBtn.TextColor3 = (i == 1) and Library.Theme.Accent or Library.Theme.TextDim
+            TabBtn.TextColor3 = (i == 1) and Library.Theme.Text or Library.Theme.TextDim
             TabBtn.TextSize = 10
             TabBtn.ZIndex = 13
             TabBtn.Parent = SubTabHolder
@@ -5628,7 +5628,7 @@ function Library:CreateBlock(title, defaultPosition)
             local isSelected = (string.upper(tostring(name)) == targetName)
             smoothTween(data.Button, DUR_FAST, {
                 BackgroundColor3 = isSelected and Library.Theme.Card or Library.Theme.Header,
-                TextColor3 = isSelected and Library.Theme.Accent or Library.Theme.TextDim
+                TextColor3 = isSelected and Library.Theme.Text or Library.Theme.TextDim
             })
             smoothTween(data.Stroke, DUR_FAST, {
                 Color = isSelected and Library.Theme.StrokeActive or Library.Theme.Stroke,
