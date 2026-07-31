@@ -836,8 +836,6 @@ UI.PlayerNameLabel = PlayerNameLabel
 UI.WMarkFpsLabel = WMarkFpsLabel
 UI.WMarkPingLabel = WMarkPingLabel
 UI.WMarkTimeLabel = WMarkTimeLabel
-UI.WMarkPingLabel = WMarkPingLabel
-UI.WMarkTimeLabel = WMarkTimeLabel
 
 local fpsFrameCount = 0
 local lastFpsCheck = tick()
@@ -6687,10 +6685,10 @@ function Library:CreateBlock(title, defaultPosition)
         Label.ZIndex = 6
         Label.Parent = PixelFrame
 
-        -- HSV Color Picker Popup Window
+        -- HSV Color Picker Popup Window (Compact Sleek Design)
         local PickerPopup = Instance.new("Frame")
         PickerPopup.Name = "ColorPicker_" .. name
-        PickerPopup.Size = UDim2.new(0, 210, 0, 205)
+        PickerPopup.Size = UDim2.new(0, 175, 0, 172)
         PickerPopup.BackgroundColor3 = Library.Theme.Block
         PickerPopup.BorderSizePixel = 0
         PickerPopup.Visible = false
@@ -6707,7 +6705,7 @@ function Library:CreateBlock(title, defaultPosition)
         -- Top Integrated Header Bar
         local PickerHeader = Instance.new("Frame")
         PickerHeader.Name = "PickerHeader"
-        PickerHeader.Size = UDim2.new(1, 0, 0, 24)
+        PickerHeader.Size = UDim2.new(1, 0, 0, 22)
         PickerHeader.BackgroundColor3 = Library.Theme.Header
         PickerHeader.BorderSizePixel = 0
         PickerHeader.ZIndex = 602
@@ -6721,7 +6719,7 @@ function Library:CreateBlock(title, defaultPosition)
         HeaderTitle.Font = Library.Fonts.Badge
         HeaderTitle.Text = "COLOR PICKER"
         HeaderTitle.TextColor3 = Library.Theme.TextDim
-        HeaderTitle.TextSize = 9
+        HeaderTitle.TextSize = 8.5
         HeaderTitle.TextXAlignment = Enum.TextXAlignment.Left
         HeaderTitle.ZIndex = 603
         HeaderTitle.Parent = PickerHeader
@@ -6729,8 +6727,8 @@ function Library:CreateBlock(title, defaultPosition)
         -- Built-in Header Close Button (Icon 75193153566467)
         local CloseBtn = Instance.new("ImageButton")
         CloseBtn.Name = "CloseBtn"
-        CloseBtn.Size = UDim2.new(0, 14, 0, 14)
-        CloseBtn.Position = UDim2.new(1, -20, 0.5, -7)
+        CloseBtn.Size = UDim2.new(0, 13, 0, 13)
+        CloseBtn.Position = UDim2.new(1, -18, 0.5, -6.5)
         CloseBtn.BackgroundTransparency = 1
         CloseBtn.BorderSizePixel = 0
         CloseBtn.AutoButtonColor = false
@@ -6752,8 +6750,8 @@ function Library:CreateBlock(title, defaultPosition)
 
         -- Saturation/Value Main Box Canvas
         local SatValBox = Instance.new("ImageLabel")
-        SatValBox.Size = UDim2.new(0, 155, 0, 125)
-        SatValBox.Position = UDim2.new(0, 8, 0, 30)
+        SatValBox.Size = UDim2.new(0, 132, 0, 104)
+        SatValBox.Position = UDim2.new(0, 6, 0, 26)
         SatValBox.BackgroundColor3 = Color3.fromHSV(h, 1, 1)
         SatValBox.BorderSizePixel = 0
         SatValBox.Image = "rbxassetid://4155801252"
@@ -6762,22 +6760,22 @@ function Library:CreateBlock(title, defaultPosition)
         addCorner(SatValBox, 4)
 
         local SatValCursor = Instance.new("Frame")
-        SatValCursor.Size = UDim2.new(0, 10, 0, 10)
-        SatValCursor.Position = UDim2.new(s, -5, 1 - v, -5)
+        SatValCursor.Size = UDim2.new(0, 8, 0, 8)
+        SatValCursor.Position = UDim2.new(s, -4, 1 - v, -4)
         SatValCursor.BackgroundTransparency = 1
         SatValCursor.ZIndex = 603
         SatValCursor.Parent = SatValBox
-        addCorner(SatValCursor, 5)
+        addCorner(SatValCursor, 4)
 
         local CursorStroke = Instance.new("UIStroke")
         CursorStroke.Color = Color3.fromRGB(255, 255, 255)
-        CursorStroke.Thickness = 1.5
+        CursorStroke.Thickness = 1.2
         CursorStroke.Parent = SatValCursor
 
         -- Vertical Rainbow Hue Slider (Right Bar)
         local HueBar = Instance.new("Frame")
-        HueBar.Size = UDim2.new(0, 24, 0, 125)
-        HueBar.Position = UDim2.new(0, 172, 0, 30)
+        HueBar.Size = UDim2.new(0, 22, 0, 104)
+        HueBar.Position = UDim2.new(0, 145, 0, 26)
         HueBar.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
         HueBar.BorderSizePixel = 0
         HueBar.ZIndex = 602
@@ -6798,8 +6796,8 @@ function Library:CreateBlock(title, defaultPosition)
         HueGrad.Parent = HueBar
 
         local HueCursor = Instance.new("Frame")
-        HueCursor.Size = UDim2.new(1, 4, 0, 4)
-        HueCursor.Position = UDim2.new(0, -2, h, -2)
+        HueCursor.Size = UDim2.new(1, 4, 0, 3)
+        HueCursor.Position = UDim2.new(0, -2, h, -1.5)
         HueCursor.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
         HueCursor.BorderSizePixel = 0
         HueCursor.ZIndex = 603
@@ -6808,8 +6806,8 @@ function Library:CreateBlock(title, defaultPosition)
 
         -- Bottom Value / Brightness Bar
         local ValBar = Instance.new("Frame")
-        ValBar.Size = UDim2.new(0, 188, 0, 18)
-        ValBar.Position = UDim2.new(0, 8, 0, 160)
+        ValBar.Size = UDim2.new(0, 161, 0, 15)
+        ValBar.Position = UDim2.new(0, 6, 0, 134)
         ValBar.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
         ValBar.BorderSizePixel = 0
         ValBar.ZIndex = 602
@@ -6825,8 +6823,8 @@ function Library:CreateBlock(title, defaultPosition)
         ValGrad.Parent = ValBar
 
         local ValCursor = Instance.new("Frame")
-        ValCursor.Size = UDim2.new(0, 4, 1, 4)
-        ValCursor.Position = UDim2.new(v, -2, 0, -2)
+        ValCursor.Size = UDim2.new(0, 3, 1, 4)
+        ValCursor.Position = UDim2.new(v, -1.5, 0, -2)
         ValCursor.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
         ValCursor.BorderSizePixel = 0
         ValCursor.ZIndex = 603
@@ -6835,8 +6833,8 @@ function Library:CreateBlock(title, defaultPosition)
 
         -- Live Hex Text Input Box
         local HexBoxBg = Instance.new("Frame")
-        HexBoxBg.Size = UDim2.new(0, 188, 0, 18)
-        HexBoxBg.Position = UDim2.new(0, 8, 0, 182)
+        HexBoxBg.Size = UDim2.new(0, 161, 0, 16)
+        HexBoxBg.Position = UDim2.new(0, 6, 0, 152)
         HexBoxBg.BackgroundColor3 = Library.Theme.Header
         HexBoxBg.BorderSizePixel = 0
         HexBoxBg.ZIndex = 602
@@ -6850,7 +6848,7 @@ function Library:CreateBlock(title, defaultPosition)
         HexInput.Font = Library.Fonts.Badge
         HexInput.Text = "#" .. currentColor:ToHex()
         HexInput.TextColor3 = Library.Theme.Accent
-        HexInput.TextSize = 9.5
+        HexInput.TextSize = 8.5
         HexInput.TextXAlignment = Enum.TextXAlignment.Center
         HexInput.ZIndex = 603
         HexInput.Parent = HexBoxBg
@@ -6858,7 +6856,6 @@ function Library:CreateBlock(title, defaultPosition)
         local function updateColor(fireCallback)
             currentColor = Color3.fromHSV(h, s, v)
             ColorPreview.BackgroundColor3 = currentColor
-            SatValBox.BackgroundColor3 = Color3.fromHSV(h, 1, 1)
             SatValBox.BackgroundColor3 = Color3.fromHSV(h, 1, 1)
             ValGrad.Color = ColorSequence.new({
                 ColorSequenceKeypoint.new(0, Color3.fromRGB(0, 0, 0)),
