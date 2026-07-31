@@ -3840,7 +3840,6 @@ do
 
     task.defer(loadWorkspacePlaylist)
 end
-end
 
 -- 5. VISUALS TAB PAGE (ADVANCED BLUR & WALLPAPER IMAGE CONTROL)
 do
