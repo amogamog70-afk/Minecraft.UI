@@ -4211,14 +4211,14 @@ function Library:SetTheme(themeName)
         if block.HeaderIcon then st(block.HeaderIcon, { ImageColor3 = t.Accent }) end
         st(block.Stroke, { Color = t.Stroke })
 
-        if block.SubTabHolder then st(block.SubTabHolder, { BackgroundColor3 = t.Card }) end
-        if block.SubTabStroke then st(block.SubTabStroke, { Color = t.Stroke }) end
+        if block.SubTabHolder then st(block.SubTabHolder, { BackgroundColor3 = t.Header }) end
+        if block.SubTabStroke then st(block.SubTabStroke, { Color = t.StrokeActive }) end
 
         if block.SubTabButtons then
             for name, subData in pairs(block.SubTabButtons) do
                 local isSelected = (string.upper(tostring(name)) == string.upper(tostring(block.ActiveSubTab or "")))
                 st(subData.Button, {
-                    BackgroundColor3 = isSelected and t.Header or t.Block,
+                    BackgroundColor3 = isSelected and t.Card or t.Header,
                     TextColor3 = isSelected and t.Accent or t.TextDim
                 })
                 if subData.Stroke then
@@ -5518,15 +5518,15 @@ function Library:CreateBlock(title, defaultPosition)
         local SubTabHolder = Instance.new("Frame")
         SubTabHolder.Name = "SubTabHolder"
         SubTabHolder.Size = UDim2.new(1, 0, 0, 26)
-        SubTabHolder.BackgroundColor3 = Library.Theme.Card
+        SubTabHolder.BackgroundColor3 = Library.Theme.Header
         SubTabHolder.BorderSizePixel = 0
         SubTabHolder.ZIndex = 12
         SubTabHolder.Parent = Content
         addCorner(SubTabHolder, 6)
 
         local SubTabStroke = Instance.new("UIStroke")
-        SubTabStroke.Color = Library.Theme.Stroke
-        SubTabStroke.Transparency = 0.3
+        SubTabStroke.Color = Library.Theme.StrokeActive
+        SubTabStroke.Transparency = 0.4
         SubTabStroke.Thickness = 1
         SubTabStroke.Parent = SubTabHolder
 
@@ -5552,7 +5552,7 @@ function Library:CreateBlock(title, defaultPosition)
             local TabBtn = Instance.new("TextButton")
             TabBtn.Name = "SubTab_" .. strTabName
             TabBtn.Size = UDim2.new(1 / numTabs, -(math.floor((numTabs - 1) * 3 / numTabs)), 1, 0)
-            TabBtn.BackgroundColor3 = (i == 1) and Library.Theme.Header or Library.Theme.Block
+            TabBtn.BackgroundColor3 = (i == 1) and Library.Theme.Card or Library.Theme.Header
             TabBtn.BorderSizePixel = 0
             TabBtn.Font = Library.Fonts.Label
             TabBtn.Text = strTabName
@@ -5580,7 +5580,7 @@ function Library:CreateBlock(title, defaultPosition)
             TabBtn.MouseLeave:Connect(function()
                 local isSel = (string.upper(tostring(strTabName)) == string.upper(tostring(Block.ActiveSubTab or "")))
                 if not isSel then
-                    smoothTween(TabBtn, DUR_FAST, { BackgroundColor3 = Library.Theme.Block, TextColor3 = Library.Theme.TextDim })
+                    smoothTween(TabBtn, DUR_FAST, { BackgroundColor3 = Library.Theme.Header, TextColor3 = Library.Theme.TextDim })
                 end
             end)
 
@@ -5627,7 +5627,7 @@ function Library:CreateBlock(title, defaultPosition)
         for name, data in pairs(Block.SubTabButtons) do
             local isSelected = (string.upper(tostring(name)) == targetName)
             smoothTween(data.Button, DUR_FAST, {
-                BackgroundColor3 = isSelected and Library.Theme.Header or Library.Theme.Block,
+                BackgroundColor3 = isSelected and Library.Theme.Card or Library.Theme.Header,
                 TextColor3 = isSelected and Library.Theme.Accent or Library.Theme.TextDim
             })
             smoothTween(data.Stroke, DUR_FAST, {
