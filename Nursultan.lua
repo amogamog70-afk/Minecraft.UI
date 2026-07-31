@@ -6894,6 +6894,8 @@ function Library:CreateBlock(title, defaultPosition)
             end
         end
 
+        local clickingSwatch = false
+
         for _, pColor in ipairs(PresetColors) do
             local SwatchBtn = Instance.new("TextButton")
             SwatchBtn.Size = UDim2.new(0, 20, 0, 16)
@@ -6910,8 +6912,12 @@ function Library:CreateBlock(title, defaultPosition)
             SwatchStroke.Parent = SwatchBtn
 
             SwatchBtn.MouseButton1Click:Connect(function()
+                clickingSwatch = true
                 h, s, v = Color3.toHSV(pColor)
                 updateColor(true)
+                task.delay(0.15, function()
+                    clickingSwatch = false
+                end)
             end)
         end
 
@@ -6945,18 +6951,19 @@ function Library:CreateBlock(title, defaultPosition)
 
         trackConnection(UserInputService.InputChanged:Connect(function(input)
             if input.UserInputType == Enum.UserInputType.MouseMovement then
+                local insetY = game:GetService("GuiService"):GetGuiInset().Y
                 if draggingSatVal then
                     local mousePos = UserInputService:GetMouseLocation()
                     local boxPos = SatValBox.AbsolutePosition
                     local boxSize = SatValBox.AbsoluteSize
                     s = math.clamp((mousePos.X - boxPos.X) / boxSize.X, 0, 1)
-                    v = math.clamp(1 - ((mousePos.Y - 36 - boxPos.Y) / boxSize.Y), 0, 1)
+                    v = math.clamp(1 - ((mousePos.Y - insetY - boxPos.Y) / boxSize.Y), 0, 1)
                     updateColor(true)
                 elseif draggingHue then
                     local mousePos = UserInputService:GetMouseLocation()
                     local barPos = HueBar.AbsolutePosition
                     local barSize = HueBar.AbsoluteSize
-                    h = math.clamp((mousePos.Y - 36 - barPos.Y) / barSize.Y, 0, 1)
+                    h = math.clamp((mousePos.Y - insetY - barPos.Y) / barSize.Y, 0, 1)
                     updateColor(true)
                 elseif draggingVal then
                     local mousePos = UserInputService:GetMouseLocation()
@@ -6979,14 +6986,16 @@ function Library:CreateBlock(title, defaultPosition)
 
         trackConnection(UserInputService.InputBegan:Connect(function(input)
             if PickerPopup.Visible and (input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.MouseButton2 or input.UserInputType == Enum.UserInputType.Touch) then
-                if draggingSatVal or draggingHue or draggingVal then return end
+                if draggingSatVal or draggingHue or draggingVal or clickingSwatch then return end
+                local insetY = game:GetService("GuiService"):GetGuiInset().Y
                 local mousePos = UserInputService:GetMouseLocation()
                 local popPos = PickerPopup.AbsolutePosition
                 local popSize = PickerPopup.AbsoluteSize
-                if mousePos.X < popPos.X or mousePos.X > popPos.X + popSize.X or (mousePos.Y - 36) < popPos.Y or (mousePos.Y - 36) > popPos.Y + popSize.Y then
+                local mouseY = mousePos.Y - insetY
+                if mousePos.X < popPos.X or mousePos.X > popPos.X + popSize.X or mouseY < popPos.Y or mouseY > popPos.Y + popSize.Y then
                     local btnPos = ColorPreview.AbsolutePosition
                     local btnSize = ColorPreview.AbsoluteSize
-                    if not (mousePos.X >= btnPos.X and mousePos.X <= btnPos.X + btnSize.X and (mousePos.Y - 36) >= btnPos.Y and (mousePos.Y - 36) <= btnPos.Y + btnSize.Y) then
+                    if not (mousePos.X >= btnPos.X and mousePos.X <= btnPos.X + btnSize.X and mouseY >= btnPos.Y and mouseY <= btnPos.Y + btnSize.Y) then
                         PickerPopup.Visible = false
                     end
                 end
