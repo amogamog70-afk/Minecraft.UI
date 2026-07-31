@@ -2194,18 +2194,6 @@ do
     ConfigNameInput.ZIndex = 25
     ConfigNameInput.Parent = ConfigNameBg
 
-    local ConfigDropBackdrop = Instance.new("TextButton")
-    ConfigDropBackdrop.Name = "ConfigDropBackdrop"
-    ConfigDropBackdrop.Size = UDim2.new(1, 0, 1, 0)
-    ConfigDropBackdrop.Position = UDim2.new(0, 0, 0, 0)
-    ConfigDropBackdrop.BackgroundTransparency = 1
-    ConfigDropBackdrop.Visible = false
-    ConfigDropBackdrop.Text = ""
-    ConfigDropBackdrop.Active = true
-    ConfigDropBackdrop.Modal = true
-    ConfigDropBackdrop.ZIndex = 499
-    ConfigDropBackdrop.Parent = ScreenGui
-
     local SaveCreateBtn = Instance.new("TextButton")
     SaveCreateBtn.Size = UDim2.new(0, 120, 0, 30)
     SaveCreateBtn.Position = UDim2.new(1, -130, 0, 12)
@@ -2264,7 +2252,7 @@ do
     ConfigDropdownBtn.Parent = ConfigSelectBg
     addCorner(ConfigDropdownBtn, 5)
 
-    -- UNCLIPPED CONFIG SELECTION DROPDOWN (PARENTED DIRECTLY TO BUTTON)
+    -- UNCLIPPED CONFIG SELECTION DROPDOWN
     local ConfigDropList = Instance.new("Frame")
     ConfigDropList.Name = "ConfigDropListOverlay"
     ConfigDropList.Size = UDim2.new(1, 0, 0, 0)
@@ -2273,13 +2261,12 @@ do
     ConfigDropList.BorderSizePixel = 0
     ConfigDropList.ClipsDescendants = true
     ConfigDropList.Visible = false
-    ConfigDropList.ZIndex = 500
+    ConfigDropList.ZIndex = 1000
     ConfigDropList.Parent = ConfigDropdownBtn
 
     local ConfigDropStroke = Instance.new("UIStroke")
     ConfigDropStroke.Color = Library.Theme.StrokeActive
     ConfigDropStroke.Thickness = 1.2
-    ConfigDropStroke.ZIndex = 501
     ConfigDropStroke.Parent = ConfigDropList
 
     local ConfigDropScroll = Instance.new("ScrollingFrame")
@@ -2288,7 +2275,7 @@ do
     ConfigDropScroll.BorderSizePixel = 0
     ConfigDropScroll.ScrollBarThickness = 3
     ConfigDropScroll.ScrollBarImageColor3 = Library.Theme.Accent
-    ConfigDropScroll.ZIndex = 501
+    ConfigDropScroll.ZIndex = 1001
     ConfigDropScroll.Parent = ConfigDropList
 
     local ConfigDropLayout = Instance.new("UIListLayout")
@@ -2335,18 +2322,15 @@ do
             ItemBtn.TextColor3 = (ConfigNameInput.Text == cfgName) and Library.Theme.Accent or Library.Theme.TextDim
             ItemBtn.TextSize = 10
             ItemBtn.TextXAlignment = Enum.TextXAlignment.Left
-            ItemBtn.ZIndex = 302
+            ItemBtn.ZIndex = 1002
             ItemBtn.Parent = ConfigDropScroll
 
             ItemBtn.MouseButton1Click:Connect(function()
                 ConfigNameInput.Text = cfgName
                 ConfigDropdownBtn.Text = cfgName .. ".json v"
                 configDropOpen = false
-                ConfigDropBackdrop.Visible = false
-                local t = smoothTween(ConfigDropList, DUR_NORMAL, { Size = UDim2.new(1, 0, 0, 0) })
-                t.Completed:Connect(function()
-                    if not configDropOpen then ConfigDropList.Visible = false end
-                end)
+                ConfigDropList.Visible = false
+                ConfigDropList.Size = UDim2.new(1, 0, 0, 0)
             end)
         end
 
@@ -2357,24 +2341,12 @@ do
 
     ConfigDropdownBtn.MouseButton1Click:Connect(function()
         configDropOpen = not configDropOpen
-        ConfigDropBackdrop.Visible = configDropOpen
         if configDropOpen then
             local height = refreshConfigDropdownOptions()
             ConfigDropList.Size = UDim2.new(1, 0, 0, 0)
             ConfigDropList.Visible = true
             smoothTween(ConfigDropList, DUR_NORMAL, { Size = UDim2.new(1, 0, 0, height) })
         else
-            local t = smoothTween(ConfigDropList, DUR_NORMAL, { Size = UDim2.new(1, 0, 0, 0) })
-            t.Completed:Connect(function()
-                if not configDropOpen then ConfigDropList.Visible = false end
-            end)
-        end
-    end)
-
-    ConfigDropBackdrop.MouseButton1Click:Connect(function()
-        if configDropOpen then
-            configDropOpen = false
-            ConfigDropBackdrop.Visible = false
             local t = smoothTween(ConfigDropList, DUR_NORMAL, { Size = UDim2.new(1, 0, 0, 0) })
             t.Completed:Connect(function()
                 if not configDropOpen then ConfigDropList.Visible = false end
@@ -2392,7 +2364,7 @@ do
                 local btnSize = ConfigDropdownBtn.AbsoluteSize
                 if not (clickPos.X >= btnPos.X and clickPos.X <= btnPos.X + btnSize.X and clickPos.Y >= btnPos.Y and clickPos.Y <= btnPos.Y + btnSize.Y) then
                     configDropOpen = false
-                    local t = smoothTween(ConfigDropList, DUR_NORMAL, { Size = UDim2.new(1, -105, 0, 0) })
+                    local t = smoothTween(ConfigDropList, DUR_NORMAL, { Size = UDim2.new(1, 0, 0, 0) })
                     t.Completed:Connect(function()
                         if not configDropOpen then ConfigDropList.Visible = false end
                     end)
@@ -3492,373 +3464,6 @@ do
     end)
 
 -- End of Radio Card Settings
-    -- Card 2: Custom Music & Workspace Playlist Manager
-    local MusicManagerCard = Instance.new("Frame")
-    MusicManagerCard.Size = UDim2.new(1, 0, 0, 275)
-    MusicManagerCard.Position = UDim2.new(0, 0, 0, 180)
-    MusicManagerCard.BackgroundColor3 = Library.Theme.Card
-    MusicManagerCard.BorderSizePixel = 0
-    MusicManagerCard.ZIndex = 22
-    MusicManagerCard.Parent = RadioPage
-    UI.MusicManagerCard = MusicManagerCard
-    addCorner(MusicManagerCard, 8)
-
-    local MCardTitle = Instance.new("TextLabel")
-    MCardTitle.Size = UDim2.new(1, -20, 0, 20)
-    MCardTitle.Position = UDim2.new(0, 10, 0, 8)
-    MCardTitle.BackgroundTransparency = 1
-    MCardTitle.Font = Library.Fonts.Header
-    MCardTitle.Text = "CUSTOM MUSIC & WORKSPACE PLAYLIST MANAGER"
-    MCardTitle.TextColor3 = Library.Theme.Accent
-    MCardTitle.TextSize = 11
-    MCardTitle.TextXAlignment = Enum.TextXAlignment.Left
-    MCardTitle.ZIndex = 23
-    MCardTitle.Parent = MusicManagerCard
-    UI.MCardTitle = MCardTitle
-
-    -- Input Row 1: Song Name
-    local NameRowBg = Instance.new("Frame")
-    NameRowBg.Size = UDim2.new(1, -20, 0, 26)
-    NameRowBg.Position = UDim2.new(0, 10, 0, 32)
-    NameRowBg.BackgroundColor3 = Library.Theme.Header
-    NameRowBg.BorderSizePixel = 0
-    NameRowBg.ZIndex = 23
-    NameRowBg.Parent = MusicManagerCard
-    addCorner(NameRowBg, 5)
-
-    local SongNameInput = Instance.new("TextBox")
-    SongNameInput.Size = UDim2.new(1, -10, 1, 0)
-    SongNameInput.Position = UDim2.new(0, 5, 0, 0)
-    SongNameInput.BackgroundTransparency = 1
-    SongNameInput.Font = Library.Fonts.Badge
-    SongNameInput.PlaceholderText = "Song Name (e.g. Cyberpunk Track)..."
-    SongNameInput.PlaceholderColor3 = Library.Theme.TextDim
-    SongNameInput.Text = ""
-    SongNameInput.TextColor3 = Library.Theme.Text
-    SongNameInput.TextSize = 10
-    SongNameInput.TextXAlignment = Enum.TextXAlignment.Left
-    SongNameInput.ZIndex = 24
-    SongNameInput.Parent = NameRowBg
-
-    -- Input Row 2: Roblox ID or File Path
-    local PathRowBg = Instance.new("Frame")
-    PathRowBg.Size = UDim2.new(1, -20, 0, 26)
-    PathRowBg.Position = UDim2.new(0, 10, 0, 64)
-    PathRowBg.BackgroundColor3 = Library.Theme.Header
-    PathRowBg.BorderSizePixel = 0
-    PathRowBg.ZIndex = 23
-    PathRowBg.Parent = MusicManagerCard
-    addCorner(PathRowBg, 5)
-
-    local SongPathInput = Instance.new("TextBox")
-    SongPathInput.Size = UDim2.new(1, -10, 1, 0)
-    SongPathInput.Position = UDim2.new(0, 5, 0, 0)
-    SongPathInput.BackgroundTransparency = 1
-    SongPathInput.Font = Library.Fonts.Badge
-    SongPathInput.PlaceholderText = "Roblox Sound ID (e.g. 1845...) or local_track.mp3"
-    SongPathInput.PlaceholderColor3 = Library.Theme.TextDim
-    SongPathInput.Text = ""
-    SongPathInput.TextColor3 = Library.Theme.Text
-    SongPathInput.TextSize = 10
-    SongPathInput.TextXAlignment = Enum.TextXAlignment.Left
-    SongPathInput.ZIndex = 24
-    SongPathInput.Parent = PathRowBg
-
-    -- Save Song Button
-    local SaveSongBtn = Instance.new("TextButton")
-    SaveSongBtn.Size = UDim2.new(1, -20, 0, 26)
-    SaveSongBtn.Position = UDim2.new(0, 10, 0, 96)
-    SaveSongBtn.BackgroundColor3 = Library.Theme.Header
-    SaveSongBtn.BorderSizePixel = 0
-    SaveSongBtn.Font = Library.Fonts.Header
-    SaveSongBtn.Text = "➕ ADD SONG TO WORKSPACE PLAYLIST"
-    SaveSongBtn.TextColor3 = Library.Theme.Text
-    SaveSongBtn.TextSize = 10
-    SaveSongBtn.ZIndex = 23
-    SaveSongBtn.Parent = MusicManagerCard
-    addCorner(SaveSongBtn, 5)
-
-    -- Saved Playlist Selector Header
-    local PlaylistLbl = Instance.new("TextLabel")
-    PlaylistLbl.Size = UDim2.new(1, -20, 0, 18)
-    PlaylistLbl.Position = UDim2.new(0, 10, 0, 126)
-    PlaylistLbl.BackgroundTransparency = 1
-    PlaylistLbl.Font = Library.Fonts.Label
-    PlaylistLbl.Text = "SAVED WORKSPACE SONGS (Nursultan/Music/):"
-    PlaylistLbl.TextColor3 = Library.Theme.TextDim
-    PlaylistLbl.TextSize = 9.5
-    PlaylistLbl.TextXAlignment = Enum.TextXAlignment.Left
-    PlaylistLbl.ZIndex = 23
-    PlaylistLbl.Parent = MusicManagerCard
-
-    -- Saved Songs Scroll List
-    local MusicScroll = Instance.new("ScrollingFrame")
-    MusicScroll.Size = UDim2.new(1, -20, 0, 85)
-    MusicScroll.Position = UDim2.new(0, 10, 0, 144)
-    MusicScroll.BackgroundColor3 = Library.Theme.Block
-    MusicScroll.BorderSizePixel = 0
-    MusicScroll.ScrollBarThickness = 3
-    MusicScroll.ScrollBarImageColor3 = Library.Theme.Accent
-    MusicScroll.ZIndex = 23
-    MusicScroll.Parent = MusicManagerCard
-    addCorner(MusicScroll, 5)
-
-    local MusicListLayout = Instance.new("UIListLayout")
-    MusicListLayout.SortOrder = Enum.SortOrder.LayoutOrder
-    MusicListLayout.Padding = UDim.new(0, 3)
-    MusicListLayout.Parent = MusicScroll
-
-    -- Action Bar: PLAY / DELETE / LOAD CONFIG / REFRESH
-    local ActionRow = Instance.new("Frame")
-    ActionRow.Size = UDim2.new(1, -20, 0, 26)
-    ActionRow.Position = UDim2.new(0, 10, 0, 235)
-    ActionRow.BackgroundTransparency = 1
-    ActionRow.ZIndex = 23
-    ActionRow.Parent = MusicManagerCard
-
-    local PlaySavedBtn = Instance.new("TextButton")
-    PlaySavedBtn.Size = UDim2.new(0.23, 0, 1, 0)
-    PlaySavedBtn.Position = UDim2.new(0, 0, 0, 0)
-    PlaySavedBtn.BackgroundColor3 = Library.Theme.Header
-    PlaySavedBtn.BorderSizePixel = 0
-    PlaySavedBtn.Font = Library.Fonts.Header
-    PlaySavedBtn.Text = "▶ PLAY"
-    PlaySavedBtn.TextColor3 = Library.Theme.Text
-    PlaySavedBtn.TextSize = 9
-    PlaySavedBtn.ZIndex = 24
-    PlaySavedBtn.Parent = ActionRow
-    addCorner(PlaySavedBtn, 4)
-
-    local DeleteSavedBtn = Instance.new("TextButton")
-    DeleteSavedBtn.Size = UDim2.new(0.23, 0, 1, 0)
-    DeleteSavedBtn.Position = UDim2.new(0.25, 0, 0, 0)
-    DeleteSavedBtn.BackgroundColor3 = Library.Theme.Header
-    DeleteSavedBtn.BorderSizePixel = 0
-    DeleteSavedBtn.Font = Library.Fonts.Header
-    DeleteSavedBtn.Text = "🗑 DELETE"
-    DeleteSavedBtn.TextColor3 = Library.Theme.Text
-    DeleteSavedBtn.TextSize = 9
-    DeleteSavedBtn.ZIndex = 24
-    DeleteSavedBtn.Parent = ActionRow
-    addCorner(DeleteSavedBtn, 4)
-
-    local LoadPlaylistBtn = Instance.new("TextButton")
-    LoadPlaylistBtn.Size = UDim2.new(0.25, 0, 1, 0)
-    LoadPlaylistBtn.Position = UDim2.new(0.50, 0, 0, 0)
-    LoadPlaylistBtn.BackgroundColor3 = Library.Theme.Header
-    LoadPlaylistBtn.BorderSizePixel = 0
-    LoadPlaylistBtn.Font = Library.Fonts.Header
-    LoadPlaylistBtn.Text = "📂 LOAD CONFIG"
-    LoadPlaylistBtn.TextColor3 = Library.Theme.Text
-    LoadPlaylistBtn.TextSize = 9
-    LoadPlaylistBtn.ZIndex = 24
-    LoadPlaylistBtn.Parent = ActionRow
-    addCorner(LoadPlaylistBtn, 4)
-
-    local RefreshSavedBtn = Instance.new("TextButton")
-    RefreshSavedBtn.Size = UDim2.new(0.23, 0, 1, 0)
-    RefreshSavedBtn.Position = UDim2.new(0.77, 0, 0, 0)
-    RefreshSavedBtn.BackgroundColor3 = Library.Theme.Header
-    RefreshSavedBtn.BorderSizePixel = 0
-    RefreshSavedBtn.Font = Library.Fonts.Header
-    RefreshSavedBtn.Text = "🔄 REFRESH"
-    RefreshSavedBtn.TextColor3 = Library.Theme.Text
-    RefreshSavedBtn.TextSize = 9
-    RefreshSavedBtn.ZIndex = 24
-    RefreshSavedBtn.Parent = ActionRow
-    addCorner(RefreshSavedBtn, 4)
-
-    local MUSIC_FOLDER = "Nursultan/Music"
-    local PLAYLIST_FILE = "Nursultan/Music/playlist.json"
-    local SelectedSavedIndex = nil
-    local SavedTracksList = {}
-
-    -- Ensure workspace folder exists
-    if makefolder and not (isfolder and isfolder(MUSIC_FOLDER)) then
-        pcall(function() makefolder(MUSIC_FOLDER) end)
-    end
-
-    local function saveWorkspacePlaylistFile()
-        if writefile then
-            local s, encoded = pcall(function() return HttpService:JSONEncode(SavedTracksList) end)
-            if s and encoded then
-                pcall(function() writefile(PLAYLIST_FILE, encoded) end)
-            end
-        end
-    end
-
-    local function loadWorkspacePlaylist()
-        SavedTracksList = {}
-        if isfile and isfile(PLAYLIST_FILE) then
-            local success, content = pcall(function() return readfile(PLAYLIST_FILE) end)
-            if success and content and #content > 0 then
-                local s, decoded = pcall(function() return HttpService:JSONDecode(content) end)
-                if s and type(decoded) == "table" then
-                    SavedTracksList = decoded
-                end
-            end
-        end
-
-        -- Also scan folder for direct .mp3 / .wav / .ogg files
-        if listfiles and isfolder and isfolder(MUSIC_FOLDER) then
-            local success, files = pcall(function() return listfiles(MUSIC_FOLDER) end)
-            if success and type(files) == "table" then
-                for _, filePath in ipairs(files) do
-                    local fileName = filePath:match("([^/%\\]+)$") or filePath
-                    if fileName ~= "playlist.json" and (fileName:lower():sub(-4) == ".mp3" or fileName:lower():sub(-4) == ".wav" or fileName:lower():sub(-4) == ".ogg") then
-                        local alreadyIn = false
-                        for _, track in ipairs(SavedTracksList) do
-                            if track.Path == filePath or track.Path == fileName then
-                                alreadyIn = true
-                                break
-                            end
-                        end
-                        if not alreadyIn then
-                            table.insert(SavedTracksList, { Name = fileName, Path = filePath })
-                        end
-                    end
-                end
-            end
-        end
-
-        -- Sync global Playlist array with Radio HUD
-        Playlist = SavedTracksList
-
-        for _, child in ipairs(MusicScroll:GetChildren()) do
-            if child:IsA("Frame") or child:IsA("TextLabel") then child:Destroy() end
-        end
-
-        if #SavedTracksList == 0 then
-            SelectedSavedIndex = nil
-            local emptyLbl = Instance.new("TextLabel")
-            emptyLbl.Size = UDim2.new(1, 0, 0, 24)
-            emptyLbl.BackgroundTransparency = 1
-            emptyLbl.Font = Library.Fonts.Label
-            emptyLbl.Text = "  No saved songs in workspace/Nursultan/Music/"
-            emptyLbl.TextColor3 = Library.Theme.TextDim
-            emptyLbl.TextSize = 9.5
-            emptyLbl.TextXAlignment = Enum.TextXAlignment.Left
-            emptyLbl.Parent = MusicScroll
-        else
-            if SelectedSavedIndex == nil or SelectedSavedIndex < 1 or SelectedSavedIndex > #SavedTracksList then
-                SelectedSavedIndex = 1
-            end
-
-            for idx, track in ipairs(SavedTracksList) do
-                local isSel = (SelectedSavedIndex == idx)
-                local ItemRow = Instance.new("Frame")
-                ItemRow.Size = UDim2.new(1, -6, 0, 24)
-                ItemRow.BackgroundColor3 = isSel and Library.Theme.Header or Library.Theme.Card
-                ItemRow.BorderSizePixel = 0
-                ItemRow.ZIndex = 24
-                ItemRow.Parent = MusicScroll
-                addCorner(ItemRow, 4)
-
-                local ItemStroke = Instance.new("UIStroke")
-                ItemStroke.Color = isSel and Library.Theme.StrokeActive or Library.Theme.Stroke
-                ItemStroke.Thickness = isSel and 1 or 0.8
-                ItemStroke.Parent = ItemRow
-
-                local ItemBtn = Instance.new("TextButton")
-                ItemBtn.Size = UDim2.new(1, -54, 1, 0)
-                ItemBtn.Position = UDim2.new(0, 0, 0, 0)
-                ItemBtn.BackgroundTransparency = 1
-                ItemBtn.Font = Library.Fonts.Badge
-                ItemBtn.Text = "  " .. idx .. ". " .. tostring(track.Name) .. " [" .. tostring(track.Path) .. "]"
-                ItemBtn.TextColor3 = isSel and Library.Theme.Accent or Library.Theme.Text
-                ItemBtn.TextSize = 9.5
-                ItemBtn.TextXAlignment = Enum.TextXAlignment.Left
-                ItemBtn.TextTruncate = Enum.TextTruncate.AtEnd
-                ItemBtn.ZIndex = 25
-                ItemBtn.Parent = ItemRow
-
-                -- Quick Play Button (▶)
-                local QPlayBtn = Instance.new("TextButton")
-                QPlayBtn.Size = UDim2.new(0, 22, 0, 18)
-                QPlayBtn.Position = UDim2.new(1, -48, 0.5, -9)
-                QPlayBtn.BackgroundColor3 = Library.Theme.Card
-                QPlayBtn.BorderSizePixel = 0
-                QPlayBtn.Font = Library.Fonts.Badge
-                QPlayBtn.Text = "▶"
-                QPlayBtn.TextColor3 = Library.Theme.Accent
-                QPlayBtn.TextSize = 9
-                QPlayBtn.ZIndex = 26
-                QPlayBtn.Parent = ItemRow
-                addCorner(QPlayBtn, 3)
-
-                -- Quick Delete Button (🗑)
-                local QDelBtn = Instance.new("TextButton")
-                QDelBtn.Size = UDim2.new(0, 22, 0, 18)
-                QDelBtn.Position = UDim2.new(1, -24, 0.5, -9)
-                QDelBtn.BackgroundColor3 = Library.Theme.Card
-                QDelBtn.BorderSizePixel = 0
-                QDelBtn.Font = Library.Fonts.Badge
-                QDelBtn.Text = "🗑"
-                QDelBtn.TextColor3 = Library.Theme.TextDim
-                QDelBtn.TextSize = 9
-                QDelBtn.ZIndex = 26
-                QDelBtn.Parent = ItemRow
-                addCorner(QDelBtn, 3)
-
-                ItemBtn.MouseButton1Click:Connect(function()
-                    SelectedSavedIndex = idx
-                    loadWorkspacePlaylist()
-                end)
-
-                QPlayBtn.MouseButton1Click:Connect(function()
-                    SelectedSavedIndex = idx
-                    playWorkspaceTrack(idx, track.Name)
-                    loadWorkspacePlaylist()
-                end)
-
-                QDelBtn.MouseButton1Click:Connect(function()
-                    table.remove(SavedTracksList, idx)
-                    if SelectedSavedIndex and SelectedSavedIndex >= idx then
-                        SelectedSavedIndex = math.max(1, SelectedSavedIndex - 1)
-                    end
-                    saveWorkspacePlaylistFile()
-                    loadWorkspacePlaylist()
-                end)
-            end
-        end
-        MusicScroll.CanvasSize = UDim2.new(0, 0, 0, #SavedTracksList * 27)
-    end
-
-    SaveSongBtn.MouseButton1Click:Connect(function()
-        local name = SongNameInput.Text
-        local path = SongPathInput.Text
-        if name == "" then name = "Song " .. (#SavedTracksList + 1) end
-        if path == "" then return end
-
-        table.insert(SavedTracksList, { Name = name, Path = path })
-        saveWorkspacePlaylistFile()
-        SongNameInput.Text = ""
-        SongPathInput.Text = ""
-        SelectedSavedIndex = #SavedTracksList
-        loadWorkspacePlaylist()
-    end)
-
-    PlaySavedBtn.MouseButton1Click:Connect(function()
-        if SelectedSavedIndex and SavedTracksList[SelectedSavedIndex] then
-            playWorkspaceTrack(SelectedSavedIndex, SavedTracksList[SelectedSavedIndex].Name)
-        end
-    end)
-
-    DeleteSavedBtn.MouseButton1Click:Connect(function()
-        if SelectedSavedIndex and SavedTracksList[SelectedSavedIndex] then
-            table.remove(SavedTracksList, SelectedSavedIndex)
-            if SelectedSavedIndex > #SavedTracksList then
-                SelectedSavedIndex = #SavedTracksList
-            end
-            saveWorkspacePlaylistFile()
-            loadWorkspacePlaylist()
-        end
-    end)
-
-    LoadPlaylistBtn.MouseButton1Click:Connect(loadWorkspacePlaylist)
-    RefreshSavedBtn.MouseButton1Click:Connect(loadWorkspacePlaylist)
-
-    task.defer(loadWorkspacePlaylist)
 end
 
 -- 5. VISUALS TAB PAGE (ADVANCED BLUR & WALLPAPER IMAGE CONTROL)
@@ -4854,8 +4459,6 @@ function Library:SetTheme(themeName)
     st(UI.TransFill, { BackgroundColor3 = t.Accent })
     st(UI.TransHandle, { BackgroundColor3 = t.Accent })
 
-    st(UI.MusicManagerCard, { BackgroundColor3 = t.Card })
-    st(UI.MCardTitle, { TextColor3 = t.Accent })
     st(UI.ScaleRow, { BackgroundColor3 = t.Block })
     st(UI.ScaleLbl, { TextColor3 = t.TextDim })
     st(UI.ScaleBadge, { BackgroundColor3 = t.Header })
