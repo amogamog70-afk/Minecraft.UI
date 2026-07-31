@@ -2784,6 +2784,19 @@ end
 
 --- 3. SKYBOX TAB PAGE (10 PRESET SKYBOXES + CUSTOM MANUAL INPUTS)
 do
+    local SavedOriginalSky = nil
+    local initialSky = Lighting:FindFirstChildOfClass("Sky")
+    if initialSky then
+        SavedOriginalSky = {
+            Bk = initialSky.SkyboxBk,
+            Dn = initialSky.SkyboxDn,
+            Ft = initialSky.SkyboxFt,
+            Lf = initialSky.SkyboxLf,
+            Rt = initialSky.SkyboxRt,
+            Up = initialSky.SkyboxUp
+        }
+    end
+
     local SkyPresetCard = Instance.new("Frame")
     SkyPresetCard.Size = UDim2.new(1, 0, 0, 195)
     SkyPresetCard.BackgroundColor3 = Library.Theme.Card
@@ -2794,17 +2807,30 @@ do
     addCorner(SkyPresetCard, 8)
 
     local PresetTitle = Instance.new("TextLabel")
-    PresetTitle.Size = UDim2.new(1, -20, 0, 20)
+    PresetTitle.Size = UDim2.new(1, -150, 0, 20)
     PresetTitle.Position = UDim2.new(0, 10, 0, 8)
     PresetTitle.BackgroundTransparency = 1
     PresetTitle.Font = Library.Fonts.Header
-    PresetTitle.Text = "READY-TO-USE PRESET SKYBOXES (26 PRESETS)"
+    PresetTitle.Text = "PRESET SKYBOXES (26 PRESETS)"
     PresetTitle.TextColor3 = Library.Theme.Accent
     PresetTitle.TextSize = 11
     PresetTitle.TextXAlignment = Enum.TextXAlignment.Left
     PresetTitle.ZIndex = 23
     PresetTitle.Parent = SkyPresetCard
     UI.PresetTitle = PresetTitle
+
+    local ResetSkyHeaderBtn = Instance.new("TextButton")
+    ResetSkyHeaderBtn.Size = UDim2.new(0, 130, 0, 20)
+    ResetSkyHeaderBtn.Position = UDim2.new(1, -140, 0, 6)
+    ResetSkyHeaderBtn.BackgroundColor3 = Library.Theme.Header
+    ResetSkyHeaderBtn.BorderSizePixel = 0
+    ResetSkyHeaderBtn.Font = Library.Fonts.Badge
+    ResetSkyHeaderBtn.Text = "RESET SKYBOX"
+    ResetSkyHeaderBtn.TextColor3 = Library.Theme.Text
+    ResetSkyHeaderBtn.TextSize = 9
+    ResetSkyHeaderBtn.ZIndex = 24
+    ResetSkyHeaderBtn.Parent = SkyPresetCard
+    addCorner(ResetSkyHeaderBtn, 4)
 
     local SkyboxAssets = {
         ["Black Storm"] = {
@@ -3076,19 +3102,66 @@ do
         SkyInputs[i] = { Input = TxtInput, Key = faceData.Key, BoxBg = BoxBg }
     end
 
+    local function resetSkyboxToDefault()
+        local skyObj = Lighting:FindFirstChildOfClass("Sky")
+        if not skyObj then
+            skyObj = Instance.new("Sky")
+            skyObj.Name = "NursultanCustomSky"
+            skyObj.Parent = Lighting
+        end
+        if SavedOriginalSky then
+            skyObj.SkyboxBk = SavedOriginalSky.Bk
+            skyObj.SkyboxDn = SavedOriginalSky.Dn
+            skyObj.SkyboxFt = SavedOriginalSky.Ft
+            skyObj.SkyboxLf = SavedOriginalSky.Lf
+            skyObj.SkyboxRt = SavedOriginalSky.Rt
+            skyObj.SkyboxUp = SavedOriginalSky.Up
+        else
+            skyObj.SkyboxBk = "rbxasset://textures/sky/sky512_bk.tex"
+            skyObj.SkyboxDn = "rbxasset://textures/sky/sky512_dn.tex"
+            skyObj.SkyboxFt = "rbxasset://textures/sky/sky512_ft.tex"
+            skyObj.SkyboxLf = "rbxasset://textures/sky/sky512_lf.tex"
+            skyObj.SkyboxRt = "rbxasset://textures/sky/sky512_rt.tex"
+            skyObj.SkyboxUp = "rbxasset://textures/sky/sky512_up.tex"
+        end
+        for _, item in ipairs(SkyInputs) do
+            if item and item.Input then
+                item.Input.Text = ""
+            end
+        end
+    end
+
+    ResetSkyHeaderBtn.MouseButton1Click:Connect(resetSkyboxToDefault)
+
     local ApplySkyboxBtn = Instance.new("TextButton")
-    ApplySkyboxBtn.Size = UDim2.new(1, -20, 0, 28)
+    ApplySkyboxBtn.Size = UDim2.new(0.48, -2, 0, 28)
     ApplySkyboxBtn.Position = UDim2.new(0, 10, 0, 214)
     ApplySkyboxBtn.BackgroundColor3 = Library.Theme.Header
     ApplySkyboxBtn.BorderSizePixel = 0
     ApplySkyboxBtn.Font = Library.Fonts.Header
-    ApplySkyboxBtn.Text = "EXECUTE CUSTOM SKYBOX"
-    ApplySkyboxBtn.TextColor3 = Library.Theme.Accent
+    ApplySkyboxBtn.Text = "EXECUTE SKYBOX"
+    ApplySkyboxBtn.TextColor3 = Library.Theme.Text
     ApplySkyboxBtn.TextSize = 10
     ApplySkyboxBtn.ZIndex = 23
     ApplySkyboxBtn.Parent = SkyboxCard
     UI.ApplySkyboxBtn = ApplySkyboxBtn
     addCorner(ApplySkyboxBtn, 5)
+
+    local ResetSkyboxBtn = Instance.new("TextButton")
+    ResetSkyboxBtn.Size = UDim2.new(0.48, -2, 0, 28)
+    ResetSkyboxBtn.Position = UDim2.new(0.52, 2, 0, 214)
+    ResetSkyboxBtn.BackgroundColor3 = Library.Theme.Header
+    ResetSkyboxBtn.BorderSizePixel = 0
+    ResetSkyboxBtn.Font = Library.Fonts.Header
+    ResetSkyboxBtn.Text = "RESET DEFAULT SKY"
+    ResetSkyboxBtn.TextColor3 = Library.Theme.Text
+    ResetSkyboxBtn.TextSize = 10
+    ResetSkyboxBtn.ZIndex = 23
+    ResetSkyboxBtn.Parent = SkyboxCard
+    UI.ResetSkyboxBtn = ResetSkyboxBtn
+    addCorner(ResetSkyboxBtn, 5)
+
+    ResetSkyboxBtn.MouseButton1Click:Connect(resetSkyboxToDefault)
 
     ApplySkyboxBtn.MouseButton1Click:Connect(function()
         local skyObj = Lighting:FindFirstChildOfClass("Sky")
