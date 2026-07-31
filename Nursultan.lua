@@ -165,10 +165,10 @@ local Library = {
             Card         = Color3.fromRGB(24, 38, 62),
             CardHover    = Color3.fromRGB(34, 52, 85),
             Stroke       = Color3.fromRGB(40, 75, 120),
-            StrokeHover  = Color3.fromRGB(0, 220, 255),
-            StrokeActive = Color3.fromRGB(0, 255, 230),
-            Accent       = Color3.fromRGB(0, 235, 255),
-            AccentDim    = Color3.fromRGB(0, 160, 195),
+            StrokeHover  = Color3.fromRGB(100, 200, 235),
+            StrokeActive = Color3.fromRGB(130, 235, 230),
+            Accent       = Color3.fromRGB(120, 220, 240),
+            AccentDim    = Color3.fromRGB(90, 160, 185),
             Text         = Color3.fromRGB(240, 255, 255),
             TextDim      = Color3.fromRGB(130, 185, 215)
         },
@@ -179,10 +179,10 @@ local Library = {
             Card         = Color3.fromRGB(58, 22, 28),
             CardHover    = Color3.fromRGB(80, 28, 36),
             Stroke       = Color3.fromRGB(110, 38, 48),
-            StrokeHover  = Color3.fromRGB(220, 60, 75),
-            StrokeActive = Color3.fromRGB(255, 80, 95),
-            Accent       = Color3.fromRGB(255, 75, 90),
-            AccentDim    = Color3.fromRGB(185, 50, 65),
+            StrokeHover  = Color3.fromRGB(210, 80, 95),
+            StrokeActive = Color3.fromRGB(240, 110, 125),
+            Accent       = Color3.fromRGB(235, 115, 130),
+            AccentDim    = Color3.fromRGB(175, 80, 95),
             Text         = Color3.fromRGB(255, 242, 244),
             TextDim      = Color3.fromRGB(195, 135, 142)
         },
@@ -193,10 +193,10 @@ local Library = {
             Card         = Color3.fromRGB(22, 58, 34),
             CardHover    = Color3.fromRGB(30, 80, 46),
             Stroke       = Color3.fromRGB(42, 115, 66),
-            StrokeHover  = Color3.fromRGB(60, 215, 110),
-            StrokeActive = Color3.fromRGB(85, 255, 145),
-            Accent       = Color3.fromRGB(70, 240, 130),
-            AccentDim    = Color3.fromRGB(45, 175, 92),
+            StrokeHover  = Color3.fromRGB(90, 205, 130),
+            StrokeActive = Color3.fromRGB(125, 235, 165),
+            Accent       = Color3.fromRGB(120, 225, 155),
+            AccentDim    = Color3.fromRGB(85, 175, 115),
             Text         = Color3.fromRGB(242, 255, 245),
             TextDim      = Color3.fromRGB(135, 195, 152)
         },
@@ -207,10 +207,10 @@ local Library = {
             Card         = Color3.fromRGB(52, 26, 78),
             CardHover    = Color3.fromRGB(70, 34, 105),
             Stroke       = Color3.fromRGB(98, 48, 145),
-            StrokeHover  = Color3.fromRGB(170, 90, 240),
-            StrokeActive = Color3.fromRGB(210, 130, 255),
-            Accent       = Color3.fromRGB(195, 115, 255),
-            AccentDim    = Color3.fromRGB(140, 78, 195),
+            StrokeHover  = Color3.fromRGB(170, 110, 230),
+            StrokeActive = Color3.fromRGB(205, 145, 245),
+            Accent       = Color3.fromRGB(195, 140, 240),
+            AccentDim    = Color3.fromRGB(140, 95, 185),
             Text         = Color3.fromRGB(252, 242, 255),
             TextDim      = Color3.fromRGB(180, 140, 210)
         },
@@ -221,10 +221,10 @@ local Library = {
             Card         = Color3.fromRGB(66, 48, 20),
             CardHover    = Color3.fromRGB(90, 65, 26),
             Stroke       = Color3.fromRGB(125, 90, 32),
-            StrokeHover  = Color3.fromRGB(220, 165, 45),
-            StrokeActive = Color3.fromRGB(255, 205, 65),
-            Accent       = Color3.fromRGB(255, 195, 45),
-            AccentDim    = Color3.fromRGB(190, 140, 30),
+            StrokeHover  = Color3.fromRGB(210, 170, 70),
+            StrokeActive = Color3.fromRGB(240, 200, 100),
+            Accent       = Color3.fromRGB(235, 190, 85),
+            AccentDim    = Color3.fromRGB(180, 140, 55),
             Text         = Color3.fromRGB(255, 250, 240),
             TextDim      = Color3.fromRGB(195, 170, 130)
         },
@@ -235,10 +235,10 @@ local Library = {
             Card         = Color3.fromRGB(24, 27, 33),
             CardHover    = Color3.fromRGB(36, 40, 50),
             Stroke       = Color3.fromRGB(55, 62, 75),
-            StrokeHover  = Color3.fromRGB(200, 215, 240),
-            StrokeActive = Color3.fromRGB(255, 255, 255),
-            Accent       = Color3.fromRGB(255, 255, 255),
-            AccentDim    = Color3.fromRGB(170, 182, 200),
+            StrokeHover  = Color3.fromRGB(180, 200, 225),
+            StrokeActive = Color3.fromRGB(225, 235, 250),
+            Accent       = Color3.fromRGB(215, 230, 245),
+            AccentDim    = Color3.fromRGB(150, 165, 185),
             Text         = Color3.fromRGB(255, 255, 255),
             TextDim      = Color3.fromRGB(140, 150, 168)
         },
@@ -249,10 +249,10 @@ local Library = {
             Card         = Color3.fromRGB(48, 45, 16),
             CardHover    = Color3.fromRGB(68, 64, 20),
             Stroke       = Color3.fromRGB(120, 112, 25),
-            StrokeHover  = Color3.fromRGB(230, 215, 30),
-            StrokeActive = Color3.fromRGB(255, 240, 35),
-            Accent       = Color3.fromRGB(255, 235, 0),
-            AccentDim    = Color3.fromRGB(185, 170, 0),
+            StrokeHover  = Color3.fromRGB(215, 200, 60),
+            StrokeActive = Color3.fromRGB(240, 220, 85),
+            Accent       = Color3.fromRGB(235, 210, 75),
+            AccentDim    = Color3.fromRGB(175, 155, 45),
             Text         = Color3.fromRGB(255, 254, 235),
             TextDim      = Color3.fromRGB(185, 180, 140)
         },
@@ -263,10 +263,10 @@ local Library = {
             Card         = Color3.fromRGB(34, 62, 24),
             CardHover    = Color3.fromRGB(46, 85, 32),
             Stroke       = Color3.fromRGB(75, 140, 48),
-            StrokeHover  = Color3.fromRGB(140, 235, 60),
-            StrokeActive = Color3.fromRGB(170, 255, 75),
-            Accent       = Color3.fromRGB(160, 255, 60),
-            AccentDim    = Color3.fromRGB(110, 185, 40),
+            StrokeHover  = Color3.fromRGB(130, 215, 80),
+            StrokeActive = Color3.fromRGB(160, 235, 110),
+            Accent       = Color3.fromRGB(155, 225, 100),
+            AccentDim    = Color3.fromRGB(110, 175, 65),
             Text         = Color3.fromRGB(245, 255, 240),
             TextDim      = Color3.fromRGB(150, 195, 140)
         },
@@ -277,10 +277,10 @@ local Library = {
             Card         = Color3.fromRGB(50, 38, 72),
             CardHover    = Color3.fromRGB(68, 50, 98),
             Stroke       = Color3.fromRGB(95, 68, 138),
-            StrokeHover  = Color3.fromRGB(220, 100, 180),
-            StrokeActive = Color3.fromRGB(255, 120, 210),
-            Accent       = Color3.fromRGB(255, 120, 190),
-            AccentDim    = Color3.fromRGB(185, 80, 135),
+            StrokeHover  = Color3.fromRGB(210, 120, 185),
+            StrokeActive = Color3.fromRGB(240, 145, 210),
+            Accent       = Color3.fromRGB(235, 140, 195),
+            AccentDim    = Color3.fromRGB(175, 95, 145),
             Text         = Color3.fromRGB(248, 245, 255),
             TextDim      = Color3.fromRGB(175, 155, 200)
         },
@@ -291,10 +291,10 @@ local Library = {
             Card         = Color3.fromRGB(33, 41, 68),
             CardHover    = Color3.fromRGB(44, 55, 90),
             Stroke       = Color3.fromRGB(65, 82, 135),
-            StrokeHover  = Color3.fromRGB(120, 155, 255),
+            StrokeHover  = Color3.fromRGB(130, 165, 245),
             StrokeActive = Color3.fromRGB(160, 190, 255),
-            Accent       = Color3.fromRGB(122, 162, 247),
-            AccentDim    = Color3.fromRGB(85, 120, 195),
+            Accent       = Color3.fromRGB(140, 175, 245),
+            AccentDim    = Color3.fromRGB(95, 130, 195),
             Text         = Color3.fromRGB(240, 245, 255),
             TextDim      = Color3.fromRGB(145, 165, 210)
         }
@@ -4137,10 +4137,10 @@ function Library:SetTheme(themeName)
     st(UI.Watermark, { BackgroundColor3 = t.Block })
     st(UI.WMarkStroke, { Color = t.StrokeActive })
     st(UI.WMarkIcon, { ImageColor3 = t.Accent })
-    st(UI.WMarkTitle, { TextColor3 = t.Accent })
+    st(UI.WMarkTitle, { TextColor3 = t.Text })
     st(UI.PlayerNameLabel, { TextColor3 = t.Text })
-    st(UI.WMarkFpsLabel, { TextColor3 = t.Accent })
-    st(UI.WMarkPingLabel, { TextColor3 = t.Accent })
+    st(UI.WMarkFpsLabel, { TextColor3 = t.AccentDim })
+    st(UI.WMarkPingLabel, { TextColor3 = t.AccentDim })
     st(UI.WMarkTimeLabel, { TextColor3 = t.Text })
 
     st(UI.GearBtnFrame, { BackgroundColor3 = t.Block })
@@ -4153,17 +4153,17 @@ function Library:SetTheme(themeName)
     st(UI.HUDDot, { BackgroundColor3 = t.Accent })
     st(UI.HUDIcon, { ImageColor3 = t.Accent })
     st(UI.HUDTitle, { TextColor3 = t.Text })
-    st(UI.HUDCountLabel, { TextColor3 = t.Accent })
+    st(UI.HUDCountLabel, { TextColor3 = t.Text })
 
     st(UI.RadioHUDFrame, { BackgroundColor3 = t.Block })
     st(UI.RadioHeader, { BackgroundColor3 = t.Header })
     st(UI.RadioHUDStroke, { Color = t.Stroke })
     st(UI.RHTitle, { TextColor3 = t.Text })
     st(UI.MusicIcon, { ImageColor3 = t.Accent })
-    st(UI.HUDPlayBtn, { BackgroundColor3 = t.Card, TextColor3 = t.Accent })
+    st(UI.HUDPlayBtn, { BackgroundColor3 = t.Card, TextColor3 = t.Text })
     st(UI.HUDSoundInputBg, { BackgroundColor3 = t.Header })
-    st(UI.HUDSoundInput, { TextColor3 = t.Accent })
-    st(UI.SeekTimeLabel, { TextColor3 = t.Accent })
+    st(UI.HUDSoundInput, { TextColor3 = t.Text })
+    st(UI.SeekTimeLabel, { TextColor3 = t.Text })
     st(UI.SeekTrackBg, { BackgroundColor3 = t.Header })
     st(UI.SeekFill, { BackgroundColor3 = t.Accent })
     st(UI.SeekHandle, { BackgroundColor3 = t.Accent })
@@ -4235,7 +4235,7 @@ function Library:SetTheme(themeName)
                 st(elem.Frame, { BackgroundColor3 = t.Card })
                 if elem.Stroke then st(elem.Stroke, { Color = t.Stroke }) end
                 if elem.Label then st(elem.Label, { TextColor3 = elem.GetState() and t.Text or t.TextDim }) end
-                if elem.KeyBadgeBtn then st(elem.KeyBadgeBtn, { BackgroundColor3 = t.Header, TextColor3 = t.Accent }) end
+                if elem.KeyBadgeBtn then st(elem.KeyBadgeBtn, { BackgroundColor3 = t.Header, TextColor3 = t.Text }) end
                 if elem.SwitchBg then st(elem.SwitchBg, { BackgroundColor3 = elem.GetState() and t.Accent or t.Header }) end
                 if elem.Knob then st(elem.Knob, { BackgroundColor3 = elem.GetState() and t.Background or t.TextDim }) end
             elseif elem.Type == "Slider" then
@@ -4243,7 +4243,7 @@ function Library:SetTheme(themeName)
                 if elem.Stroke then st(elem.Stroke, { Color = t.Stroke }) end
                 if elem.Label then st(elem.Label, { TextColor3 = t.TextDim }) end
                 if elem.Badge then st(elem.Badge, { BackgroundColor3 = t.Header }) end
-                if elem.ValInput then st(elem.ValInput, { TextColor3 = t.Accent }) end
+                if elem.ValInput then st(elem.ValInput, { TextColor3 = t.Text }) end
                 if elem.TrackBg then st(elem.TrackBg, { BackgroundColor3 = t.Header }) end
                 if elem.Fill then st(elem.Fill, { BackgroundColor3 = t.Accent }) end
                 if elem.Handle then st(elem.Handle, { BackgroundColor3 = t.Accent }) end
@@ -4251,14 +4251,14 @@ function Library:SetTheme(themeName)
                 st(elem.Frame, { BackgroundColor3 = t.Card })
                 if elem.Stroke then st(elem.Stroke, { Color = t.Stroke }) end
                 if elem.Label then st(elem.Label, { TextColor3 = t.TextDim }) end
-                if elem.DropdownBtn then st(elem.DropdownBtn, { BackgroundColor3 = t.Header, TextColor3 = t.Accent }) end
+                if elem.DropdownBtn then st(elem.DropdownBtn, { BackgroundColor3 = t.Header, TextColor3 = t.Text }) end
                 if elem.DropList then st(elem.DropList, { BackgroundColor3 = t.Block }) end
                 if elem.BuildOptions then pcall(elem.BuildOptions) end
             elseif elem.Type == "MultiSelect" then
                 st(elem.Frame, { BackgroundColor3 = t.Card })
                 if elem.Stroke then st(elem.Stroke, { Color = t.Stroke }) end
                 if elem.Label then st(elem.Label, { TextColor3 = t.TextDim }) end
-                if elem.SelBadge then st(elem.SelBadge, { BackgroundColor3 = t.Header, TextColor3 = t.Accent }) end
+                if elem.SelBadge then st(elem.SelBadge, { BackgroundColor3 = t.Header, TextColor3 = t.Text }) end
                 if elem.BuildOptions then pcall(elem.BuildOptions) end
             elseif elem.Type == "ColorPixel" then
                 st(elem.Frame, { BackgroundColor3 = t.Card })
@@ -4273,26 +4273,26 @@ function Library:SetTheme(themeName)
                 if elem.HeaderTitle then st(elem.HeaderTitle, { TextColor3 = t.TextDim }) end
                 if elem.CloseBtn then st(elem.CloseBtn, { ImageColor3 = t.TextDim }) end
                 if elem.HexBoxBg then st(elem.HexBoxBg, { BackgroundColor3 = t.Header }) end
-                if elem.HexInput then st(elem.HexInput, { TextColor3 = t.Accent }) end
+                if elem.HexInput then st(elem.HexInput, { TextColor3 = t.Text }) end
             elseif elem.Type == "TextBar" then
                 st(elem.Frame, { BackgroundColor3 = t.Card })
                 if elem.Stroke then st(elem.Stroke, { Color = t.Stroke }) end
                 if elem.Label then st(elem.Label, { TextColor3 = t.TextDim }) end
                 if elem.InputBg then st(elem.InputBg, { BackgroundColor3 = t.Header }) end
-                if elem.TextInput then st(elem.TextInput, { TextColor3 = t.Accent, PlaceholderColor3 = t.TextDim }) end
+                if elem.TextInput then st(elem.TextInput, { TextColor3 = t.Text, PlaceholderColor3 = t.TextDim }) end
             elseif elem.Type == "Button" then
                 st(elem.Frame, { BackgroundColor3 = t.Card })
                 if elem.Stroke then st(elem.Stroke, { Color = t.Stroke }) end
-                if elem.Btn then st(elem.Btn, { BackgroundColor3 = t.Header, TextColor3 = t.Accent }) end
+                if elem.Btn then st(elem.Btn, { BackgroundColor3 = t.Header, TextColor3 = t.Text }) end
             elseif elem.Type == "Keybind" then
                 st(elem.Frame, { BackgroundColor3 = t.Card })
                 if elem.Stroke then st(elem.Stroke, { Color = t.Stroke }) end
                 if elem.Label then st(elem.Label, { TextColor3 = t.TextDim }) end
-                if elem.KeyBtn then st(elem.KeyBtn, { BackgroundColor3 = t.Header, TextColor3 = t.Accent }) end
+                if elem.KeyBtn then st(elem.KeyBtn, { BackgroundColor3 = t.Header, TextColor3 = t.Text }) end
             elseif elem.Type == "Section" then
                 if elem.Line then st(elem.Line, { BackgroundColor3 = t.Stroke }) end
                 if elem.TitleBg then st(elem.TitleBg, { BackgroundColor3 = t.Block }) end
-                if elem.TitleLbl then st(elem.TitleLbl, { TextColor3 = t.Accent }) end
+                if elem.TitleLbl then st(elem.TitleLbl, { TextColor3 = t.AccentDim }) end
             elseif elem.Type == "Label" then
                 if elem.TextLabel then st(elem.TextLabel, { TextColor3 = t.AccentDim }) end
                 if elem.Dot then st(elem.Dot, { BackgroundColor3 = t.Accent }) end
