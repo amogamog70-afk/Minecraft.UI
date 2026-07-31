@@ -1282,32 +1282,43 @@ local RadioTrackLabel = nil
 local HUDPlayBtn = nil
 
 local function playWorkspaceTrack(target, customTitle)
-    if type(target) == "number" then
-        if #Playlist == 0 then return end
-        CurrentTrackIndex = math.clamp(target, 1, #Playlist)
-        local item = Playlist[CurrentTrackIndex]
-        if not item then return end
-        target = item.Path
-        customTitle = customTitle or item.Name
+    local sourcePath = nil
+
+    if type(target) == "table" then
+        sourcePath = target.Path
+        customTitle = customTitle or target.Name
+    elseif type(target) == "number" then
+        local list = (#Playlist > 0) and Playlist or (SavedTracksList or {})
+        if #list > 0 then
+            CurrentTrackIndex = math.clamp(target, 1, #list)
+            local item = list[CurrentTrackIndex]
+            if item then
+                sourcePath = item.Path
+                customTitle = customTitle or item.Name
+            end
+        end
+    elseif type(target) == "string" then
+        sourcePath = target
     end
 
-    if not target or target == "" then return end
-    customTitle = customTitle or ("Track " .. tostring(CurrentTrackIndex))
+    if not sourcePath or sourcePath == "" then return end
+    customTitle = customTitle or "Custom Track"
 
-    local resolved = target
-    if isfile and getcustomasset and isfile(target) then
-        local s, uri = pcall(function() return getcustomasset(target) end)
+    local resolved = sourcePath
+    if isfile and getcustomasset and isfile(sourcePath) then
+        local s, uri = pcall(function() return getcustomasset(sourcePath) end)
         if s and uri then resolved = uri end
-    elseif isfile and getcustomasset and isfile("Nursultan/Music/" .. target) then
-        local s, uri = pcall(function() return getcustomasset("Nursultan/Music/" .. target) end)
+    elseif isfile and getcustomasset and isfile("Nursultan/Music/" .. sourcePath) then
+        local s, uri = pcall(function() return getcustomasset("Nursultan/Music/" .. sourcePath) end)
         if s and uri then resolved = uri end
-    elseif tonumber(target) then
-        resolved = "rbxassetid://" .. target
-    elseif not string.match(target, "^rbxassetid://") and not string.match(target, "^http") and not string.match(target, "^rbxasset://") then
-        resolved = formatAssetId(target)
+    elseif tonumber(sourcePath) then
+        resolved = "rbxassetid://" .. sourcePath
+    elseif not string.match(sourcePath, "^rbxassetid://") and not string.match(sourcePath, "^http") and not string.match(sourcePath, "^rbxasset://") then
+        resolved = formatAssetId(sourcePath)
     end
 
     pcall(function()
+        RadioSound:Stop()
         RadioSound.SoundId = resolved
         RadioSound.TimePosition = 0
         RadioSound:Play()
@@ -2446,9 +2457,14 @@ ConfigStatusLabel.TextXAlignment = Enum.TextXAlignment.Left
 ConfigStatusLabel.ZIndex = 23
 ConfigStatusLabel.Parent = ConfigCard
 
+local function getCleanConfigName(rawText)
+    rawText = tostring(rawText or ""):gsub("%s+", ""):gsub("%.json$", "")
+    if rawText == "" then rawText = "default" end
+    return rawText
+end
+
 SaveCreateBtn.MouseButton1Click:Connect(function()
-    local name = ConfigNameInput.Text:gsub("%s+", "")
-    if name == "" then name = "default" end
+    local name = getCleanConfigName(ConfigNameInput.Text)
     local filePath = Library.ConfigFolder .. "/" .. name .. ".json"
 
     local data = {
@@ -2480,14 +2496,15 @@ SaveCreateBtn.MouseButton1Click:Connect(function()
         if writefile then
             writefile(filePath, HttpService:JSONEncode(data))
             ConfigStatusLabel.Text = "Saved: " .. name .. ".json"
+            ConfigNameInput.Text = name
             ConfigDropdownBtn.Text = name .. ".json v"
+            refreshConfigDropdownOptions()
         end
     end)
 end)
 
 LoadConfigBtn.MouseButton1Click:Connect(function()
-    local name = ConfigNameInput.Text:gsub("%s+", "")
-    if name == "" then name = "default" end
+    local name = getCleanConfigName(ConfigNameInput.Text)
     local filePath = Library.ConfigFolder .. "/" .. name .. ".json"
 
     pcall(function()
@@ -2506,6 +2523,7 @@ LoadConfigBtn.MouseButton1Click:Connect(function()
                 rebuildParticles()
                 updateRadioHUDProperties()
                 ConfigStatusLabel.Text = "Loaded: " .. name .. ".json"
+                ConfigNameInput.Text = name
                 ConfigDropdownBtn.Text = name .. ".json v"
             end
         else
@@ -2515,8 +2533,7 @@ LoadConfigBtn.MouseButton1Click:Connect(function()
 end)
 
 DeleteConfigBtn.MouseButton1Click:Connect(function()
-    local name = ConfigNameInput.Text:gsub("%s+", "")
-    if name == "" then name = "default" end
+    local name = getCleanConfigName(ConfigNameInput.Text)
     local filePath = Library.ConfigFolder .. "/" .. name .. ".json"
 
     pcall(function()
@@ -2525,6 +2542,9 @@ DeleteConfigBtn.MouseButton1Click:Connect(function()
             ConfigStatusLabel.Text = "Deleted: " .. name .. ".json"
             ConfigNameInput.Text = "default"
             ConfigDropdownBtn.Text = "default.json v"
+            refreshConfigDropdownOptions()
+        else
+            ConfigStatusLabel.Text = "File missing: " .. name .. ".json"
         end
     end)
 end)
