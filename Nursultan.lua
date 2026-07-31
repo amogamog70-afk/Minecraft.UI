@@ -5703,7 +5703,7 @@ function Library:CreateBlock(title, defaultPosition)
 
         ToggleBtn.MouseEnter:Connect(function()
             smoothTween(ToggleBtn, DUR_FAST, { BackgroundColor3 = Library.Theme.CardHover })
-            smoothTween(Stroke, DUR_FAST, { Color = Color3.fromRGB(255, 255, 255) })
+            smoothTween(Stroke, DUR_FAST, { Color = Library.Theme.StrokeHover })
         end)
         ToggleBtn.MouseLeave:Connect(function()
             smoothTween(ToggleBtn, DUR_FAST, { BackgroundColor3 = Library.Theme.Card })
@@ -5734,7 +5734,7 @@ function Library:CreateBlock(title, defaultPosition)
         KeyBadgeBtn.BorderSizePixel = 0
         KeyBadgeBtn.Font = Library.Fonts.Badge
         KeyBadgeBtn.Text = "NONE"
-        KeyBadgeBtn.TextColor3 = Library.Theme.Accent
+        KeyBadgeBtn.TextColor3 = Library.Theme.Text
         KeyBadgeBtn.TextSize = 8.5
         KeyBadgeBtn.ZIndex = 6
         KeyBadgeBtn.Visible = hasKeybind
