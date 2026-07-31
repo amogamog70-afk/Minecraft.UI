@@ -2547,33 +2547,97 @@ trackConnection(UserInputService.InputBegan:Connect(function(input)
 end))
 end
 
--- 2. THEMES TAB PAGE
+-- 2. THEMES TAB PAGE (COMPLETELY REWRITTEN ULTRA-MODERN THEME SELECTOR)
 do
-    local ThemeCard = Instance.new("Frame")
-    ThemeCard.Size = UDim2.new(1, 0, 0, 360)
-    ThemeCard.BackgroundColor3 = Library.Theme.Card
-    ThemeCard.BorderSizePixel = 0
-    ThemeCard.ZIndex = 64
-    ThemeCard.Parent = ThemesPage
-    UI.ThemeCard = ThemeCard
-
     ThemesPage.AutomaticCanvasSize = Enum.AutomaticSize.Y
-    ThemesPage.CanvasSize = UDim2.new(0, 0, 0, 450)
+    ThemesPage.CanvasSize = UDim2.new(0, 0, 0, 680)
 
-    local TCLabel = Instance.new("TextLabel")
-    TCLabel.Size = UDim2.new(1, -20, 0, 24)
-    TCLabel.Position = UDim2.new(0, 10, 0, 8)
-    TCLabel.BackgroundTransparency = 1
-    TCLabel.Font = Library.Fonts.Header
-    TCLabel.Text = "SELECT COLOR PALETTE (20 EYE-FRIENDLY THEMES)"
-    TCLabel.TextColor3 = Library.Theme.Accent
-    TCLabel.TextSize = 11
-    TCLabel.TextXAlignment = Enum.TextXAlignment.Left
-    TCLabel.ZIndex = 65
-    TCLabel.Parent = ThemeCard
-    UI.TCLabel = TCLabel
+    -- Top Header Status Card
+    local ThemeHeaderCard = Instance.new("Frame")
+    ThemeHeaderCard.Name = "ThemeHeaderCard"
+    ThemeHeaderCard.Size = UDim2.new(1, 0, 0, 48)
+    ThemeHeaderCard.BackgroundColor3 = Library.Theme.Card
+    ThemeHeaderCard.BorderSizePixel = 0
+    ThemeHeaderCard.ZIndex = 64
+    ThemeHeaderCard.Parent = ThemesPage
+    UI.ThemeHeaderCard = ThemeHeaderCard
+    addCorner(ThemeHeaderCard, 8)
 
-    local themeNames = {
+    local ThemeHeaderStroke = Instance.new("UIStroke")
+    ThemeHeaderStroke.Color = Library.Theme.Stroke
+    ThemeHeaderStroke.Thickness = 1.0
+    ThemeHeaderStroke.Parent = ThemeHeaderCard
+
+    local THTitle = Instance.new("TextLabel")
+    THTitle.Size = UDim2.new(1, -160, 0, 20)
+    THTitle.Position = UDim2.new(0, 12, 0, 6)
+    THTitle.BackgroundTransparency = 1
+    THTitle.Font = Library.Fonts.Header
+    THTitle.Text = "THEME & COLOR PALETTE MANAGER"
+    THTitle.TextColor3 = Library.Theme.Accent
+    THTitle.TextSize = 11.5
+    THTitle.TextXAlignment = Enum.TextXAlignment.Left
+    THTitle.ZIndex = 65
+    THTitle.Parent = ThemeHeaderCard
+
+    local THSubTitle = Instance.new("TextLabel")
+    THSubTitle.Size = UDim2.new(1, -160, 0, 16)
+    THSubTitle.Position = UDim2.new(0, 12, 0, 26)
+    THSubTitle.BackgroundTransparency = 1
+    THSubTitle.Font = Library.Fonts.Label
+    THSubTitle.Text = "20 Handcrafted Eye-Friendly Color Schemes"
+    THSubTitle.TextColor3 = Library.Theme.TextDim
+    THSubTitle.TextSize = 9.5
+    THSubTitle.TextXAlignment = Enum.TextXAlignment.Left
+    THSubTitle.ZIndex = 65
+    THSubTitle.Parent = ThemeHeaderCard
+
+    -- Active Theme Badge Pill (Top Right)
+    local ActiveBadgePill = Instance.new("Frame")
+    ActiveBadgePill.Size = UDim2.new(0, 140, 0, 26)
+    ActiveBadgePill.Position = UDim2.new(1, -148, 0.5, -13)
+    ActiveBadgePill.BackgroundColor3 = Library.Theme.Header
+    ActiveBadgePill.BorderSizePixel = 0
+    ActiveBadgePill.ZIndex = 65
+    ActiveBadgePill.Parent = ThemeHeaderCard
+    addCorner(ActiveBadgePill, 6)
+
+    local ActiveBadgeStroke = Instance.new("UIStroke")
+    ActiveBadgeStroke.Color = Library.Theme.StrokeActive
+    ActiveBadgeStroke.Thickness = 1.0
+    ActiveBadgeStroke.Parent = ActiveBadgePill
+
+    local ActiveDot = Instance.new("Frame")
+    ActiveDot.Size = UDim2.new(0, 6, 0, 6)
+    ActiveDot.Position = UDim2.new(0, 8, 0.5, -3)
+    ActiveDot.BackgroundColor3 = Library.Theme.Accent
+    ActiveDot.BorderSizePixel = 0
+    ActiveDot.ZIndex = 66
+    ActiveDot.Parent = ActiveBadgePill
+    addCorner(ActiveDot, 3)
+
+    local ActiveBadgeText = Instance.new("TextLabel")
+    ActiveBadgeText.Size = UDim2.new(1, -20, 1, 0)
+    ActiveBadgeText.Position = UDim2.new(0, 18, 0, 0)
+    ActiveBadgeText.BackgroundTransparency = 1
+    ActiveBadgeText.Font = Library.Fonts.Badge
+    ActiveBadgeText.Text = Library.CurrentThemeName or "Monochrome Slate"
+    ActiveBadgeText.TextColor3 = Library.Theme.Text
+    ActiveBadgeText.TextSize = 9
+    ActiveBadgeText.TextXAlignment = Enum.TextXAlignment.Left
+    ActiveBadgeText.TextTruncate = Enum.TextTruncate.AtEnd
+    ActiveBadgeText.ZIndex = 66
+    ActiveBadgeText.Parent = ActiveBadgePill
+
+    -- Grid Cards Container
+    local GridHolder = Instance.new("Frame")
+    GridHolder.Size = UDim2.new(1, 0, 0, 620)
+    GridHolder.Position = UDim2.new(0, 0, 0, 56)
+    GridHolder.BackgroundTransparency = 1
+    GridHolder.ZIndex = 64
+    GridHolder.Parent = ThemesPage
+
+    local themeList = {
         "Monochrome Slate", "Lavender Mist",
         "Nordic Sage", "Rose Gold",
         "Ocean Breeze", "Sakura Blossom",
@@ -2586,38 +2650,139 @@ do
         "Dracula Dark", "Tokyo Night"
     }
 
-    for idx, thName in ipairs(themeNames) do
+    local ThemeCardsTable = {}
+
+    for idx, thName in ipairs(themeList) do
         local col = ((idx - 1) % 2)
         local row = math.floor((idx - 1) / 2)
+        local tData = Library.Themes[thName]
 
-        local ThBtn = Instance.new("TextButton")
-        ThBtn.Size = UDim2.new(0.5, -15, 0, 26)
-        ThBtn.Position = UDim2.new(col * 0.5, col == 0 and 10 or 5, 0, 36 + (row * 30))
-        ThBtn.BackgroundColor3 = (thName == Library.CurrentThemeName) and Library.Theme.Header or Library.Theme.Block
-        ThBtn.BorderSizePixel = 0
-        ThBtn.Font = Library.Fonts.Badge
-        ThBtn.Text = "  " .. thName
-        ThBtn.TextColor3 = (thName == Library.CurrentThemeName) and Library.Theme.Accent or Library.Theme.TextDim
-        ThBtn.TextSize = 9.5
-        ThBtn.TextXAlignment = Enum.TextXAlignment.Left
-        ThBtn.ZIndex = 65
-        ThBtn.Parent = ThemeCard
-        addCorner(ThBtn, 5)
+        local CardBtn = Instance.new("TextButton")
+        CardBtn.Name = "ThemeCard_" .. thName
+        CardBtn.Size = UDim2.new(0.5, -5, 0, 56)
+        CardBtn.Position = UDim2.new(col * 0.5, col == 0 and 0 or 5, 0, row * 62)
+        CardBtn.BackgroundColor3 = (thName == Library.CurrentThemeName) and Library.Theme.Header or Library.Theme.Card
+        CardBtn.BorderSizePixel = 0
+        CardBtn.Text = ""
+        CardBtn.ZIndex = 65
+        CardBtn.Parent = GridHolder
+        addCorner(CardBtn, 6)
 
-        ThBtn.MouseEnter:Connect(function()
-            smoothTween(ThBtn, DUR_FAST, { BackgroundColor3 = Color3.fromRGB(255, 255, 255), TextColor3 = Color3.fromRGB(0, 0, 0) })
+        local CardStroke = Instance.new("UIStroke")
+        CardStroke.Color = (thName == Library.CurrentThemeName) and Library.Theme.StrokeActive or Library.Theme.Stroke
+        CardStroke.Thickness = (thName == Library.CurrentThemeName) and 1.4 or 1.0
+        CardStroke.Parent = CardBtn
+
+        -- Title Row
+        local TitleLbl = Instance.new("TextLabel")
+        TitleLbl.Size = UDim2.new(1, -70, 0, 18)
+        TitleLbl.Position = UDim2.new(0, 10, 0, 6)
+        TitleLbl.BackgroundTransparency = 1
+        TitleLbl.Font = Library.Fonts.Header
+        TitleLbl.Text = thName
+        TitleLbl.TextColor3 = (thName == Library.CurrentThemeName) and Library.Theme.Accent or Library.Theme.Text
+        TitleLbl.TextSize = 10
+        TitleLbl.TextXAlignment = Enum.TextXAlignment.Left
+        TitleLbl.TextTruncate = Enum.TextTruncate.AtEnd
+        TitleLbl.ZIndex = 66
+        TitleLbl.Parent = CardBtn
+
+        -- Active Status Badge
+        local StatusBadge = Instance.new("TextLabel")
+        StatusBadge.Size = UDim2.new(0, 55, 0, 16)
+        StatusBadge.Position = UDim2.new(1, -62, 0, 6)
+        StatusBadge.BackgroundTransparency = 1
+        StatusBadge.Font = Library.Fonts.Badge
+        StatusBadge.Text = (thName == Library.CurrentThemeName) and "[ ACTIVE ]" or ""
+        StatusBadge.TextColor3 = Library.Theme.Accent
+        StatusBadge.TextSize = 8.5
+        StatusBadge.TextXAlignment = Enum.TextXAlignment.Right
+        StatusBadge.ZIndex = 66
+        StatusBadge.Parent = CardBtn
+
+        -- Color Swatch Strip (4 Palette Swatches)
+        local SwatchStrip = Instance.new("Frame")
+        SwatchStrip.Size = UDim2.new(1, -20, 0, 18)
+        SwatchStrip.Position = UDim2.new(0, 10, 0, 28)
+        SwatchStrip.BackgroundTransparency = 1
+        SwatchStrip.ZIndex = 66
+        SwatchStrip.Parent = CardBtn
+
+        local SwatchLayout = Instance.new("UIListLayout")
+        SwatchLayout.FillDirection = Enum.FillDirection.Horizontal
+        SwatchLayout.Padding = UDim.new(0, 6)
+        SwatchLayout.Parent = SwatchStrip
+
+        if tData then
+            local swColors = { tData.Background, tData.Header, tData.Accent, tData.Text }
+            for sIdx, colorVal in ipairs(swColors) do
+                local SwatchDot = Instance.new("Frame")
+                SwatchDot.Size = UDim2.new(0, 16, 0, 16)
+                SwatchDot.BackgroundColor3 = colorVal
+                SwatchDot.BorderSizePixel = 0
+                SwatchDot.ZIndex = 67
+                SwatchDot.Parent = SwatchStrip
+                addCorner(SwatchDot, 4)
+
+                local SwDotStroke = Instance.new("UIStroke")
+                SwDotStroke.Color = Color3.fromRGB(60, 70, 85)
+                SwDotStroke.Thickness = 0.8
+                SwDotStroke.Parent = SwatchDot
+            end
+        end
+
+        CardBtn.MouseEnter:Connect(function()
+            if thName ~= Library.CurrentThemeName then
+                smoothTween(CardBtn, DUR_FAST, { BackgroundColor3 = Library.Theme.CardHover })
+                smoothTween(CardStroke, DUR_FAST, { Color = Library.Theme.StrokeHover })
+            end
         end)
-        ThBtn.MouseLeave:Connect(function()
-            local isMatch = (thName == Library.CurrentThemeName)
-            smoothTween(ThBtn, DUR_FAST, {
-                BackgroundColor3 = isMatch and Library.Theme.Header or Library.Theme.Block,
-                TextColor3 = isMatch and Library.Theme.Accent or Library.Theme.TextDim
-            })
+        CardBtn.MouseLeave:Connect(function()
+            if thName ~= Library.CurrentThemeName then
+                smoothTween(CardBtn, DUR_FAST, { BackgroundColor3 = Library.Theme.Card })
+                smoothTween(CardStroke, DUR_FAST, { Color = Library.Theme.Stroke })
+            end
         end)
 
-        ThBtn.MouseButton1Click:Connect(function()
+        CardBtn.MouseButton1Click:Connect(function()
             Library:SetTheme(thName)
         end)
+
+        table.insert(ThemeCardsTable, {
+            Name = thName,
+            Card = CardBtn,
+            Stroke = CardStroke,
+            Title = TitleLbl,
+            Status = StatusBadge
+        })
+    end
+
+    function Library:RefreshThemeGridUI()
+        ActiveBadgeText.Text = Library.CurrentThemeName
+        smoothTween(ThemeHeaderCard, DUR_NORMAL, { BackgroundColor3 = Library.Theme.Card })
+        smoothTween(ThemeHeaderStroke, DUR_NORMAL, { Color = Library.Theme.Stroke })
+        smoothTween(THTitle, DUR_NORMAL, { TextColor3 = Library.Theme.Accent })
+        smoothTween(THSubTitle, DUR_NORMAL, { TextColor3 = Library.Theme.TextDim })
+        smoothTween(ActiveBadgePill, DUR_NORMAL, { BackgroundColor3 = Library.Theme.Header })
+        smoothTween(ActiveBadgeStroke, DUR_NORMAL, { Color = Library.Theme.StrokeActive })
+        smoothTween(ActiveDot, DUR_NORMAL, { BackgroundColor3 = Library.Theme.Accent })
+        smoothTween(ActiveBadgeText, DUR_NORMAL, { TextColor3 = Library.Theme.Text })
+
+        for _, item in ipairs(ThemeCardsTable) do
+            local isMatch = (item.Name == Library.CurrentThemeName)
+            smoothTween(item.Card, DUR_NORMAL, {
+                BackgroundColor3 = isMatch and Library.Theme.Header or Library.Theme.Card
+            })
+            smoothTween(item.Stroke, DUR_NORMAL, {
+                Color = isMatch and Library.Theme.StrokeActive or Library.Theme.Stroke,
+                Thickness = isMatch and 1.4 or 1.0
+            })
+            smoothTween(item.Title, DUR_NORMAL, {
+                TextColor3 = isMatch and Library.Theme.Accent or Library.Theme.Text
+            })
+            item.Status.Text = isMatch and "[ ACTIVE ]" or ""
+            smoothTween(item.Status, DUR_NORMAL, { TextColor3 = Library.Theme.Accent })
+        end
     end
 end
 
@@ -4037,18 +4202,8 @@ function Library:SetTheme(themeName)
     st(UI.LoadIcon, { ImageColor3 = t.Text })
     st(UI.DeleteConfigBtn, { BackgroundColor3 = t.Header })
 
-    if UI.ThemeCard then
-        st(UI.ThemeCard, { BackgroundColor3 = t.Card })
-        st(UI.TCLabel, { TextColor3 = t.Accent })
-        for _, child in ipairs(UI.ThemeCard:GetChildren()) do
-            if child:IsA("TextButton") then
-                local isMatch = (child.Text:find(themeName, 1, true) ~= nil)
-                st(child, {
-                    BackgroundColor3 = isMatch and t.Header or t.Block,
-                    TextColor3 = isMatch and t.Accent or t.TextDim
-                })
-            end
-        end
+    if Library.RefreshThemeGridUI then
+        pcall(function() Library:RefreshThemeGridUI() end)
     end
 
     -- Update ALL Category Blocks and internal UI elements when theme changes
